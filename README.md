@@ -23,7 +23,7 @@ This [text editor example](https://github.com/webui-dev/deno-webui/tree/main/exa
 
 ## Installation
 
-`pip install webui2`
+`import * as webui from "https://deno.land/x/webui@latest/mod.ts";`
 
 ## Minimal Example
 

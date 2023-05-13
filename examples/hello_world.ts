@@ -3,7 +3,7 @@
 // deno run --allow-all --unstable hello_world.ts
 
 // Import WebUI module (Local file)
-import * as webui from "./webui.ts";
+import { webui } from "../mod.ts";
 
 // Optional - Set a custom library path:
 //  const lib_full_path = 'webui-2-x64.dll';
