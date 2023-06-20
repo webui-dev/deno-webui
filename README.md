@@ -23,12 +23,12 @@ This [text editor example](https://github.com/webui-dev/deno-webui/tree/main/exa
 
 ## Installation
 
-`import * as webui from "https://deno.land/x/webui@2.3.0/mod.ts";`
+`import { webui } from "https://deno.land/x/webui@2.3.0/mod.ts";`
 
 ## Minimal Example
 
 ```js
-import * as webui from "https://deno.land/x/webui@2.3.0/mod.ts";
+import { webui } from "https://deno.land/x/webui@2.3.0/mod.ts";
 
 const my_window = webui.new_window();
 webui.show(my_window, "<html>Hello World</html>");
