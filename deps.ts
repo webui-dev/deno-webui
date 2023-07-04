@@ -1,19 +1,19 @@
 //Preload lib files statically
 export {
   //@ts-ignore ejm serve { b64: string }
-  default as webuid2Windows,
+  default as webui2Windows,
 } from "https://ejm.sh/deno.land/x/webui@2.3.0/src/webui-2-x64.dll" assert {
   type: "json",
 };
 export {
   //@ts-ignore ejm serve { b64: string }
-  default as webuid2Linux,
+  default as webui2Linux,
 } from "https://ejm.sh/deno.land/x/webui@2.3.0/src/webui-2-x64.so" assert {
   type: "json",
 };
 export {
   //@ts-ignore ejm serve { b64: string }
-  default as webuid2Darwin,
+  default as webui2Darwin,
 } from "https://ejm.sh/deno.land/x/webui@2.3.0/src/webui-2-x64.dyn" assert {
   type: "json",
 };

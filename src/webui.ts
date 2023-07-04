@@ -76,7 +76,7 @@ export function setLibPath(path: string) {
  * ```
  */
 export async function newWindow(): Promise<Usize> {
-  if (loaded) {
+  if (!loaded) {
     webuiLib = await loadLib(libPath);
     loaded = true;
   }
