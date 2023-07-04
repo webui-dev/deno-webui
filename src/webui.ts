@@ -32,6 +32,9 @@ export const browser = {
 };
 
 type Usize = number | bigint;
+type BindCallback<T extends string | number | boolean | undefined | void> = (
+  event: event,
+) => T;
 
 export interface event {
   win: Usize;
@@ -45,6 +48,12 @@ export const js = {
   BufferSize: 1024 * 8,
   response: "",
 };
+
+interface Js {
+  timeout: number;
+  BufferSize: number;
+  response: string;
+}
 
 // Determine the library name based
 // on the current operating system
@@ -225,7 +234,7 @@ export function exit() {
   webui_lib.symbols.webui_exit();
 }
 
-export function script(win: Usize, js, script: string): boolean {
+export function script(win: Usize, js: Js, script: string): boolean {
   // Response Buffer
   const size: number = js.BufferSize > 0 ? js.BufferSize : 1024 * 8;
   const buffer = new Uint8Array(size);
@@ -255,10 +264,10 @@ export function run(win: Usize, script: string): boolean {
   return Boolean(status);
 }
 
-export function bind(
+export function bind<T extends string | number | boolean | undefined | void>(
   win: Usize,
   element: string,
-  func: (event: event) => string,
+  func: BindCallback<T>,
 ) {
   const callbackResource = new Deno.UnsafeCallback(
     {
