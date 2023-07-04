@@ -36,9 +36,9 @@ is written in Deno using WebUI as the GUI library.
 ```js
 import { webui } from "https://deno.land/x/webui@2.3.0/mod.ts";
 
-const myWindow = webui.newWindow();
-webui.show(myWindow, "<html>Hello World</html>");
-await webui.wait();
+const myWindow = new WebUi();
+webui.show("<html>Hello World</html>");
+await WebUi.wait();
 ```
 
 [More examples](https://github.com/webui-dev/deno-webui/tree/main/examples)
