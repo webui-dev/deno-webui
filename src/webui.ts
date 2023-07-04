@@ -10,7 +10,7 @@
   Canada.
 */
 
-import { existsSync } from "https://deno.land/std/fs/mod.ts";
+import { existsSync } from "https://deno.land/std@0.181.0/fs/mod.ts";
 
 export const version = '2.3.0';
 
@@ -33,8 +33,10 @@ export const browser = {
   Yandex: 10, // 10. The Yandex Browser
 };
 
+type Usize = number | bigint
+
 export interface event {
-  win: Deno.usize,
+  win: Usize,
   event_type: number,
   element: string,
   data: string,
@@ -104,7 +106,7 @@ function load_lib() {
   
   // Check if the library file exist
   if(!is_file_exist(lib_path)) {
-    let lib_path_cwd = get_current_module_path() + lib_name;
+    const lib_path_cwd = get_current_module_path() + lib_name;
     if(!is_file_exist(lib_path_cwd)) {
       console.log('WebUI Error: File not found (' + lib_path + ') or (' + lib_path_cwd + ')');
       Deno.exit(1);
@@ -188,17 +190,17 @@ export function set_lib_path(path: string) {
 	lib_path = path;
 }
 
-export function new_window(): Deno.usize {
+export function new_window(): Usize {
   load_lib();
 	return webui_lib.symbols.webui_new_window();
 }
 
-export function show(win: Deno.usize, content: string): number {
+export function show(win: Usize, content: string): number {
   load_lib();
   return webui_lib.symbols.webui_show(win, string_to_uint8array(content));
 }
 
-export function show_browser(win: Deno.usize, content: string, browser: number): number {
+export function show_browser(win: Usize, content: string, browser: number): number {
   load_lib();
   return webui_lib.symbols.webui_show_browser(win, string_to_uint8array(content), browser);
 }
@@ -208,7 +210,7 @@ export function exit() {
   webui_lib.symbols.webui_exit();
 }
 
-export function script(win: Deno.usize, js, script: string): boolean {
+export function script(win: Usize, js, script: string): boolean {
   load_lib();
 
   // Response Buffer
@@ -224,7 +226,7 @@ export function script(win: Deno.usize, js, script: string): boolean {
   return Boolean(status);
 }
 
-export function run(win: Deno.usize, script: string): boolean {
+export function run(win: Usize, script: string): boolean {
   load_lib();
 
   // Execute the script
@@ -233,7 +235,7 @@ export function run(win: Deno.usize, script: string): boolean {
   return Boolean(status);
 }
 
-export function bind(win: Deno.usize, element: string, func: Function) {
+export function bind(win: Usize, element: string, func: (event: event) => string) {
   load_lib();
   const callbackResource = new Deno.UnsafeCallback(
     {
@@ -242,19 +244,19 @@ export function bind(win: Deno.usize, element: string, func: Function) {
       result: 'void',
     } as const,
     (
-      param_window: Deno.usize,
-      param_event_type: Deno.u32,
-      param_element: Deno.Pointer,
-      param_data: Deno.Pointer,
-      param_event_number: Deno.u32
+      param_window: Usize,
+      param_event_type: number,
+      param_element: Deno.PointerValue,
+      param_data: Deno.PointerValue,
+      param_event_number: number
     ) => {
 
       // Create elements
       const win = param_window;
-      const event_type = parseInt(param_event_type);
+      const event_type = Math.trunc(param_event_type);
       const element = (param_element != null ? (new Deno.UnsafePointerView(param_element).getCString()) : "");
       const data = (param_data != null ? (new Deno.UnsafePointerView(param_data).getCString()) : "");
-      const event_number = parseInt(param_event_number);
+      const event_number = Math.trunc(param_event_number);
 
       // Create struct
       const e: event = {
