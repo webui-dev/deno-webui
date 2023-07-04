@@ -13,12 +13,7 @@
 import { existsSync } from "../deps.ts";
 import { loadLib } from "./lib.ts";
 import { BindCallback, Usize, WebUiEvent, WebUiLib } from "./types.ts";
-import {
-  sleep,
-  stringToUint8array,
-  uint8arrayToString,
-  WebUiError,
-} from "./utils.ts";
+import { stringToUint8array, uint8arrayToString, WebUiError } from "./utils.ts";
 
 //Register loaded lib (and allow mutiple lib source)
 const libs: Map<string | symbol, WebUiLib> = new Map();
@@ -344,9 +339,6 @@ export class WebUi {
     );
   }
 
-  // TODO: We should use the Non-blocking FFI to call
-  // `webui_lib.symbols.webui_wait()`. but it breaks
-  // the Deno script main thread. Lets do it in another way for now.
   /**
    * Waits until all web UI was closed for preventing exiting the main thread.
    * @exemple
@@ -360,13 +352,9 @@ export class WebUi {
    * ```
    */
   static async wait() {
-    while (true) {
-      await sleep(10);
-      if (
-        Array.from(libs.values()).some((lib) =>
-          !lib.symbols.webui_interface_is_app_running()
-        )
-      ) break;
+    //Wait for all opened lib to resolve
+    for (const lib of libs.values()) {
+      await lib.symbols.webui_wait();
     }
   }
 

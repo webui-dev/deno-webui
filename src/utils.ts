@@ -54,10 +54,4 @@ export function uint8arrayToString(value: ArrayBuffer): string {
   return new TextDecoder().decode(value);
 }
 
-/**
- * Sleep for an amount of milliseconds.
- * @param {number} ms
- */
-export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
 export class WebUiError extends Error {}
