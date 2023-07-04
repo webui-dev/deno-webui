@@ -39,16 +39,22 @@ export const js = {
   response: "",
 };
 
-const webuiLib = await loadLib();
+let webuiLib: Awaited<ReturnType<typeof loadLib>>;
+let loaded = false;
+let libPath: string | undefined = undefined;
 
-export function setLibPath(_path: string) {
-  if (!existsSync(_path)) {
-    throw new Error(`WebUI: File not found "${_path}"`);
+export function setLibPath(path: string) {
+  if (!existsSync(path)) {
+    throw new Error(`WebUI: File not found "${path}"`);
   }
-  // libPath = path;
+  libPath = path;
 }
 
-export function newWindow(): Usize {
+export async function newWindow(): Promise<Usize> {
+  if (loaded) {
+    webuiLib = await loadLib(libPath);
+    loaded = true;
+  }
   return webuiLib.symbols.webui_new_window();
 }
 
