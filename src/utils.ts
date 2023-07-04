@@ -18,14 +18,16 @@ export function b64ToBuffer(b64: string): Uint8Array {
  * library file that will be written.
  * @param {Uint8Array} libBuffer - The `libBuffer` parameter is a `Uint8Array` that represents the
  * binary data of the library file that needs to be written.
+ * @param {boolean} clearCache - Force to clear lib cache.
  * @returns lib full path.
  */
 export function writeLib(
   libName: string,
   libBuffer: Uint8Array,
+  clearCache: boolean,
 ): string {
   const libPath = path.join(osPaths.temp(), libName);
-  if (!existsSync(libPath)) {
+  if (!existsSync(libPath) || clearCache) {
     Deno.writeFileSync(libPath, libBuffer);
   }
   if (!existsSync(libPath)) {

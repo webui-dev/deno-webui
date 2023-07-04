@@ -1,6 +1,8 @@
 import { webui2Darwin, webui2Linux, webui2Windows } from "../deps.ts";
 import { b64ToBuffer, writeLib } from "./utils.ts";
-export function loadLib(libPath?: string) {
+export function loadLib(
+  { libPath, clearCache }: { libPath?: string; clearCache: boolean },
+) {
   // Determine the library name based
   // on the current operating system
   const libName = (() => {
@@ -29,7 +31,7 @@ export function loadLib(libPath?: string) {
   })();
 
   // Use user defined lib or cached one
-  const libFullPath = libPath ?? writeLib(libName, libBuffer);
+  const libFullPath = libPath ?? writeLib(libName, libBuffer, clearCache);
 
   return Deno.dlopen(
     libFullPath,
