@@ -12,6 +12,8 @@
 
 import { loadLib } from "./lib.ts";
 import { BindCallback, Event, Js, Usize } from "./types.ts";
+import { existsSync } from "../deps.ts";
+import { sleep, stringToUint8array, uint8arrayToString } from "./utils.ts";
 
 export type { Event } from "./types.ts";
 
@@ -37,19 +39,12 @@ export const js = {
   response: "",
 };
 
-const webuiLib = loadLib();
-
-// Convert String to C-String
-function stringToUint8array(value: string): Uint8Array {
-  return new TextEncoder().encode(value + "\0");
-}
-
-// Convert C-String to String
-function uint8arrayToString(value: ArrayBuffer): string {
-  return new TextDecoder().decode(value);
-}
+const webuiLib = await loadLib();
 
 export function setLibPath(_path: string) {
+  if (!existsSync(_path)) {
+    throw new Error(`WebUI: File not found "${_path}"`);
+  }
   // libPath = path;
 }
 
@@ -176,7 +171,6 @@ export function bind<T extends string | number | boolean | undefined | void>(
 // TODO: We should use the Non-blocking FFI to call
 // `webui_lib.symbols.webui_wait()`. but it breaks
 // the Deno script main thread. Lets do it in another way for now.
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export async function wait() {
   while (true) {
     await sleep(10);

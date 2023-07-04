@@ -1,40 +1,35 @@
-import { existsSync } from "https://deno.land/std@0.192.0/fs/mod.ts";
-import * as path from "https://deno.land/std@0.192.0/path/mod.ts";
+import { webuid2Darwin, webuid2Linux, webuid2Windows } from "../deps.ts";
+import { b64ToBuffer, writeLib } from "./utils.ts";
+export async function loadLib(libPath?: string) {
+  // Determine the library name based
+  // on the current operating system
+  const libName = (() => {
+    switch (Deno.build.os) {
+      case "windows":
+        return "webui-2-x64.dll";
+      case "darwin":
+        return "webui-2-x64.dyn";
+      default:
+        return "webui-2-x64.so";
+    }
+  })();
 
-// Check if a file exist
-function isFileExist(path: string): boolean {
-  return existsSync(path);
-}
+  const libBuffer = (() => {
+    if (libPath !== undefined) {
+      switch (Deno.build.os) {
+        case "windows":
+          return b64ToBuffer(webuid2Windows.b64);
+        case "darwin":
+          return b64ToBuffer(webuid2Darwin.b64);
+        default:
+          return b64ToBuffer(webuid2Linux.b64);
+      }
+    }
+    return new Uint8Array();
+  })();
 
-// Get current folder path
-function getCurrentModulePath(libPath: string): string {
-  const fsPath = path.fromFileUrl(import.meta.url);
-  const { dir } = path.parse(fsPath);
-  return path.join(dir, libPath);
-}
-
-// Determine the library name based
-// on the current operating system
-const libName = (() => {
-  switch (Deno.build.os) {
-    case "windows":
-      return "webui-2-x64.dll";
-    case "darwin":
-      return "webui-2-x64.dyn";
-    default:
-      return "webui-2-x64.so";
-  }
-})();
-
-export function loadLib(libPath?: string) {
-  // Check if the library file exist
-  const libFullPath = libPath ?? getCurrentModulePath(libName);
-  if (!isFileExist(libFullPath)) {
-    console.error(
-      `WebUI Error: File not found ("${libPath}") or ("${libFullPath}")`,
-    );
-    Deno.exit(1);
-  }
+  // Use user defined lib or cached one
+  const libFullPath = libPath ?? await writeLib(libName, libBuffer);
 
   return Deno.dlopen(
     libFullPath,
