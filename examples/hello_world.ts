@@ -88,7 +88,7 @@ const my_window = webui.newWindow();
 
 // Bind
 webui.bind(my_window, "Calculate", calculate);
-webui.bind(my_window, "Exit", function (e: webui.Event) {
+webui.bind(my_window, "Exit", function (_e: webui.Event) {
   // Close all windows and exit
   webui.exit();
 });
