@@ -1,9 +1,8 @@
-import { existsSync } from "https://deno.land/std@0.181.0/fs/mod.ts";
+import { existsSync } from "https://deno.land/std@0.192.0/fs/mod.ts";
 import * as path from "https://deno.land/std@0.192.0/path/mod.ts";
 
 // Check if a file exist
 function isFileExist(path: string): boolean {
-  // TODO: existsSync() is deprecated
   return existsSync(path);
 }
 
