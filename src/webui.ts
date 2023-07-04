@@ -16,8 +16,6 @@ export const version = '2.3.0';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
-let lib_loaded = false;
-let webui_lib;
 
 export const browser = {
   AnyBrowser: 0, // 0. Default recommended web browser
@@ -100,119 +98,106 @@ function uint8array_to_string(value: ArrayBuffer): string {
 }
 
 // Load the library
-function load_lib() {
-  if(lib_loaded)
-    return;
-  
-  // Check if the library file exist
-  if(!is_file_exist(lib_path)) {
-    const lib_path_cwd = get_current_module_path() + lib_name;
-    if(!is_file_exist(lib_path_cwd)) {
-      console.log('WebUI Error: File not found (' + lib_path + ') or (' + lib_path_cwd + ')');
-      Deno.exit(1);
-    }
-    lib_path = lib_path_cwd;
+
+// Check if the library file exist
+if(!is_file_exist(lib_path)) {
+  const lib_path_cwd = get_current_module_path() + lib_name;
+  if(!is_file_exist(lib_path_cwd)) {
+    console.log('WebUI Error: File not found (' + lib_path + ') or (' + lib_path_cwd + ')');
+    Deno.exit(1);
   }
-
-  // Load the library
-  // FFI
-  webui_lib = Deno.dlopen(
-    lib_path,
-    {
-      webui_wait: {
-        // void webui_wait(void)
-        parameters: [],
-        result: 'void',
-        nonblocking: true,
-      },
-      webui_interface_is_app_running: {
-        // bool webui_interface_is_app_running(void)
-        parameters: [],
-        result: 'i32',
-        nonblocking: false,
-      },
-      webui_new_window: {
-        // size_t webui_new_window(void)
-        parameters: [],
-        result: 'usize',
-        nonblocking: false,
-      },
-      webui_show: {
-        // bool webui_show(size_t window, const char* content)
-        parameters: ['usize', 'buffer'],
-        result: 'i32',
-        nonblocking: false,
-      },
-      webui_show_browser: {
-        // bool webui_show_browser(size_t window, const char* content, unsigned int browser)
-        parameters: ['usize', 'buffer', 'u32'],
-        result: 'i32',
-        nonblocking: false,
-      },
-      webui_interface_bind: {
-        // unsigned int webui_interface_bind(size_t window, const char* element, void (*func)(size_t, unsigned int, char*, char*, unsigned int))
-        parameters: ['usize', 'buffer', 'function'],
-        result: 'u32',
-        nonblocking: false,
-      },
-      webui_script: {
-        // bool webui_script(size_t window, const char* script, unsigned int timeout, char* buffer, size_t buffer_length)
-        parameters: ['usize', 'buffer', 'u32', 'buffer', 'i32'],
-        result: 'i32',
-        nonblocking: false,
-      },
-      webui_run: {
-        // bool webui_run(size_t window, const char* script)
-        parameters: ['usize', 'buffer'],
-        result: 'i32',
-        nonblocking: false,
-      },
-      webui_interface_set_response: {
-        // void webui_interface_set_response(size_t window, unsigned int event_number, const char* response)
-        parameters: ['usize', 'u32', 'buffer'],
-        result: 'void',
-        nonblocking: false,
-      },
-      webui_exit: {
-        // void webui_exit(void)
-        parameters: [],
-        result: 'void',
-        nonblocking: false,
-      }
-    } as const,
-  );
-
-  // Make sure we don't load twice
-  lib_loaded = true;
+  lib_path = lib_path_cwd;
 }
+
+// Load the library
+// FFI
+const webui_lib = Deno.dlopen(
+  lib_path,
+  {
+    webui_wait: {
+      // void webui_wait(void)
+      parameters: [],
+      result: 'void',
+      nonblocking: true,
+    },
+    webui_interface_is_app_running: {
+      // bool webui_interface_is_app_running(void)
+      parameters: [],
+      result: 'i32',
+      nonblocking: false,
+    },
+    webui_new_window: {
+      // size_t webui_new_window(void)
+      parameters: [],
+      result: 'usize',
+      nonblocking: false,
+    },
+    webui_show: {
+      // bool webui_show(size_t window, const char* content)
+      parameters: ['usize', 'buffer'],
+      result: 'i32',
+      nonblocking: false,
+    },
+    webui_show_browser: {
+      // bool webui_show_browser(size_t window, const char* content, unsigned int browser)
+      parameters: ['usize', 'buffer', 'u32'],
+      result: 'i32',
+      nonblocking: false,
+    },
+    webui_interface_bind: {
+      // unsigned int webui_interface_bind(size_t window, const char* element, void (*func)(size_t, unsigned int, char*, char*, unsigned int))
+      parameters: ['usize', 'buffer', 'function'],
+      result: 'u32',
+      nonblocking: false,
+    },
+    webui_script: {
+      // bool webui_script(size_t window, const char* script, unsigned int timeout, char* buffer, size_t buffer_length)
+      parameters: ['usize', 'buffer', 'u32', 'buffer', 'i32'],
+      result: 'i32',
+      nonblocking: false,
+    },
+    webui_run: {
+      // bool webui_run(size_t window, const char* script)
+      parameters: ['usize', 'buffer'],
+      result: 'i32',
+      nonblocking: false,
+    },
+    webui_interface_set_response: {
+      // void webui_interface_set_response(size_t window, unsigned int event_number, const char* response)
+      parameters: ['usize', 'u32', 'buffer'],
+      result: 'void',
+      nonblocking: false,
+    },
+    webui_exit: {
+      // void webui_exit(void)
+      parameters: [],
+      result: 'void',
+      nonblocking: false,
+    }
+  } as const,
+);
 
 export function set_lib_path(path: string) {
 	lib_path = path;
 }
 
 export function new_window(): Usize {
-  load_lib();
 	return webui_lib.symbols.webui_new_window();
 }
 
 export function show(win: Usize, content: string): number {
-  load_lib();
   return webui_lib.symbols.webui_show(win, string_to_uint8array(content));
 }
 
 export function show_browser(win: Usize, content: string, browser: number): number {
-  load_lib();
   return webui_lib.symbols.webui_show_browser(win, string_to_uint8array(content), browser);
 }
 
 export function exit() {
-  load_lib();
   webui_lib.symbols.webui_exit();
 }
 
 export function script(win: Usize, js, script: string): boolean {
-  load_lib();
-
   // Response Buffer
   const size: number = (js.BufferSize > 0 ? js.BufferSize: (1024 * 8));
   const buffer = new Uint8Array(size);
@@ -227,8 +212,6 @@ export function script(win: Usize, js, script: string): boolean {
 }
 
 export function run(win: Usize, script: string): boolean {
-  load_lib();
-
   // Execute the script
   const status = webui_lib.symbols.webui_run(win, string_to_uint8array(script));
 
@@ -236,7 +219,6 @@ export function run(win: Usize, script: string): boolean {
 }
 
 export function bind(win: Usize, element: string, func: (event: event) => string) {
-  load_lib();
   const callbackResource = new Deno.UnsafeCallback(
     {
       // unsigned int webui_interface_bind(..., void (*func)(size_t, unsigned int, char*, char*, unsigned int))
@@ -282,7 +264,6 @@ export function bind(win: Usize, element: string, func: (event: event) => string
 // the Deno script main thread. Lets do it in another way for now.
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export async function wait() {
-  load_lib();
   while(true) {
     await sleep(10);
     if(!webui_lib.symbols.webui_interface_is_app_running())
