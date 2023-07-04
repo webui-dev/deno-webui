@@ -1,4 +1,5 @@
-import { exists, osPaths, path } from "../deps.ts";
+import { existsSync } from "https://deno.land/std@0.192.0/fs/exists.ts";
+import { osPaths, path } from "../deps.ts";
 
 /**
  * The function converts a base64 string to a Uint8Array buffer.
@@ -17,17 +18,17 @@ export function b64ToBuffer(b64: string): Uint8Array {
  * library file that will be written.
  * @param {Uint8Array} libBuffer - The `libBuffer` parameter is a `Uint8Array` that represents the
  * binary data of the library file that needs to be written.
- * @returns a promise that resolves to a string.
+ * @returns lib full path.
  */
-export async function writeLib(
+export function writeLib(
   libName: string,
   libBuffer: Uint8Array,
-): Promise<string> {
+): string {
   const libPath = path.join(osPaths.temp(), libName);
-  if (!await exists(libPath)) {
-    await Deno.writeFile(libPath, libBuffer);
+  if (!existsSync(libPath)) {
+    Deno.writeFileSync(libPath, libBuffer);
   }
-  if (!await exists(libPath)) {
+  if (!existsSync(libPath)) {
     throw new WebUiError(`Can't write ${libName} at ${libPath}`);
   }
   return libPath;
