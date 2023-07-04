@@ -1,3 +1,5 @@
+import { loadLib } from "./lib.ts";
+
 export type Usize = number | bigint;
 
 export type BindCallback<
@@ -6,15 +8,11 @@ export type BindCallback<
   event: Event,
 ) => T;
 
-export interface Js {
-  timeout: number;
-  bufferSize: number;
-  response: string;
-}
-
 export interface Event {
   win: Usize;
   eventType: number;
   element: string;
   data: string;
 }
+
+export type WebUiLib = Awaited<ReturnType<typeof loadLib>>;
