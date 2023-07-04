@@ -30,4 +30,3 @@
  * @license MIT
  */
 export { WebUi } from "./src/webui.ts";
-export type { WebUiEvent } from "./src/types.ts";

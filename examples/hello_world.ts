@@ -2,7 +2,7 @@
 // deno run --allow-all --unstable hello_world.ts
 
 // Import WebUI module (Local file)
-import { WebUi, WebUiEvent } from "../mod.ts";
+import { WebUi } from "../mod.ts";
 
 // Optional - Set a custom library path:
 //  const libPath = './webui-2-x64.dll';
@@ -48,7 +48,7 @@ const myHtml = `
 </html>
 `;
 
-async function calculate({ window }: WebUiEvent) {
+async function calculate({ window }: WebUi.Event) {
   // Settings if needed
   // timeout = 30 // Set javascript execution timeout
   // bufferSize = 64 // Set the response size in bytes
