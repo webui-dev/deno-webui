@@ -1,4 +1,3 @@
-
 // Run this script by:
 // deno run --allow-all --unstable hello_world.ts
 
@@ -6,11 +5,11 @@
 import { webui } from "../mod.ts";
 
 // Optional - Set a custom library path:
-//  const lib_full_path = 'webui-2-x64.dll';
-//  console.log("Looking for the WebUI dynamic library at: " + lib_full_path);
-//  webui.set_lib_path(lib_full_path);
+//  const libFullPath = 'webui-2-x64.dll';
+//  console.log("Looking for the WebUI dynamic library at: " + libFullPath);
+//  webui.setLibPath(libFullPath);
 
-const my_html = `
+const myHtml = `
 <!DOCTYPE html>
 <html>
 	<head>
@@ -49,54 +48,53 @@ const my_html = `
 </html>
 `;
 
-function calculate(e : webui.event) {
-
+function calculate(e: webui.Event) {
   // Create a JavaScript object
-  const my_js = webui.js;
+  const myJs = webui.js;
 
   // Settings if needed
   // my_js.timeout = 30; // Set javascript execution timeout
   // my_js.response_size = 64; // Set the response size in bytes
 
   // Call a js function
-  if(!webui.script(e.win, my_js, "return get_A()")) {
+  if (!webui.script(e.win, myJs, "return get_A()")) {
     // Error
-    console.log("Error in the JavaScript: " + my_js.response);
+    console.log("Error in the JavaScript: " + myJs.response);
     return;
   }
 
   // Get A
-  const A = my_js.response;
+  const A = myJs.response;
 
   // Call a js function
-  if(!webui.script(e.win, my_js, "return get_B();")) {
+  if (!webui.script(e.win, myJs, "return get_B();")) {
     // Error
-    console.log("Error in the JavaScript: " + my_js.response);
+    console.log("Error in the JavaScript: " + myJs.response);
     return;
   }
 
   // Get B
-  const B = my_js.response;
+  const B = myJs.response;
 
   // Calculate
-  const C : number = parseInt(A) + parseInt(B);
+  const C: number = parseInt(A) + parseInt(B);
 
   // Run js (Quick Way)
   webui.run(e.win, "set_result(" + C + ");");
 }
 
 // Create new window
-const my_window = webui.new_window();
+const myWindow = await webui.newWindow();
 
 // Bind
-webui.bind(my_window, "Calculate", calculate);
-webui.bind(my_window, "Exit", function(e : webui.event) {
+webui.bind(myWindow, "Calculate", calculate);
+webui.bind(myWindow, "Exit", function (_e: webui.Event) {
   // Close all windows and exit
   webui.exit();
 });
 
 // Show the window
-webui.show(my_window, my_html); // Or webui.show(my_window, 'hello_world.html');
+webui.show(myWindow, myHtml); // Or webui.show(myWindow, 'hello_world.html');
 
 // Wait until all windows get closed
 await webui.wait();
