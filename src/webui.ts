@@ -10,12 +10,12 @@
   Canada.
 */
 
-import { existsSync } from "https://deno.land/std@0.181.0/fs/mod.ts";
+import { loadLib } from "./lib.ts";
+import { BindCallback, Event, Js, Usize } from "./types.ts";
+
+export type { Event } from "./types.ts";
 
 export const version = "2.3.0";
-
-const encoder = new TextEncoder();
-const decoder = new TextDecoder();
 
 export const browser = {
   AnyBrowser: 0, // 0. Default recommended web browser
@@ -31,173 +31,26 @@ export const browser = {
   Yandex: 10, // 10. The Yandex Browser
 };
 
-type Usize = number | bigint;
-type BindCallback<T extends string | number | boolean | undefined | void> = (
-  event: Event,
-) => T;
-
-export interface Event {
-  win: Usize;
-  eventType: number;
-  element: string;
-  data: string;
-}
-
 export const js = {
   timeout: 0,
   bufferSize: 1024 * 8,
   response: "",
 };
 
-interface Js {
-  timeout: number;
-  bufferSize: number;
-  response: string;
-}
-
-// Determine the library name based
-// on the current operating system
-let libName: string;
-let osSep: string;
-if (Deno.build.os === "windows") {
-  libName = "webui-2-x64.dll";
-  osSep = "\\";
-} else if (Deno.build.os === "linux") {
-  libName = "webui-2-x64.so";
-  osSep = "/";
-} else {
-  libName = "webui-2-x64.dyn";
-  osSep = "/";
-}
-
-// Full path to the library name
-let libPath = "./" + libName;
-
-// Check if a file exist
-function isFileExist(path: string): boolean {
-  // TODO: existsSync() is deprecated
-  return existsSync(path);
-}
+const webuiLib = loadLib();
 
 // Convert String to C-String
 function stringToUint8array(value: string): Uint8Array {
-  return encoder.encode(value + "\0");
-}
-
-// Get current folder path
-function getCurrentModulePath(): string {
-  const __dirname = new URL(".", import.meta.url).pathname;
-  let directory = String(__dirname);
-  if (Deno.build.os === "windows") {
-    // Remove '/'
-    let buf = directory.substring(1);
-    directory = buf;
-    // Replace '/' by '\'
-    buf = directory.replaceAll("/", osSep);
-    directory = buf;
-  }
-  return directory;
+  return new TextEncoder().encode(value + "\0");
 }
 
 // Convert C-String to String
 function uint8arrayToString(value: ArrayBuffer): string {
-  return decoder.decode(value);
+  return new TextDecoder().decode(value);
 }
 
-// Load the library
-
-// Check if the library file exist
-if (!isFileExist(libPath)) {
-  const libPathCwd = getCurrentModulePath() + libName;
-  if (!isFileExist(libPathCwd)) {
-    console.log(
-      "WebUI Error: File not found (" +
-        libPath +
-        ") or (" +
-        libPathCwd +
-        ")",
-    );
-    Deno.exit(1);
-  }
-  libPath = libPathCwd;
-}
-
-// Load the library
-// FFI
-const webuiLib = Deno.dlopen(
-  libPath,
-  {
-    webui_wait: {
-      // void webui_wait(void)
-      parameters: [],
-      result: "void",
-      nonblocking: true,
-    },
-    webui_interface_is_app_running: {
-      // bool webui_interface_is_app_running(void)
-      parameters: [],
-      result: "i32",
-    },
-    webui_new_window: {
-      // size_t webui_new_window(void)
-      parameters: [],
-      result: "usize",
-    },
-    webui_show: {
-      // bool webui_show(size_t window, const char* content)
-      parameters: ["usize", "buffer"],
-      result: "i32",
-    },
-    webui_show_browser: {
-      // bool webui_show_browser(size_t window, const char* content, unsigned int browser)
-      parameters: ["usize", "buffer", "u32"],
-      result: "i32",
-    },
-    webui_interface_bind: {
-      // unsigned int webui_interface_bind(size_t window, const char* element, void (*func)(size_t, unsigned int, char*, char*, unsigned int))
-      parameters: ["usize", "buffer", "function"],
-      result: "u32",
-    },
-    webui_script: {
-      // bool webui_script(size_t window, const char* script, unsigned int timeout, char* buffer, size_t buffer_length)
-      parameters: ["usize", "buffer", "u32", "buffer", "i32"],
-      result: "i32",
-    },
-    webui_run: {
-      // bool webui_run(size_t window, const char* script)
-      parameters: ["usize", "buffer"],
-      result: "i32",
-    },
-    webui_interface_set_response: {
-      // void webui_interface_set_response(size_t window, unsigned int event_number, const char* response)
-      parameters: ["usize", "u32", "buffer"],
-      result: "void",
-    },
-    webui_exit: {
-      // void webui_exit(void)
-      parameters: [],
-      result: "void",
-    },
-    webui_is_shown: {
-      //bool webui_is_shown(size_t window)
-      parameters: ["usize"],
-      result: "bool",
-    },
-    webui_close: {
-      //void webui_close(size_t window)
-      parameters: ["usize"],
-      result: "void",
-    },
-    webui_set_multi_access: {
-      //void webui_set_multi_access(size_t window, bool status)
-      parameters: ["usize", "bool"],
-      result: "void",
-    },
-  } as const,
-);
-
-export function setLibPath(path: string) {
-  libPath = path;
+export function setLibPath(_path: string) {
+  // libPath = path;
 }
 
 export function newWindow(): Usize {
