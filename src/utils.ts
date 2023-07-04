@@ -38,3 +38,5 @@ export function uint8arrayToString(value: ArrayBuffer): string {
 }
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+export class WebUiError extends Error {}
