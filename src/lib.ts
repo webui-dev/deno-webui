@@ -1,4 +1,5 @@
 import { existsSync } from "https://deno.land/std@0.181.0/fs/mod.ts";
+import * as path from "https://deno.land/std@0.192.0/path/mod.ts";
 
 // Check if a file exist
 function isFileExist(path: string): boolean {
@@ -7,54 +8,37 @@ function isFileExist(path: string): boolean {
 }
 
 // Get current folder path
-function getCurrentModulePath(): string {
-  const __dirname = new URL(".", import.meta.url).pathname;
-  let directory = String(__dirname);
-  if (Deno.build.os === "windows") {
-    // Remove '/'
-    let buf = directory.substring(1);
-    directory = buf;
-    // Replace '/' by '\'
-    buf = directory.replaceAll("/", osSep);
-    directory = buf;
-  }
-  return directory;
+function getCurrentModulePath(libPath: string): string {
+  const fsPath = path.fromFileUrl(import.meta.url);
+  const { dir } = path.parse(fsPath);
+  return path.join(dir, libPath);
 }
 
 // Determine the library name based
 // on the current operating system
-let libName: string;
-let osSep: string;
-if (Deno.build.os === "windows") {
-  libName = "webui-2-x64.dll";
-  osSep = "\\";
-} else if (Deno.build.os === "linux") {
-  libName = "webui-2-x64.so";
-  osSep = "/";
-} else {
-  libName = "webui-2-x64.dyn";
-  osSep = "/";
-}
+const libName = (() => {
+  switch (Deno.build.os) {
+    case "windows":
+      return "webui-2-x64.dll";
+    case "darwin":
+      return "webui-2-x64.dyn";
+    default:
+      return "webui-2-x64.so";
+  }
+})();
 
 export function loadLib(libPath?: string) {
   // Check if the library file exist
-  if (!isFileExist(libPath ?? `./${libName}`)) {
-    const libPathCwd = getCurrentModulePath() + libName;
-    if (!isFileExist(libPathCwd)) {
-      console.log(
-        "WebUI Error: File not found (" +
-          libPath +
-          ") or (" +
-          libPathCwd +
-          ")",
-      );
-      Deno.exit(1);
-    }
-    libPath = libPathCwd;
+  const libFullPath = libPath ?? getCurrentModulePath(libName);
+  if (!isFileExist(libFullPath)) {
+    console.error(
+      `WebUI Error: File not found ("${libPath}") or ("${libFullPath}")`,
+    );
+    Deno.exit(1);
   }
 
   return Deno.dlopen(
-    libPath!,
+    libFullPath,
     {
       webui_wait: {
         // void webui_wait(void)
