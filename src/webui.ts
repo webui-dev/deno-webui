@@ -33,59 +33,59 @@ export const browser = {
 
 type Usize = number | bigint;
 type BindCallback<T extends string | number | boolean | undefined | void> = (
-  event: event,
+  event: Event,
 ) => T;
 
-export interface event {
+export interface Event {
   win: Usize;
-  event_type: number;
+  eventType: number;
   element: string;
   data: string;
 }
 
 export const js = {
   timeout: 0,
-  BufferSize: 1024 * 8,
+  bufferSize: 1024 * 8,
   response: "",
 };
 
 interface Js {
   timeout: number;
-  BufferSize: number;
+  bufferSize: number;
   response: string;
 }
 
 // Determine the library name based
 // on the current operating system
-let lib_name: string;
-let os_sep: string;
+let libName: string;
+let osSep: string;
 if (Deno.build.os === "windows") {
-  lib_name = "webui-2-x64.dll";
-  os_sep = "\\";
+  libName = "webui-2-x64.dll";
+  osSep = "\\";
 } else if (Deno.build.os === "linux") {
-  lib_name = "webui-2-x64.so";
-  os_sep = "/";
+  libName = "webui-2-x64.so";
+  osSep = "/";
 } else {
-  lib_name = "webui-2-x64.dyn";
-  os_sep = "/";
+  libName = "webui-2-x64.dyn";
+  osSep = "/";
 }
 
 // Full path to the library name
-let lib_path = "./" + lib_name;
+let libPath = "./" + libName;
 
 // Check if a file exist
-function is_file_exist(path: string): boolean {
+function isFileExist(path: string): boolean {
   // TODO: existsSync() is deprecated
   return existsSync(path);
 }
 
 // Convert String to C-String
-function string_to_uint8array(value: string): Uint8Array {
+function stringToUint8array(value: string): Uint8Array {
   return encoder.encode(value + "\0");
 }
 
 // Get current folder path
-function get_current_module_path(): string {
+function getCurrentModulePath(): string {
   const __dirname = new URL(".", import.meta.url).pathname;
   let directory = String(__dirname);
   if (Deno.build.os === "windows") {
@@ -93,39 +93,39 @@ function get_current_module_path(): string {
     let buf = directory.substring(1);
     directory = buf;
     // Replace '/' by '\'
-    buf = directory.replaceAll("/", os_sep);
+    buf = directory.replaceAll("/", osSep);
     directory = buf;
   }
   return directory;
 }
 
 // Convert C-String to String
-function uint8array_to_string(value: ArrayBuffer): string {
+function uint8arrayToString(value: ArrayBuffer): string {
   return decoder.decode(value);
 }
 
 // Load the library
 
 // Check if the library file exist
-if (!is_file_exist(lib_path)) {
-  const lib_path_cwd = get_current_module_path() + lib_name;
-  if (!is_file_exist(lib_path_cwd)) {
+if (!isFileExist(libPath)) {
+  const libPathCwd = getCurrentModulePath() + libName;
+  if (!isFileExist(libPathCwd)) {
     console.log(
       "WebUI Error: File not found (" +
-        lib_path +
+        libPath +
         ") or (" +
-        lib_path_cwd +
+        libPathCwd +
         ")",
     );
     Deno.exit(1);
   }
-  lib_path = lib_path_cwd;
+  libPath = libPathCwd;
 }
 
 // Load the library
 // FFI
-const webui_lib = Deno.dlopen(
-  lib_path,
+const webuiLib = Deno.dlopen(
+  libPath,
   {
     webui_wait: {
       // void webui_wait(void)
@@ -196,69 +196,69 @@ const webui_lib = Deno.dlopen(
   } as const,
 );
 
-export function set_lib_path(path: string) {
-  lib_path = path;
+export function setLibPath(path: string) {
+  libPath = path;
 }
 
-export function new_window(): Usize {
-  return webui_lib.symbols.webui_new_window();
+export function newWindow(): Usize {
+  return webuiLib.symbols.webui_new_window();
 }
 
 export function show(win: Usize, content: string): number {
-  return webui_lib.symbols.webui_show(win, string_to_uint8array(content));
+  return webuiLib.symbols.webui_show(win, stringToUint8array(content));
 }
 
-export function show_browser(
+export function showBrowser(
   win: Usize,
   content: string,
   browser: number,
 ): number {
-  return webui_lib.symbols.webui_show_browser(
+  return webuiLib.symbols.webui_show_browser(
     win,
-    string_to_uint8array(content),
+    stringToUint8array(content),
     browser,
   );
 }
 
-export function webui_is_shown(win: Usize) {
-  return webui_lib.symbols.webui_is_shown(win);
+export function isShown(win: Usize) {
+  return webuiLib.symbols.webui_is_shown(win);
 }
-export function webui_close(win: Usize) {
-  return webui_lib.symbols.webui_close(win);
+export function close(win: Usize) {
+  return webuiLib.symbols.webui_close(win);
 }
-export function webui_set_multi_access(win: Usize, status: boolean) {
-  return webui_lib.symbols.webui_set_multi_access(win, status);
+export function setMultiAccess(win: Usize, status: boolean) {
+  return webuiLib.symbols.webui_set_multi_access(win, status);
 }
 
 export function exit() {
-  webui_lib.symbols.webui_exit();
+  webuiLib.symbols.webui_exit();
 }
 
 export function script(win: Usize, js: Js, script: string): boolean {
   // Response Buffer
-  const size: number = js.BufferSize > 0 ? js.BufferSize : 1024 * 8;
+  const size: number = js.bufferSize > 0 ? js.bufferSize : 1024 * 8;
   const buffer = new Uint8Array(size);
 
   // Execute the script
-  const status = webui_lib.symbols.webui_script(
+  const status = webuiLib.symbols.webui_script(
     win,
-    string_to_uint8array(script),
+    stringToUint8array(script),
     js.timeout,
     buffer,
     size,
   );
 
   // Update
-  js.response = String(uint8array_to_string(buffer));
+  js.response = String(uint8arrayToString(buffer));
 
   return Boolean(status);
 }
 
 export function run(win: Usize, script: string): boolean {
   // Execute the script
-  const status = webui_lib.symbols.webui_run(
+  const status = webuiLib.symbols.webui_run(
     win,
-    string_to_uint8array(script),
+    stringToUint8array(script),
   );
 
   return Boolean(status);
@@ -294,9 +294,9 @@ export function bind<T extends string | number | boolean | undefined | void>(
       const event_number = Math.trunc(param_event_number);
 
       // Create struct
-      const e: event = {
+      const e: Event = {
         win: win,
-        event_type: event_type,
+        eventType: event_type,
         element: element,
         data: data,
       };
@@ -305,17 +305,17 @@ export function bind<T extends string | number | boolean | undefined | void>(
       const result = String(func(e));
 
       // Send back the response
-      webui_lib.symbols.webui_interface_set_response(
+      webuiLib.symbols.webui_interface_set_response(
         win,
         event_number,
-        string_to_uint8array(result),
+        stringToUint8array(result),
       );
     },
   );
 
-  webui_lib.symbols.webui_interface_bind(
+  webuiLib.symbols.webui_interface_bind(
     win,
-    string_to_uint8array(element),
+    stringToUint8array(element),
     callbackResource.pointer,
   );
 }
@@ -327,6 +327,6 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export async function wait() {
   while (true) {
     await sleep(10);
-    if (!webui_lib.symbols.webui_interface_is_app_running()) break;
+    if (!webuiLib.symbols.webui_interface_is_app_running()) break;
   }
 }
