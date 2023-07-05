@@ -12,7 +12,13 @@
 
 import { existsSync } from "../deps.ts";
 import { loadLib } from "./lib.ts";
-import { BindCallback, Usize, WebUiEvent, WebUiLib } from "./types.ts";
+import {
+  BindCallback,
+  JSONValue,
+  Usize,
+  WebUiEvent,
+  WebUiLib,
+} from "./types.ts";
 import { stringToUint8array, uint8arrayToString, WebUiError } from "./utils.ts";
 
 //Register loaded lib (and allow mutiple lib source)
@@ -264,6 +270,8 @@ export class WebUi {
    * details to the callback and sending back the response.
    * @param {string} idOrlabel - DOM element id or webui label to bind the code with. Blank string bind to all DOM elements.
    * @param callback - Callback to execute.
+   * If a value is returned by the callback it will be sent to client and must be a valid JSON value.
+   * **Value will be stringified.**
    * @example
    * ```ts
    * const webui = new WebUi()
@@ -284,7 +292,7 @@ export class WebUi {
    * webui.bind('', (event) => console.log(`new ui event was fired (${JSON.stringify(event)})`))
    * ```
    */
-  bind<T extends string | number | boolean | undefined | void>(
+  bind<T extends JSONValue | undefined | void>(
     idOrlabel: string,
     callback: BindCallback<T>,
   ) {
@@ -321,7 +329,7 @@ export class WebUi {
         };
 
         // Call the user callback
-        const result = String(await callback(e));
+        const result = JSON.stringify(await callback(e));
 
         // Send back the response
         this.#lib.symbols.webui_interface_set_response(
