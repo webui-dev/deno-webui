@@ -2,12 +2,8 @@
 import { JSX } from "https://esm.sh/preact@10.15.1";
 import { fromFileUrl } from "https://deno.land/std@0.192.0/path/mod.ts";
 
-const css = await Deno.readTextFile(
-  fromFileUrl(import.meta.resolve("./style.css")),
-);
-const icon = await Deno.readFile(
-  fromFileUrl(import.meta.resolve("./search.png")),
-);
+const css = await getTextFile("./style.css");
+const icon = await getFile("./search.png");
 //embed icon to base64 data url
 const iconUrl = `data:image/png;base64,${
   btoa(String.fromCharCode.apply(null, Array.from(icon)))
@@ -63,4 +59,23 @@ export function App() {
       </body>
     </html>
   );
+}
+
+//Get file for example (handle remote or local access)
+async function getFile(relativeUrl: string) {
+  const url = import.meta.resolve(relativeUrl);
+  try {
+    //If example run from local copy
+    const path = fromFileUrl(url);
+    return Deno.readFile(path);
+  } catch {
+    //If example run from remote url
+    const response = await fetch(url);
+    return new Uint8Array(await response.arrayBuffer());
+  }
+}
+
+//Get text file for example (handle remote or local access)
+async function getTextFile(relativeUrl: string) {
+  return new TextDecoder().decode(await getFile(relativeUrl));
 }
