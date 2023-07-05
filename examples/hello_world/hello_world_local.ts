@@ -30,21 +30,22 @@ myWindow.bind("Calculate", calculate);
 myWindow.bind("Exit", () => WebUi.exit()); // Close all windows and exit
 
 //Get the HTML file for example
-const html = await (async () => {
-  const url = import.meta.resolve("./hello_world.html");
-  try {
-    //If example run from local copy
-    const path = fromFileUrl(url);
-    return Deno.readTextFile(path);
-  } catch {
-    //If example run from remote url
-    const response = await fetch(url);
-    return response.text();
-  }
-})();
+const url = import.meta.resolve("./hello_world.html");
+try {
+  //If example run from local copy
+  const path = fromFileUrl(url);
+
+  myWindow.show(path); // Or myWindow.show('./hello_world.html');
+} catch {
+  //If example run from remote url
+  const response = await fetch(url);
+  const html = await response.text();
+
+  console.error("Can't load remote file, switch to fetching remote file");
+  myWindow.show(html);
+}
 
 // Show the window
-myWindow.show(html); // Or myWindow.show(myWindow, 'hello_world.html');
 
 // Wait until all windows get closed
 await WebUi.wait();

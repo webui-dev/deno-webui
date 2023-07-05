@@ -77,7 +77,7 @@ myWindow.bind("Calculate", calculate);
 myWindow.bind("Exit", () => WebUi.exit()); // Close all windows and exit
 
 // Show the window
-myWindow.show(myHtml); // Or myWindow.show('hello_world.html');
+myWindow.show(myHtml); // Or myWindow.show('./hello_world.html');
 
 // Wait until all windows get closed
 await WebUi.wait();
