@@ -1,8 +1,6 @@
 // Run this script by:
 // deno run --allow-all --unstable hello_world.ts
-
-// Import WebUI module (Local file)
-import { WebUi } from "../mod.ts";
+import { WebUi } from "../../mod.ts";
 
 // Optional - Set a custom library path:
 //  const libPath = './webui-2-x64.dll';
@@ -26,7 +24,7 @@ const myHtml = `
         </style>
     </head>
     <body>
-        <h1>WebUI 2 - Deno Hello World Example</h1><br>
+        <h1>WebUI 2 - Deno Hello World (File)</h1><br>
         A: <input id="MyInputA" value="4"><br><br>
         B: <input id="MyInputB" value="6"><br><br>
         <div id="Result" style="color: #dbdd52">A + B = ?</div><br><br>
@@ -44,7 +42,7 @@ const myHtml = `
               document.getElementById("Result").innerHTML = 'A + B = ' + res;
             }
         </script>
-    </body>
+    </body>    
 </html>
 `;
 
@@ -79,7 +77,7 @@ myWindow.bind("Calculate", calculate);
 myWindow.bind("Exit", () => WebUi.exit()); // Close all windows and exit
 
 // Show the window
-myWindow.show(myHtml); // Or myWindow.show(myWindow, 'hello_world.html');
+myWindow.show(myHtml); // Or myWindow.show('hello_world.html');
 
 // Wait until all windows get closed
 await WebUi.wait();
