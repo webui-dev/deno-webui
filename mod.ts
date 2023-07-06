@@ -21,12 +21,12 @@
  * ```ts
  * import { webui } from "https://deno.land/x/webui/mod.ts";
  *
- * const myWindow = webui.newWindow();
- * webui.show(myWindow, "<html>Hello World</html>");
- * webui.wait();
+ * const myWindow = new WebUi();
+ * webui.show("<html>Hello World</html>");
+ * WebUi.wait();
  * ```
  *
  * @module
  * @license MIT
  */
-export * as webui from "./src/webui.ts";
+export { WebUi } from "./src/webui.ts";

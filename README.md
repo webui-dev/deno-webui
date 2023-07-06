@@ -36,10 +36,25 @@ is written in Deno using WebUI as the GUI library.
 ```js
 import { webui } from "https://deno.land/x/webui@2.3.0/mod.ts";
 
-const myWindow = webui.newWindow();
-webui.show(myWindow, "<html>Hello World</html>");
-await webui.wait();
+const myWindow = new WebUi();
+webui.show("<html>Hello World</html>");
+await WebUi.wait();
 ```
+
+## Repository Examples
+
+- Hello world example:
+  ```sh
+  deno run -A --unstable https://deno.land/x/webui/examples/hello_world/hello_world.ts
+  ```
+- Manage multi windows:
+  ```sh
+  deno run -A --unstable https://deno.land/x/webui/examples/multi_windows/main.ts
+  ```
+- Browse your local filesystem
+  ```sh
+  deno run -A --unstable https://deno.land/x/webui/examples/file_explorer/main.ts
+  ```
 
 [More examples](https://github.com/webui-dev/deno-webui/tree/main/examples)
 

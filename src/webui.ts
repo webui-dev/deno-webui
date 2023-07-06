@@ -10,385 +10,381 @@
   Canada.
 */
 
-import { loadLib } from "./lib.ts";
-import { BindCallback, Event, Js, Usize } from "./types.ts";
 import { existsSync } from "../deps.ts";
+import { loadLib } from "./lib.ts";
 import {
-  sleep,
-  stringToUint8array,
-  uint8arrayToString,
-  WebUiError,
-} from "./utils.ts";
+  BindCallback,
+  JSONValue,
+  Usize,
+  WebUiEvent,
+  WebUiLib,
+} from "./types.ts";
+import { stringToUint8array, uint8arrayToString, WebUiError } from "./utils.ts";
 
-export type { Event } from "./types.ts";
+//Register loaded lib (and allow mutiple lib source)
+const libs: Map<string | symbol, WebUiLib> = new Map();
+const defaultLib = Symbol("defaultLib");
 
-export const version = "2.3.0";
+//Register windows to bind instance to WebUi.Event
+const windows: Map<Usize, WebUi> = new Map();
 
-export const browser = {
-  AnyBrowser: 0, // 0. Default recommended web browser
-  Chrome: 1, // 1. Google Chrome
-  Firefox: 2, // 2. Mozilla Firefox
-  Edge: 3, // 3. Microsoft Edge
-  Safari: 4, // 4. Apple Safari
-  Chromium: 5, // 5. The Chromium Project
-  Opera: 6, // 6. Opera Browser
-  Brave: 7, // 7. The Brave Browser
-  Vivaldi: 8, // 8. The Vivaldi Browser
-  Epic: 9, // 9. The Epic Browser
-  Yandex: 10, // 10. The Yandex Browser
-};
+export class WebUi {
+  #window: Usize;
+  #lib: WebUiLib;
 
-export const js = {
-  timeout: 0,
-  bufferSize: 1024 * 8,
-  response: "",
-};
-
-let webuiLib: Awaited<ReturnType<typeof loadLib>>;
-let loaded = false;
-let libPath: string | undefined = undefined;
-
-/**
- * Use a local lib instead of precached one.
- * Use before all other functions.
- * @throws {Error} If lib not found.
- * @param {string} path - Full lib path.
- * @example
- * ```ts
- * webui.setLibPath('./local_webui_2.dll')
- * const window = webui.newWindow()
- * ```
- */
-export function setLibPath(path: string) {
-  if (!existsSync(path)) {
-    throw new Error(`WebUI: File not found "${path}"`);
+  /**
+   * Loads webui lib if not done and instanciate a new window.
+   * @returns Window id.
+   * @param libPath - Full lib path.Use a local lib instead of precached one.
+   * @param clearCache - Clear the cache used by the default static import of webui2 lib.
+   * @throws {Error} If optional local lib not found.
+   * @example
+   * ```ts
+   * const webui1 = new WebUi()
+   * const webui2 = new WebUi({ libPath: './local_webui_2.dll' })
+   * ```
+   */
+  constructor(
+    options: { libPath?: string; clearCache: boolean } = { clearCache: false },
+  ) {
+    if (options.libPath && !existsSync(options.libPath)) {
+      throw new WebUiError(`File not found "${options.libPath}"`);
+    }
+    if (!libs.has(options.libPath ?? defaultLib)) {
+      libs.set(options.libPath ?? defaultLib, loadLib(options));
+    }
+    this.#lib = libs.get(options.libPath ?? defaultLib)!;
+    this.#window = this.#lib.symbols.webui_new_window();
+    windows.set(this.#window, this);
   }
-  libPath = path;
-}
 
-/**
- * loads webui lib if not done and create a new window.
- * @returns Window id.
- * @example
- * ```ts
- * const window1 = await webui.newWindow()
- * const window2 = await webui.newWindow()
- * ```
- */
-export async function newWindow(): Promise<Usize> {
-  if (!loaded) {
-    webuiLib = await loadLib(libPath);
-    loaded = true;
+  /**
+   * Update the ui with the new content.
+   * @param {string} content - valid html content or same root file path.
+   * @example
+   * ```ts
+   * const webui = new WebUi()
+   * //Show the current time
+   * webui.show(`<html><p>It is ${new Date().toLocaleTimeString()}</p></html>`)
+   * //Show a local file
+   * webui.show('list.txt')
+   * ```
+   */
+  show(content: string) {
+    const code = this.#lib.symbols.webui_show(
+      this.#window,
+      stringToUint8array(content),
+    );
+    if (code !== 1) {
+      throw new WebUiError(`Unable to show content [code: ${code}]`);
+    }
   }
-  return webuiLib.symbols.webui_new_window();
-}
 
-/**
- * Update the ui with the new content.
- * @param {Usize} win - The window where the content will be displayed.
- * @param {string} content - valid html content or same root file path.
- * @example
- * ```ts
- * const window = await webui.newWindow()
- * //Show the current time
- * webui.show(window, `<html><p>It is ${new Date().toLocaleTimeString()}</p></html>`)
- * //Show a local file
- * webui.show(window, 'list.txt')
- * ```
- */
-export function show(win: Usize, content: string) {
-  const code = webuiLib.symbols.webui_show(win, stringToUint8array(content));
-  if (code !== 1) {
-    throw new WebUiError(`Unable to show content [code: ${code}]`);
+  /**
+   * Update the ui with the new content with a specific browser.
+   * @param {string} content - valid html content or same root file path.
+   * @param {number} browser - Browser to use.
+   * @example
+   *  ```ts
+   * const webui = new WebUi()
+   * //Show the current time
+   * webui.showBrowser(`<html><p>It is ${new Date().toLocaleTimeString()}</p></html>`, WebUi.Browser.Firefox)
+   * //Show a local file
+   * webui.showBrowser('list.txt', Webui.Browser.Firefox)
+   * ```
+   */
+  showBrowser(
+    content: string,
+    browser: WebUi.Browser,
+  ) {
+    const code = this.#lib.symbols.webui_show_browser(
+      this.#window,
+      stringToUint8array(content),
+      browser,
+    );
+    if (code !== 1) {
+      throw new WebUiError(`Unable to show content [code: ${code}]`);
+    }
+  }
+
+  /**
+   * Checks if the window is currently running.
+   * @returns Display state.
+   * @example
+   * ```ts
+   * const webui1 = new WebUi()
+   * const webui2 = new WebUi()
+   * webui1.show(`<html><p>View 1</p></html>`)
+   *
+   * webui1.isShown //true
+   * webui2.isShown //false
+   * ```
+   */
+  get isShown() {
+    return this.#lib.symbols.webui_is_shown(this.#window);
+  }
+
+  /**
+   * Closes the current window.
+   * If there is no running window left, WebUi.wait will break.
+   * @example
+   * ```ts
+   * const webui1 = new WebUi()
+   * const webui2 = new WebUi()
+   * webui1.show(`<html><p>View 1</p></html>`)
+   * webui2.show(`<html><p>View 2</p></html>`)
+   *
+   * webui2.close()
+   *
+   * webui1.isShown //true
+   * webui2.isShown //false
+   * ```
+   */
+  close() {
+    return this.#lib.symbols.webui_close(this.#window);
+  }
+
+  /**
+   * After the window is loaded, the URL is not valid anymore for safety.
+   * WebUI will show an error if someone else tries to access the URL.
+   * To allow multi-user access to the same URL, you can use multiAccess.
+   * @param {boolean} status - Multi access status of the window.
+   * @example
+   * ```ts
+   * const webui = new WebUi()
+   * webui.setMultiAccess(true) //ui is accessible through the page url
+   * ```
+   */
+  setMultiAccess(status: boolean) {
+    return this.#lib.symbols.webui_set_multi_access(this.#window, status);
+  }
+
+  /**
+   * Tries to close all opened windows and make WebUi.wait break.
+   * @example
+   * ```ts
+   * const webui1 = new WebUi()
+   * const webui2 = new WebUi()
+   * webui1.show(`<html><p>View 1</p></html>`)
+   * webui2.show(`<html><p>View 2</p></html>`)
+   *
+   * WebUi.exit()
+   * webui1.isShown //false
+   * webui2.isShown //false
+   * ```
+   */
+  static exit() {
+    libs.forEach((lib) => lib.symbols.webui_exit());
+  }
+
+  /**
+   * Execute client code from backend.
+   * Execute a JavaScript script string in a web UI and returns a boolean indicating whether the
+   * script execution was successful.
+   * @param {string} script - js code to execute.
+   * @param options - response timeout (0 means no timeout) and bufferSize
+   * @returns Promise that resolve or reject the client response.
+   * @example
+   * ```ts
+   * const webui = new WebUi()
+   * webui.show(
+   *  `<html>
+   *    <p id="text"></p>
+   *     <script>
+   *      function updateText(text) {
+   *        document.getElementById('text').innerText = text
+   *        return 'ok'
+   *      }
+   *    </script>
+   *  </html>`
+   * )
+   *
+   * const response = await webui.script('updateText("backend action")').catch(console.error)
+   * //response == "ok"
+   * ```
+   */
+  script(
+    script: string,
+    options: {
+      timeout: number;
+      bufferSize: number;
+    } = { timeout: 0, bufferSize: 1024 * 8 },
+  ) {
+    // Response Buffer
+    const bufferSize = options.bufferSize > 0 ? options.bufferSize : 1024 * 8;
+    const buffer = new Uint8Array(bufferSize);
+
+    // Execute the script
+    const status = this.#lib.symbols.webui_script(
+      this.#window,
+      stringToUint8array(script),
+      options.timeout,
+      buffer,
+      bufferSize,
+    );
+
+    const response = uint8arrayToString(buffer);
+
+    //TODO call symbol asynchronously
+    if (status) {
+      return Promise.resolve(response);
+    }
+    return Promise.reject(response);
+  }
+
+  /**
+   * Execute client code from backend.
+   * Execute a JavaScript script string in a web UI without awaiting the result.
+   * @param {string} script - js code to execute.
+   * @returns execution status.
+   * @example
+   * ```ts
+   * const webui = new WebUi()
+   * webui.show(
+   *  `<html>
+   *    <p id="text"></p>
+   *     <script>
+   *      function updateText(text) {
+   *        document.getElementById('text').innerText = text
+   *        return 'ok'
+   *      }
+   *    </script>
+   *  </html>`
+   * )
+   *
+   * webui.run('updateText("backend action")')
+   * ```
+   */
+  run(script: string): boolean {
+    // Execute the script
+    const status = this.#lib.symbols.webui_run(
+      this.#window,
+      stringToUint8array(script),
+    );
+
+    return Boolean(status);
+  }
+
+  /**
+   * The `bind` function in TypeScript binds a callback function to a web UI event, passing the event
+   * details to the callback and sending back the response.
+   * @param {string} idOrlabel - DOM element id or webui label to bind the code with. Blank string bind to all DOM elements.
+   * @param callback - Callback to execute.
+   * If a value is returned by the callback it will be sent to client and must be a valid JSON value.
+   * **Value will be stringified.**
+   * @example
+   * ```ts
+   * const webui = new WebUi()
+   * webui.show(
+   *  `<html>
+   *    <button id="btn"></button>
+   *     <script>
+   *      const response = await webui_fn('myLabel', 'payload') //global function injected by webui loader
+   *    </script>
+   *  </html>`
+   * )
+   *
+   * webui.bind('btn', ({ element }) => console.log(`${element} was clicked`))
+   * webui.bind('myLabel', ({ data }) => {
+   *  console.log(`ui send "${data}"`)
+   *  return "backend response"
+   * })
+   * webui.bind('', (event) => console.log(`new ui event was fired (${JSON.stringify(event)})`))
+   * ```
+   */
+  bind<T extends JSONValue | undefined | void>(
+    idOrlabel: string,
+    callback: BindCallback<T>,
+  ) {
+    const callbackResource = new Deno.UnsafeCallback(
+      {
+        // unsigned int webui_interface_bind(..., void (*func)(size_t, unsigned int, char*, char*, unsigned int))
+        parameters: ["usize", "u32", "pointer", "pointer", "u32"],
+        result: "void",
+      } as const,
+      async (
+        param_window: Usize,
+        param_event_type: number,
+        param_element: Deno.PointerValue,
+        param_data: Deno.PointerValue,
+        param_event_number: number,
+      ) => {
+        // Create elements
+        const win = param_window;
+        const event_type = Math.trunc(param_event_type);
+        const element = param_element != null
+          ? new Deno.UnsafePointerView(param_element).getCString()
+          : "";
+        const data = param_data != null
+          ? new Deno.UnsafePointerView(param_data).getCString()
+          : "";
+        const event_number = Math.trunc(param_event_number);
+
+        // Create struct
+        const e: WebUiEvent = {
+          window: windows.get(win)!,
+          eventType: event_type,
+          element: element,
+          data: data,
+        };
+
+        // Call the user callback
+        const result = JSON.stringify(await callback(e));
+
+        // Send back the response
+        this.#lib.symbols.webui_interface_set_response(
+          this.#window,
+          event_number,
+          stringToUint8array(result),
+        );
+      },
+    );
+
+    this.#lib.symbols.webui_interface_bind(
+      this.#window,
+      stringToUint8array(idOrlabel),
+      callbackResource.pointer,
+    );
+  }
+
+  /**
+   * Waits until all web UI was closed for preventing exiting the main thread.
+   * @exemple
+   * ```ts
+   * const webui = new WebUi()
+   * webui.show(`<html><p>Your page</p></html>`)
+   * //code ...
+   * webui.show('list.txt')
+   * //code ...
+   * WebUi.wait() // aync wait until all windows are closed
+   * ```
+   */
+  static async wait() {
+    //Wait for all opened lib to resolve
+    for (const lib of libs.values()) {
+      await lib.symbols.webui_wait();
+    }
+  }
+
+  static get version() {
+    return "2.3.0";
   }
 }
 
-/**
- * Update the ui with the new content with a specific browser.
- * @param {Usize} win - The window where the content will be displayed.
- * @param {string} content - valid html content or same root file path.
- * @param {number} browser - Browser to use.
- * @example
- *  ```ts
- * const window = await webui.newWindow()
- * //Show the current time
- * webui.showBrowser(window, `<html><p>It is ${new Date().toLocaleTimeString()}</p></html>`, webui.browser.Firefox)
- * //Show a local file
- * webui.showBrowser(window, 'list.txt', webui.browser.Firefox)
- * ```
- */
-export function showBrowser(
-  win: Usize,
-  content: string,
-  browser: number,
-) {
-  const code = webuiLib.symbols.webui_show_browser(
-    win,
-    stringToUint8array(content),
-    browser,
-  );
-  if (code !== 1) {
-    throw new WebUiError(`Unable to show content [code: ${code}]`);
-  }
-}
-
-/**
- * Checks if a window is currently running.
- * @param {Usize} win - The window to check display status.
- * @returns Display state.
- * @example
- * ```ts
- * const window1 = await webui.newWindow()
- * const window2 = await webui.newWindow()
- * webui.show(window1, `<html><p>View 1</p></html>`)
- *
- * webui.isShown(window1) //true
- * webui.isShown(window2) //false
- * ```
- */
-export function isShown(win: Usize) {
-  return webuiLib.symbols.webui_is_shown(win);
-}
-
-/**
- * Closes a specific window.
- * If there is no running window left wait will break.
- * @param {Usize} win - The window to close.
- * @example
- * ```ts
- * const window1 = await webui.newWindow()
- * const window2 = await webui.newWindow()
- * webui.show(window1, `<html><p>View 1</p></html>`)
- * webui.show(window2, `<html><p>View 2</p></html>`)
- *
- * webui.close(window2)
- *
- * webui.isShown(window1) //true
- * webui.isShown(window2) //false
- * ```
- */
-export function close(win: Usize) {
-  return webuiLib.symbols.webui_close(win);
-}
-
-/**
- * After the window is loaded, the URL is not valid anymore for safety.
- * WebUI will show an error if someone else tries to access the URL.
- * To allow multi-user access to the same URL, you can use multiAccess.
- * @param {Usize} win - The window to manage.
- * @param {boolean} status - Multi access status of the window.
- * @example
- * ```ts
- * const window = await webui.newWindow()
- * webui.setMultiAccess(window, true) //ui is accessible through the page url
- * ```
- */
-export function setMultiAccess(win: Usize, status: boolean) {
-  return webuiLib.symbols.webui_set_multi_access(win, status);
-}
-
-/**
- * Tries to close all opened windows and make Wait break.
- * @example
- * ```ts
- * const window1 = await webui.newWindow()
- * const window2 = await webui.newWindow()
- * webui.show(window1, `<html><p>View 1</p></html>`)
- * webui.show(window2, `<html><p>View 2</p></html>`)
- *
- * webui.exit()
- * webui.isShown(window1) //false
- * webui.isShown(window2) //false
- * ```
- */
-export function exit() {
-  webuiLib.symbols.webui_exit();
-}
-
-/**
- * Execute client code from backend.
- * Execute a JavaScript script string in a web UI and returns a boolean indicating whether the
- * script execution was successful.
- * @param {Usize} win - The window to execute the script in.
- * @param {Js} js - webui.js object.
- * @param {string} script - js code to execute.
- * @returns execution status.
- * @example
- * ```ts
- * const window = await webui.newWindow()
- * webui.show(
- *  window,
- *  `<html>
- *    <p id="text"></p>
- *     <script>
- *      function updateText(text) {
- *        document.getElementById('text').innerText = text
- *        return 'ok'
- *      }
- *    </script>
- *  </html>`
- * )
- *
- * webui.script(window, webui.js, 'updateText("backend action")')
- * webui.js.response //"ok"
- * ```
- */
-export function script(win: Usize, js: Js, script: string): boolean {
-  // Response Buffer
-  const size: number = js.bufferSize > 0 ? js.bufferSize : 1024 * 8;
-  const buffer = new Uint8Array(size);
-
-  // Execute the script
-  const status = webuiLib.symbols.webui_script(
-    win,
-    stringToUint8array(script),
-    js.timeout,
-    buffer,
-    size,
-  );
-
-  // Update
-  js.response = String(uint8arrayToString(buffer));
-
-  return Boolean(status);
-}
-
-/**
- * Execute client code from backend.
- * Execute a JavaScript script string in a web UI without awaiting the result.
- * @param {Usize} win - The window to execute the script in.
- * @param {string} script - js code to execute.
- * @returns execution status.
- * @example
- * ```ts
- * const window = await webui.newWindow()
- * webui.show(
- *  window,
- *  `<html>
- *    <p id="text"></p>
- *     <script>
- *      function updateText(text) {
- *        document.getElementById('text').innerText = text
- *        return 'ok'
- *      }
- *    </script>
- *  </html>`
- * )
- *
- * webui.run(window, 'updateText("backend action")')
- * ```
- */
-export function run(win: Usize, script: string): boolean {
-  // Execute the script
-  const status = webuiLib.symbols.webui_run(
-    win,
-    stringToUint8array(script),
-  );
-
-  return Boolean(status);
-}
-
-/**
- * The `bind` function in TypeScript binds a callback function to a web UI event, passing the event
- * details to the callback and sending back the response.
- * @param {Usize} win - The window to bind.
- * @param {string} elementOrlabel - DOM element id or webui label to bind the code with. Blank string bind to all DOM elements.
- * @param callback - Callback to execute.
- * @example
- * ```ts
- * const window = await webui.newWindow()
- * webui.show(
- *  window,
- *  `<html>
- *    <button id="btn"></button>
- *     <script>
- *      const response = await webui_fn('myLabel', 'payload')
- *    </script>
- *  </html>`
- * )
- *
- * webui.bind(window, 'btn', ({ element }) => console.log(`${element} was clicked`))
- * webui.bind(window, 'myLabel', ({ data }) => {
- *  console.log(`ui send "${data}"`)
- *  return "backend response"
- * })
- * webui.bind(window, '', (event) => console.log(`new ui event was fired (${JSON.stringify(event)})`))
- * ```
- */
-export function bind<T extends string | number | boolean | undefined | void>(
-  win: Usize,
-  elementOrlabel: string,
-  callback: BindCallback<T>,
-) {
-  const callbackResource = new Deno.UnsafeCallback(
-    {
-      // unsigned int webui_interface_bind(..., void (*func)(size_t, unsigned int, char*, char*, unsigned int))
-      parameters: ["usize", "u32", "pointer", "pointer", "u32"],
-      result: "void",
-    } as const,
-    (
-      param_window: Usize,
-      param_event_type: number,
-      param_element: Deno.PointerValue,
-      param_data: Deno.PointerValue,
-      param_event_number: number,
-    ) => {
-      // Create elements
-      const win = param_window;
-      const event_type = Math.trunc(param_event_type);
-      const element = param_element != null
-        ? new Deno.UnsafePointerView(param_element).getCString()
-        : "";
-      const data = param_data != null
-        ? new Deno.UnsafePointerView(param_data).getCString()
-        : "";
-      const event_number = Math.trunc(param_event_number);
-
-      // Create struct
-      const e: Event = {
-        win: win,
-        eventType: event_type,
-        element: element,
-        data: data,
-      };
-
-      // Call the user callback
-      const result = String(callback(e));
-
-      // Send back the response
-      webuiLib.symbols.webui_interface_set_response(
-        win,
-        event_number,
-        stringToUint8array(result),
-      );
-    },
-  );
-
-  webuiLib.symbols.webui_interface_bind(
-    win,
-    stringToUint8array(elementOrlabel),
-    callbackResource.pointer,
-  );
-}
-
-// TODO: We should use the Non-blocking FFI to call
-// `webui_lib.symbols.webui_wait()`. but it breaks
-// the Deno script main thread. Lets do it in another way for now.
-/**
- * Waits until all web UI was closed for preventing exiting the main thread.
- * @exemple
- * ```ts
- * const window = await webui.newWindow()
- * webui.show(window, `<html><p>Your page</p></html>`)
- * //code ...
- * webui.show(window, 'list.txt')
- * //code ...
- * webui.wait() // aync wait until all windows are closed
- * ```
- */
-export async function wait() {
-  while (true) {
-    await sleep(10);
-    if (!webuiLib.symbols.webui_interface_is_app_running()) break;
+//deno-lint-ignore no-namespace
+export namespace WebUi {
+  export type Event = WebUiEvent;
+  export enum Browser {
+    AnyBrowser, // 0. Default recommended web browser
+    Chrome, // 1. Google Chrome
+    Firefox, // 2. Mozilla Firefox
+    Edge, // 3. Microsoft Edge
+    Safari, // 4. Apple Safari
+    Chromium, // 5. The Chromium Project
+    Opera, // 6. Opera Browser
+    Brave, // 7. The Brave Browser
+    Vivaldi, // 8. The Vivaldi Browser
+    Epic, // 9. The Epic Browser
+    Yandex0, // 10. The Yandex Browser
   }
 }
