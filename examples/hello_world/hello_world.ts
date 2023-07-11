@@ -1,11 +1,11 @@
 // Run this script by:
 // deno run --allow-all --unstable hello_world.ts
-import { WebUi } from "../../mod.ts";
+import { WebUI } from "../../mod.ts";
 
 // Optional - Set a custom library path:
 //  const libPath = './webui-2-x64.dll';
 //  console.log("Looking for the WebUI dynamic library at: " + libPath);
-//  new WebUi({ libPath });
+//  new WebUI({ libPath });
 
 const myHtml = `
 <!DOCTYPE html>
@@ -46,7 +46,7 @@ const myHtml = `
 </html>
 `;
 
-async function calculate({ window }: WebUi.Event) {
+async function calculate({ window }: WebUI.Event) {
   // Settings if needed
   // timeout = 30 // Set javascript execution timeout
   // bufferSize = 64 // Set the response size in bytes
@@ -70,15 +70,15 @@ async function calculate({ window }: WebUi.Event) {
 }
 
 // Create new window
-const myWindow = new WebUi();
+const myWindow = new WebUI();
 
 // Bind
 myWindow.bind("Calculate", calculate);
-myWindow.bind("Exit", () => WebUi.exit()); // Close all windows and exit
+myWindow.bind("Exit", () => WebUI.exit()); // Close all windows and exit
 
 // Show the window
 myWindow.show(myHtml); // Or myWindow.show('./hello_world.html');
 
 // Wait until all windows get closed
-await WebUi.wait();
+await WebUI.wait();
 console.log("Thank you.");

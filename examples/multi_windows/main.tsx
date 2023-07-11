@@ -1,8 +1,8 @@
 /* @jsxImportSource https://esm.sh/preact@10.15.1 */
-import { WebUi } from "../../mod.ts";
+import { WebUI } from "../../mod.ts";
 import render from "https://esm.sh/preact-render-to-string@5.2.6";
 
-const window = new WebUi();
+const window = new WebUI();
 
 function App() {
   return (
@@ -72,7 +72,7 @@ function App() {
 }
 
 function deepen() {
-  const window = new WebUi();
+  const window = new WebUI();
   window.bind("open", deepen);
   window.show(render(<App />));
 }
@@ -81,4 +81,4 @@ window.bind("open", deepen);
 
 window.show(render(<App />));
 
-WebUi.wait();
+WebUI.wait();

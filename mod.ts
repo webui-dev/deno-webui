@@ -14,19 +14,19 @@
  * - Original library written in Pure C
  *
  * ## Installation
- * `import { webui } from "https://deno.land/x/webui/mod.ts";`
+ * `import { WebUI } from "https://deno.land/x/webui/mod.ts";`
  *
  * ## Minimal Example
  *
  * ```ts
- * import { webui } from "https://deno.land/x/webui/mod.ts";
+ * import { WebUI } from "https://deno.land/x/webui/mod.ts";
  *
- * const myWindow = new WebUi();
+ * const myWindow = new WebUI();
  * webui.show("<html>Hello World</html>");
- * WebUi.wait();
+ * WebUI.wait();
  * ```
  *
  * @module
  * @license MIT
  */
-export { WebUi } from "./src/webui.ts";
+export { WebUI } from "./src/webui.ts";

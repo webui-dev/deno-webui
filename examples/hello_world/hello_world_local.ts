@@ -1,9 +1,9 @@
 // Same as hello_world.ts but using a local file
 
-import { WebUi } from "../../mod.ts";
+import { WebUI } from "../../mod.ts";
 import { fromFileUrl } from "https://deno.land/std@0.192.0/path/mod.ts";
 
-async function calculate({ window }: WebUi.Event) {
+async function calculate({ window }: WebUI.Event) {
   // Call a js function
   const getA = await window.script("return get_A()").catch((error) => {
     console.error(`Error in the JavaScript: ${error}`);
@@ -23,11 +23,11 @@ async function calculate({ window }: WebUi.Event) {
 }
 
 // Create new window
-const myWindow = new WebUi();
+const myWindow = new WebUI();
 
 // Bind
 myWindow.bind("Calculate", calculate);
-myWindow.bind("Exit", () => WebUi.exit()); // Close all windows and exit
+myWindow.bind("Exit", () => WebUI.exit()); // Close all windows and exit
 
 //Get the HTML file for example
 const url = import.meta.resolve("./hello_world.html");
@@ -48,5 +48,5 @@ try {
 // Show the window
 
 // Wait until all windows get closed
-await WebUi.wait();
+await WebUI.wait();
 console.log("Thank you.");

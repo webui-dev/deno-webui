@@ -16,21 +16,21 @@ import {
   BindCallback,
   JSONValue,
   Usize,
-  WebUiEvent,
-  WebUiLib,
+  WebUIEvent,
+  WebUILib,
 } from "./types.ts";
-import { stringToUint8array, uint8arrayToString, WebUiError } from "./utils.ts";
+import { stringToUint8array, uint8arrayToString, WebUIError } from "./utils.ts";
 
 //Register loaded lib (and allow mutiple lib source)
-const libs: Map<string | symbol, WebUiLib> = new Map();
+const libs: Map<string | symbol, WebUILib> = new Map();
 const defaultLib = Symbol("defaultLib");
 
-//Register windows to bind instance to WebUi.Event
-const windows: Map<Usize, WebUi> = new Map();
+//Register windows to bind instance to WebUI.Event
+const windows: Map<Usize, WebUI> = new Map();
 
-export class WebUi {
+export class WebUI {
   #window: Usize;
-  #lib: WebUiLib;
+  #lib: WebUILib;
 
   /**
    * Loads webui lib if not done and instanciate a new window.
@@ -40,15 +40,15 @@ export class WebUi {
    * @throws {Error} If optional local lib not found.
    * @example
    * ```ts
-   * const webui1 = new WebUi()
-   * const webui2 = new WebUi({ libPath: './local_webui_2.dll' })
+   * const webui1 = new WebUI()
+   * const webui2 = new WebUI({ libPath: './local_webui_2.dll' })
    * ```
    */
   constructor(
     options: { libPath?: string; clearCache: boolean } = { clearCache: false },
   ) {
     if (options.libPath && !existsSync(options.libPath)) {
-      throw new WebUiError(`File not found "${options.libPath}"`);
+      throw new WebUIError(`File not found "${options.libPath}"`);
     }
     if (!libs.has(options.libPath ?? defaultLib)) {
       libs.set(options.libPath ?? defaultLib, loadLib(options));
@@ -63,7 +63,7 @@ export class WebUi {
    * @param {string} content - valid html content or same root file path.
    * @example
    * ```ts
-   * const webui = new WebUi()
+   * const webui = new WebUI()
    * //Show the current time
    * webui.show(`<html><p>It is ${new Date().toLocaleTimeString()}</p></html>`)
    * //Show a local file
@@ -76,7 +76,7 @@ export class WebUi {
       stringToUint8array(content),
     );
     if (code !== 1) {
-      throw new WebUiError(`Unable to show content [code: ${code}]`);
+      throw new WebUIError(`Unable to show content [code: ${code}]`);
     }
   }
 
@@ -86,16 +86,16 @@ export class WebUi {
    * @param {number} browser - Browser to use.
    * @example
    *  ```ts
-   * const webui = new WebUi()
+   * const webui = new WebUI()
    * //Show the current time
-   * webui.showBrowser(`<html><p>It is ${new Date().toLocaleTimeString()}</p></html>`, WebUi.Browser.Firefox)
+   * webui.showBrowser(`<html><p>It is ${new Date().toLocaleTimeString()}</p></html>`, WebUI.Browser.Firefox)
    * //Show a local file
    * webui.showBrowser('list.txt', Webui.Browser.Firefox)
    * ```
    */
   showBrowser(
     content: string,
-    browser: WebUi.Browser,
+    browser: WebUI.Browser,
   ) {
     const code = this.#lib.symbols.webui_show_browser(
       this.#window,
@@ -103,7 +103,7 @@ export class WebUi {
       browser,
     );
     if (code !== 1) {
-      throw new WebUiError(`Unable to show content [code: ${code}]`);
+      throw new WebUIError(`Unable to show content [code: ${code}]`);
     }
   }
 
@@ -112,8 +112,8 @@ export class WebUi {
    * @returns Display state.
    * @example
    * ```ts
-   * const webui1 = new WebUi()
-   * const webui2 = new WebUi()
+   * const webui1 = new WebUI()
+   * const webui2 = new WebUI()
    * webui1.show(`<html><p>View 1</p></html>`)
    *
    * webui1.isShown //true
@@ -126,11 +126,11 @@ export class WebUi {
 
   /**
    * Closes the current window.
-   * If there is no running window left, WebUi.wait will break.
+   * If there is no running window left, WebUI.wait will break.
    * @example
    * ```ts
-   * const webui1 = new WebUi()
-   * const webui2 = new WebUi()
+   * const webui1 = new WebUI()
+   * const webui2 = new WebUI()
    * webui1.show(`<html><p>View 1</p></html>`)
    * webui2.show(`<html><p>View 2</p></html>`)
    *
@@ -151,7 +151,7 @@ export class WebUi {
    * @param {boolean} status - Multi access status of the window.
    * @example
    * ```ts
-   * const webui = new WebUi()
+   * const webui = new WebUI()
    * webui.setMultiAccess(true) //ui is accessible through the page url
    * ```
    */
@@ -160,15 +160,15 @@ export class WebUi {
   }
 
   /**
-   * Tries to close all opened windows and make WebUi.wait break.
+   * Tries to close all opened windows and make WebUI.wait break.
    * @example
    * ```ts
-   * const webui1 = new WebUi()
-   * const webui2 = new WebUi()
+   * const webui1 = new WebUI()
+   * const webui2 = new WebUI()
    * webui1.show(`<html><p>View 1</p></html>`)
    * webui2.show(`<html><p>View 2</p></html>`)
    *
-   * WebUi.exit()
+   * WebUI.exit()
    * webui1.isShown //false
    * webui2.isShown //false
    * ```
@@ -186,7 +186,7 @@ export class WebUi {
    * @returns Promise that resolve or reject the client response.
    * @example
    * ```ts
-   * const webui = new WebUi()
+   * const webui = new WebUI()
    * webui.show(
    *  `<html>
    *    <p id="text"></p>
@@ -239,7 +239,7 @@ export class WebUi {
    * @returns execution status.
    * @example
    * ```ts
-   * const webui = new WebUi()
+   * const webui = new WebUI()
    * webui.show(
    *  `<html>
    *    <p id="text"></p>
@@ -274,7 +274,7 @@ export class WebUi {
    * **Value will be stringified.**
    * @example
    * ```ts
-   * const webui = new WebUi()
+   * const webui = new WebUI()
    * webui.show(
    *  `<html>
    *    <button id="btn"></button>
@@ -321,7 +321,7 @@ export class WebUi {
         const event_number = Math.trunc(param_event_number);
 
         // Create struct
-        const e: WebUiEvent = {
+        const e: WebUIEvent = {
           window: windows.get(win)!,
           eventType: event_type,
           element: element,
@@ -351,12 +351,12 @@ export class WebUi {
    * Waits until all web UI was closed for preventing exiting the main thread.
    * @exemple
    * ```ts
-   * const webui = new WebUi()
+   * const webui = new WebUI()
    * webui.show(`<html><p>Your page</p></html>`)
    * //code ...
    * webui.show('list.txt')
    * //code ...
-   * WebUi.wait() // aync wait until all windows are closed
+   * WebUI.wait() // aync wait until all windows are closed
    * ```
    */
   static async wait() {
@@ -372,8 +372,8 @@ export class WebUi {
 }
 
 //deno-lint-ignore no-namespace
-export namespace WebUi {
-  export type Event = WebUiEvent;
+export namespace WebUI {
+  export type Event = WebUIEvent;
   export enum Browser {
     AnyBrowser, // 0. Default recommended web browser
     Chrome, // 1. Google Chrome

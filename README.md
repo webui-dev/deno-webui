@@ -29,16 +29,16 @@ is written in Deno using WebUI as the GUI library.
 
 ## Installation
 
-`import { webui } from "https://deno.land/x/webui@2.3.0/mod.ts";`
+`import { WebUI } from "https://deno.land/x/webui/mod.ts";`
 
 ## Minimal Example
 
 ```js
-import { webui } from "https://deno.land/x/webui@2.3.0/mod.ts";
+import { WebUI } from "https://deno.land/x/webui/mod.ts";
 
-const myWindow = new WebUi();
+const myWindow = new WebUI();
 webui.show("<html>Hello World</html>");
-await WebUi.wait();
+await WebUI.wait();
 ```
 
 ## Repository Examples

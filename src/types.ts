@@ -1,4 +1,4 @@
-import { WebUi } from "../mod.ts";
+import { WebUI } from "../mod.ts";
 import { loadLib } from "./lib.ts";
 
 export type Usize = number | bigint;
@@ -6,17 +6,17 @@ export type Usize = number | bigint;
 export type BindCallback<
   T extends JSONValue | undefined | void,
 > = (
-  event: WebUiEvent,
+  event: WebUIEvent,
 ) => T | Promise<T>;
 
-export interface WebUiEvent {
-  window: WebUi;
+export interface WebUIEvent {
+  window: WebUI;
   eventType: number;
   element: string;
   data: string;
 }
 
-export type WebUiLib = Awaited<ReturnType<typeof loadLib>>;
+export type WebUILib = Awaited<ReturnType<typeof loadLib>>;
 
 export type JSONValue =
   | string

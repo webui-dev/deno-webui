@@ -31,7 +31,7 @@ export function writeLib(
     Deno.writeFileSync(libPath, libBuffer);
   }
   if (!existsSync(libPath)) {
-    throw new WebUiError(`Can't write ${libName} at ${libPath}`);
+    throw new WebUIError(`Can't write ${libName} at ${libPath}`);
   }
   return libPath;
 }
@@ -54,4 +54,4 @@ export function uint8arrayToString(value: ArrayBuffer): string {
   return new TextDecoder().decode(value);
 }
 
-export class WebUiError extends Error {}
+export class WebUIError extends Error {}

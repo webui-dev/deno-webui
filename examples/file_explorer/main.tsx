@@ -1,10 +1,10 @@
 /* @jsxImportSource https://esm.sh/preact@10.15.1 */
-import { WebUi } from "../../mod.ts";
+import { WebUI } from "../../mod.ts";
 import renderSSR from "https://esm.sh/preact-render-to-string@5.2.6";
 import { App, Link } from "./app.tsx";
 import * as path from "https://deno.land/std@0.192.0/path/mod.ts";
 
-const window = new WebUi();
+const window = new WebUI();
 
 //Render jsx template to string
 window.show(renderSSR(<App />));
@@ -13,7 +13,7 @@ window.show(renderSSR(<App />));
 window.bind("link", listDir);
 window.bind("search", listDir);
 
-function listDir(event: WebUi.Event) {
+function listDir(event: WebUI.Event) {
   const entries: Deno.DirEntry[] = [];
   const root = event.data;
 
@@ -55,4 +55,4 @@ function listDir(event: WebUi.Event) {
 }
 
 //wait to all views close
-WebUi.wait();
+WebUI.wait();
