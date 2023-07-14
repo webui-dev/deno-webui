@@ -20,4 +20,5 @@ export {
 
 export { existsSync } from "https://deno.land/std@0.192.0/fs/mod.ts";
 export * as path from "https://deno.land/std@0.192.0/path/mod.ts";
+export * as fs from "https://deno.land/std@0.192.0/fs/mod.ts";
 export { default as osPaths } from "https://deno.land/x/os_paths@v7.4.0/src/mod.deno.ts";

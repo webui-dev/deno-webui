@@ -58,6 +58,26 @@ await WebUI.wait();
 
 [More examples](https://github.com/webui-dev/deno-webui/tree/main/examples)
 
+## Security flags
+
+Minimal required flags for running the module are:
+
+| flag        | value                                  | purpose                                  |
+| ----------- | -------------------------------------- | ---------------------------------------- |
+| unstable    | NA                                     | FFI UnsafePointer and UnsafeCallback use |
+| allow-env   | USERPROFILE (windows) or HOME (others) | Caching dynamic library                  |
+| allow-write | ~/.deno_webui                          | Saving cache                             |
+| allow-read  | ~/.deno_webui                          | Opening cache                            |
+| allow-ffi   | ~/.deno_webui (unstable so allow all)  | Using FFI                                |
+
+Example:
+
+```sh
+deno run --unstable --allow-env=HOME --allow-ffi --allow-read=~/.deno_webui --allow-write=~/.deno_webui https://deno.land/x/webui/examples/hello_world/hello_world.ts
+```
+
+You can see all permissions prompt by using `deno run` without any.
+
 ## Documentation
 
 - [Online Documentation](https://webui.me/docs/#/deno_api)

@@ -1,5 +1,5 @@
 import { existsSync } from "https://deno.land/std@0.192.0/fs/exists.ts";
-import { osPaths, path } from "../deps.ts";
+import { fs, path } from "../deps.ts";
 
 /**
  * The function converts a base64 string to a Uint8Array buffer.
@@ -26,7 +26,9 @@ export function writeLib(
   libBuffer: Uint8Array,
   clearCache: boolean,
 ): string {
-  const libPath = path.join(osPaths.temp(), libName);
+  const cachePath = path.join(getHome(), ".deno_webui");
+  fs.ensureDirSync(cachePath);
+  const libPath = path.join(getHome(), ".deno_webui", libName);
   if (!existsSync(libPath) || clearCache) {
     Deno.writeFileSync(libPath, libBuffer);
   }
@@ -41,17 +43,42 @@ export function writeLib(
  * @param {string} value
  * @returns a char[].
  */
-export function stringToUint8array(value: string): Uint8Array {
+export function toCString(value: string): Uint8Array {
   return new TextEncoder().encode(value + "\0");
 }
 
 /**
  * Convert C-String to String.
- * @param {ArrayBuffer} value - an `ArrayBuffer` that contains a C-String.
+ * @param {Uint8Array} value - an `char* / Uint8Array` that contains a C-String.
  * @returns a string.
  */
-export function uint8arrayToString(value: ArrayBuffer): string {
-  return new TextDecoder().decode(value);
+export function fromCString(value: Uint8Array): string {
+  const end = value.findIndex((byte) => byte === 0x00); //find C-string end
+  return new TextDecoder().decode(value.slice(0, end));
 }
 
 export class WebUIError extends Error {}
+
+/**
+ * Returns the path to the user's home directory, taking into account the
+ * operating system.
+ * @returns home path
+ */
+export function getHome(): string {
+  if (Deno.build.os === "windows") {
+    const home = Deno.env.get("USERPROFILE");
+    if (home === undefined) {
+      throw new Error(
+        "$USERPROFILE is undefined, can't cache files to your home directory",
+      );
+    }
+    return home;
+  }
+  const home = Deno.env.get("HOME");
+  if (home === undefined) {
+    throw new Error(
+      "$USERPROFILE is undefined, can't cache files to your home directory",
+    );
+  }
+  return home;
+}
