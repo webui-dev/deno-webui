@@ -73,7 +73,7 @@ export class WebUI {
   show(content: string) {
     const code = this.#lib.symbols.webui_show(
       this.#window,
-      stringToUint8array(content),
+      toCString(content),
     );
     if (code !== 1) {
       throw new WebUIError(`Unable to show content [code: ${code}]`);
