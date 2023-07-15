@@ -70,7 +70,7 @@ export function loadLib(
       webui_script: {
         // bool webui_script(size_t window, const char* script, unsigned int timeout, char* buffer, size_t buffer_length)
         parameters: ["usize", "buffer", "u32", "buffer", "i32"],
-        result: "i32",
+        result: "bool",
       },
       webui_run: {
         // bool webui_run(size_t window, const char* script)
