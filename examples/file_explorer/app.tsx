@@ -15,7 +15,7 @@ export function Link(
   //set client callback using webui global helpers
   //use decodeURIComponent().slice(1, -1) beacause au lacking of proper deno.json compilerOptions
   const onclick =
-    `webui_fn('link', '${href}').then(response => output.innerHTML = decodeURIComponent(response).slice(1, -1))`;
+    `webui.call('link', '${href}').then(response => output.innerHTML = decodeURIComponent(response).slice(1, -1))`;
   //@ts-ignore embedded js
   return <span className="link" onclick={onclick} {...props}>{children}</span>;
 }
@@ -48,7 +48,7 @@ export function App() {
 
                         search.addEventListener('submit', async (e) => {
                             e.preventDefault()
-                            const response = await webui_fn('search', query.value)
+                            const response = await webui.call('search', query.value)
                             //use decodeURIComponent().slice(1, -1) beacause au lacking of proper deno.json compilerOptions
                             output.innerHTML = decodeURIComponent(response).slice(1, -1)
                         })
