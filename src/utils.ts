@@ -1,4 +1,3 @@
-import { existsSync } from "https://deno.land/std@0.192.0/fs/exists.ts";
 import { fs, path } from "../deps.ts";
 
 /**
@@ -29,10 +28,10 @@ export function writeLib(
   const cachePath = path.join(getHome(), ".deno_webui");
   fs.ensureDirSync(cachePath);
   const libPath = path.join(getHome(), ".deno_webui", libName);
-  if (!existsSync(libPath) || clearCache) {
+  if (!fs.existsSync(libPath) || clearCache) {
     Deno.writeFileSync(libPath, libBuffer);
   }
-  if (!existsSync(libPath)) {
+  if (!fs.existsSync(libPath)) {
     throw new WebUIError(`Can't write ${libName} at ${libPath}`);
   }
   return libPath;
