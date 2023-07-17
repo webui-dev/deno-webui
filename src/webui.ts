@@ -71,12 +71,12 @@ export class WebUI {
    * ```
    */
   show(content: string) {
-    const code = this.#lib.symbols.webui_show(
+    const status = this.#lib.symbols.webui_show(
       this.#window,
       toCString(content),
     );
-    if (code !== 1) {
-      throw new WebUIError(`Unable to show content [code: ${code}]`);
+    if (!status) {
+      throw new WebUIError(`unable to show content`);
     }
   }
 
@@ -97,13 +97,13 @@ export class WebUI {
     content: string,
     browser: WebUI.Browser,
   ) {
-    const code = this.#lib.symbols.webui_show_browser(
+    const status = this.#lib.symbols.webui_show_browser(
       this.#window,
       toCString(content),
       browser,
     );
-    if (code !== 1) {
-      throw new WebUIError(`Unable to show content [code: ${code}]`);
+    if (!status) {
+      throw new WebUIError(`unable to show content`);
     }
   }
 
