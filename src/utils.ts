@@ -1,4 +1,4 @@
-import { fs, path } from "../deps.ts";
+import { CRC32, fs, path } from "../deps.ts";
 
 /**
  * The function converts a base64 string to a Uint8Array buffer.
@@ -12,7 +12,7 @@ export function b64ToBuffer(b64: string): Uint8Array {
 
 /**
  * The function `writeLib` writes a library file to a temporary directory and returns the path of the
- * written file.
+ * written file. A hash will be added to the libName to ensure cache version.
  * @param {string} libName - The `libName` parameter is a string that represents the name of the
  * library file that will be written.
  * @param {Uint8Array} libBuffer - The `libBuffer` parameter is a `Uint8Array` that represents the
@@ -26,6 +26,8 @@ export function writeLib(
   clearCache: boolean,
 ): string {
   const cachePath = path.join(getHome(), ".deno_webui");
+  const hash = (CRC32.buf(libBuffer) + 2 ** 32).toString(16);
+  libName = `${hash}-${libName}`;
   fs.ensureDirSync(cachePath);
   const libPath = path.join(getHome(), ".deno_webui", libName);
   if (!fs.existsSync(libPath) || clearCache) {
