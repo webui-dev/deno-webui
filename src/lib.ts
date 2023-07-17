@@ -42,11 +42,6 @@ export function loadLib(
         result: "void",
         nonblocking: true,
       },
-      webui_interface_is_app_running: {
-        // bool webui_interface_is_app_running(void)
-        parameters: [],
-        result: "bool",
-      },
       webui_new_window: {
         // size_t webui_new_window(void)
         parameters: [],
