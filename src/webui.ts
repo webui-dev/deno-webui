@@ -312,10 +312,10 @@ export class WebUI {
         // Create elements
         const win = param_window;
         const event_type = Math.trunc(param_event_type);
-        const element = param_element != null
+        const element = param_element !== null
           ? new Deno.UnsafePointerView(param_element).getCString()
           : "";
-        const data = param_data != null
+        const data = param_data !== null
           ? new Deno.UnsafePointerView(param_data).getCString()
           : "";
         const event_number = Math.trunc(param_event_number);
