@@ -68,9 +68,9 @@ export function loadLib(
         result: "bool",
       },
       webui_run: {
-        // bool webui_run(size_t window, const char* script)
+        // void webui_run(size_t window, const char* script)
         parameters: ["usize", "buffer"],
-        result: "bool",
+        result: "void",
       },
       webui_interface_set_response: {
         // void webui_interface_set_response(size_t window, unsigned int event_number, const char* response)
