@@ -345,6 +345,58 @@ export class WebUI {
   }
 
   /**
+   * Sets a handlers to respond to file requests of the browser.
+   * @param handler - Callback that takes an URL and return a string of a byte array.
+   *
+   * __mime-type of the content only depends of the pathname extension.__
+   * __handler need to be set before rendering the ui__
+   *
+   * @example
+   * const webui = new WebUI()
+   *
+   * //set handler before calling webui.show
+   * webui.setFileHandler(({ pathname }) => {
+   *  if (pathname === '/app.js') return "console.log('hello from client')"
+   *  if (pathname === '/img.png') return imgBytes
+   *  throw new Error(`uknown request "${pathname}""`)
+   * })
+   *
+   * webui.show(
+   *  `<html>
+   *     <script src="app.js"></script>
+   *     <img src="img.png" />
+   *  </html>`
+   * )
+   */
+  setFileHandler(handler: (url: URL) => string | Uint8Array) {
+    // const void* (*handler)(const char *filename, int *length)
+    const cb = new Deno.UnsafeCallback(
+      {
+        parameters: ["buffer"],
+        result: "pointer",
+      },
+      (
+        pointerUrl: Deno.PointerValue,
+      ) => {
+        const url = pointerUrl !== null
+          ? new Deno.UnsafePointerView(pointerUrl).getCString()
+          : "";
+
+        const response = handler(new URL(url, "http://localhost"));
+        const buffer = typeof response === "string"
+          ? toCString(response)
+          : response;
+        return Deno.UnsafePointer.of(buffer);
+      },
+    );
+
+    this.#lib.symbols.webui_set_file_handler(
+      this.#window,
+      cb.pointer,
+    );
+  }
+
+  /**
    * Waits until all web UI was closed for preventing exiting the main thread.
    * @exemple
    * ```ts
