@@ -36,8 +36,8 @@ export class WebUI {
    * Loads webui lib if not done and instanciate a new window.
    * @returns Window id.
    * @param libPath - Full lib path.Use a local lib instead of precached one.
-   * @param clearCache - Clear the cache used by the default static import of webui2 lib.
-   * @throws {Error} If optional local lib not found.
+   * @param clearCache - Clear the cache used by the default static import of compatible webui lib.
+   * @throws {WebUIError} - If optional local lib not found.
    * @example
    * ```ts
    * const webui1 = new WebUI()
@@ -60,7 +60,8 @@ export class WebUI {
 
   /**
    * Update the ui with the new content.
-   * @param {string} content - valid html content or same root file path.
+   * @param {string} content - Valid html content or same root file path.
+   * @throws {WebUIError} - If lib return false status.
    * @example
    * ```ts
    * const webui = new WebUI()
@@ -84,6 +85,7 @@ export class WebUI {
    * Update the ui with the new content with a specific browser.
    * @param {string} content - valid html content or same root file path.
    * @param {number} browser - Browser to use.
+   * @throws {WebUIError} - If lib return false status.
    * @example
    *  ```ts
    * const webui = new WebUI()
