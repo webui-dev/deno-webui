@@ -60,6 +60,7 @@ export class WebUI {
 
   /**
    * Update the ui with the new content.
+   * @returns Promise that resolves when the client bridge is linked.
    * @param {string} content - Valid html content or same root file path.
    * @throws {WebUIError} - If lib return false status.
    * @example
@@ -68,10 +69,12 @@ export class WebUI {
    * //Show the current time
    * webui.show(`<html><p>It is ${new Date().toLocaleTimeString()}</p></html>`)
    * //Show a local file
-   * webui.show('list.txt')
+   * await webui.show('list.txt')
+   * //Await to ensure WebUI.script and WebUI.run can send datas to the client
+   * console.assert(webui.isShown, true)
    * ```
    */
-  show(content: string) {
+  async show(content: string) {
     const status = this.#lib.symbols.webui_show(
       this.#window,
       toCString(content),
@@ -79,10 +82,15 @@ export class WebUI {
     if (!status) {
       throw new WebUIError(`unable to show content`);
     }
+
+    while (!this.isShown) {
+      await new Promise((resolve) => setTimeout(resolve, 125));
+    }
   }
 
   /**
    * Update the ui with the new content with a specific browser.
+   * @returns Promise that resolves when the client bridge is linked.
    * @param {string} content - valid html content or same root file path.
    * @param {number} browser - Browser to use.
    * @throws {WebUIError} - If lib return false status.
@@ -92,10 +100,12 @@ export class WebUI {
    * //Show the current time
    * webui.showBrowser(`<html><p>It is ${new Date().toLocaleTimeString()}</p></html>`, WebUI.Browser.Firefox)
    * //Show a local file
-   * webui.showBrowser('list.txt', Webui.Browser.Firefox)
+   * await webui.showBrowser('list.txt', Webui.Browser.Firefox)
+   * //Await to ensure WebUI.script and WebUI.run can send datas to the client
+   * console.assert(webui.isShown, true)
    * ```
    */
-  showBrowser(
+  async showBrowser(
     content: string,
     browser: WebUI.Browser,
   ) {
@@ -106,6 +116,10 @@ export class WebUI {
     );
     if (!status) {
       throw new WebUIError(`unable to show content`);
+    }
+
+    while (!this.isShown) {
+      await new Promise((resolve) => setTimeout(resolve, 125));
     }
   }
 
