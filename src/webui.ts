@@ -199,7 +199,7 @@ export class WebUI {
    *  </html>`
    * )
    *
-   * const response = await webui.script('updateText("backend action")').catch(console.error)
+   * const response = await webui.script('return updateText("backend action")').catch(console.error)
    * //response == "ok"
    * ```
    */
