@@ -84,7 +84,7 @@ export class WebUI {
     }
 
     while (!this.isShown) {
-      await new Promise((resolve) => setTimeout(resolve, 125));
+      await new Promise((resolve) => setTimeout(resolve, 1_500));
     }
   }
 
@@ -119,7 +119,7 @@ export class WebUI {
     }
 
     while (!this.isShown) {
-      await new Promise((resolve) => setTimeout(resolve, 125));
+      await new Promise((resolve) => setTimeout(resolve, 1_500));
     }
   }
 
