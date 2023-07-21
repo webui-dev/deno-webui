@@ -198,7 +198,8 @@ export class WebUI {
    * Execute a JavaScript script string in a web UI and returns a boolean indicating whether the
    * script execution was successful.
    * @param {string} script - js code to execute.
-   * @param options - response timeout (0 means no timeout) and bufferSize
+   * @param options - response timeout (0 means no timeout) and bufferSize,
+   * default is `{ timeout: 0, bufferSize: 1024 * 8 }`.
    * @returns Promise that resolve or reject the client response.
    * @example
    * ```ts
@@ -221,20 +222,24 @@ export class WebUI {
    */
   script(
     script: string,
-    options: {
-      timeout: number;
-      bufferSize: number;
-    } = { timeout: 0, bufferSize: 1024 * 8 },
+    options?: {
+      timeout?: number;
+      bufferSize?: number;
+    },
   ) {
     // Response Buffer
-    const bufferSize = options.bufferSize > 0 ? options.bufferSize : 1024 * 8;
+    const bufferSize =
+      (options?.bufferSize !== undefined && options.bufferSize > 0)
+        ? options.bufferSize
+        : 1024 * 8;
     const buffer = new Uint8Array(bufferSize);
+    const timeout = options?.timeout ?? 0;
 
     // Execute the script
     const status = this.#lib.symbols.webui_script(
       this.#window,
       toCString(script),
-      options.timeout,
+      timeout,
       buffer,
       bufferSize,
     );
