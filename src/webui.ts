@@ -1,5 +1,5 @@
 /*
-  WebUI Library 2.3.0
+  WebUI Library 2.4.0
 
   http://webui.me
   https://github.com/webui-dev/deno-webui
@@ -21,11 +21,11 @@ import {
 } from "./types.ts";
 import { fromCString, toCString, WebUIError } from "./utils.ts";
 
-//Register loaded lib (and allow mutiple lib source)
+// Register loaded lib (and allow mutiple lib source)
 const libs: Map<string | symbol, WebUILib> = new Map();
 const defaultLib = Symbol("defaultLib");
 
-//Register windows to bind instance to WebUI.Event
+// Register windows to bind instance to WebUI.Event
 const windows: Map<Usize, WebUI> = new Map();
 
 export class WebUI {
@@ -40,8 +40,8 @@ export class WebUI {
    * @throws {WebUIError} - If optional local lib not found.
    * @example
    * ```ts
-   * const webui1 = new WebUI()
-   * const webui2 = new WebUI({ libPath: './local_webui_2.dll' })
+   * const myWindow1 = new WebUI()
+   * const myWindow2 = new WebUI({ libPath: './local_webui_2.dll', clearCache: true })
    * ```
    */
   constructor(
@@ -59,19 +59,22 @@ export class WebUI {
   }
 
   /**
-   * Update the ui with the new content.
+   * Update the UI with the new content.
    * @returns Promise that resolves when the client bridge is linked.
    * @param {string} content - Valid html content or same root file path.
    * @throws {WebUIError} - If lib return false status.
    * @example
    * ```ts
-   * const webui = new WebUI()
-   * //Show the current time
-   * webui.show(`<html><p>It is ${new Date().toLocaleTimeString()}</p></html>`)
-   * //Show a local file
-   * await webui.show('list.txt')
-   * //Await to ensure WebUI.script and WebUI.run can send datas to the client
-   * console.assert(webui.isShown, true)
+   * const myWindow = new WebUI()
+   * 
+   * // Show the current time
+   * myWindow.show(`<html><p>It is ${new Date().toLocaleTimeString()}</p></html>`)
+   * 
+   * // Show a local file
+   * await myWindow.show('list.txt')
+   * 
+   * // Await to ensure WebUI.script and WebUI.run can send datas to the client
+   * console.assert(myWindow.isShown, true)
    * ```
    */
   async show(content: string) {
@@ -84,25 +87,28 @@ export class WebUI {
     }
 
     while (!this.isShown) {
-      await new Promise((resolve) => setTimeout(resolve, 1_500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
   }
 
   /**
-   * Update the ui with the new content with a specific browser.
+   * Update the UI with the new content with a specific browser.
    * @returns Promise that resolves when the client bridge is linked.
    * @param {string} content - valid html content or same root file path.
    * @param {number} browser - Browser to use.
    * @throws {WebUIError} - If lib return false status.
    * @example
    *  ```ts
-   * const webui = new WebUI()
-   * //Show the current time
-   * webui.showBrowser(`<html><p>It is ${new Date().toLocaleTimeString()}</p></html>`, WebUI.Browser.Firefox)
-   * //Show a local file
-   * await webui.showBrowser('list.txt', Webui.Browser.Firefox)
-   * //Await to ensure WebUI.script and WebUI.run can send datas to the client
-   * console.assert(webui.isShown, true)
+   * const myWindow = new WebUI()
+   * 
+   * // Show the current time
+   * myWindow.showBrowser(`<html><p>It is ${new Date().toLocaleTimeString()}</p></html>`, WebUI.Browser.Firefox)
+   * 
+   * // Show a local file
+   * await myWindow.showBrowser('list.txt', Webui.Browser.Firefox)
+   * 
+   * // Await to ensure WebUI.script and WebUI.run can send datas to the client
+   * console.assert(myWindow.isShown, true)
    * ```
    */
   async showBrowser(
@@ -128,12 +134,13 @@ export class WebUI {
    * @returns Display state.
    * @example
    * ```ts
-   * const webui1 = new WebUI()
-   * const webui2 = new WebUI()
-   * webui1.show(`<html><p>View 1</p></html>`)
+   * const myWindow1 = new WebUI()
+   * const myWindow2 = new WebUI()
+   * 
+   * myWindow1.show(`<html><p>View 1</p></html>`)
    *
-   * webui1.isShown //true
-   * webui2.isShown //false
+   * myWindow1.isShown // true
+   * myWindow2.isShown // false
    * ```
    */
   get isShown() {
@@ -142,18 +149,19 @@ export class WebUI {
 
   /**
    * Closes the current window.
-   * If there is no running window left, WebUI.wait will break.
+   * If there is no running window left, WebUI.wait() will break.
    * @example
    * ```ts
-   * const webui1 = new WebUI()
-   * const webui2 = new WebUI()
-   * webui1.show(`<html><p>View 1</p></html>`)
-   * webui2.show(`<html><p>View 2</p></html>`)
+   * const myWindow1 = new WebUI()
+   * const myWindow2 = new WebUI()
+   * 
+   * myWindow1.show(`<html><p>View 1</p></html>`)
+   * myWindow2.show(`<html><p>View 2</p></html>`)
    *
-   * webui2.close()
+   * myWindow2.close()
    *
-   * webui1.isShown //true
-   * webui2.isShown //false
+   * myWindow1.isShown // true
+   * myWindow2.isShown // false
    * ```
    */
   close() {
@@ -167,8 +175,8 @@ export class WebUI {
    * @param {boolean} status - Multi access status of the window.
    * @example
    * ```ts
-   * const webui = new WebUI()
-   * webui.setMultiAccess(true) //ui is accessible through the page url
+   * const myWindow = new WebUI()
+   * myWindow.setMultiAccess(true) // UI is accessible through the page url
    * ```
    */
   setMultiAccess(status: boolean) {
@@ -176,17 +184,19 @@ export class WebUI {
   }
 
   /**
-   * Tries to close all opened windows and make WebUI.wait break.
+   * Tries to close all opened windows and make WebUI.wait() break.
    * @example
    * ```ts
-   * const webui1 = new WebUI()
-   * const webui2 = new WebUI()
-   * webui1.show(`<html><p>View 1</p></html>`)
-   * webui2.show(`<html><p>View 2</p></html>`)
+   * const myWindow1 = new WebUI()
+   * const myWindow2 = new WebUI()
+   * 
+   * myWindow1.show(`<html><p>View 1</p></html>`)
+   * myWindow2.show(`<html><p>View 2</p></html>`)
    *
    * WebUI.exit()
-   * webui1.isShown //false
-   * webui2.isShown //false
+   * 
+   * myWindow1.isShown // false
+   * myWindow2.isShown // false
    * ```
    */
   static exit() {
@@ -194,8 +204,7 @@ export class WebUI {
   }
 
   /**
-   * Execute client code from backend.
-   * Execute a JavaScript script string in a web UI and returns a boolean indicating whether the
+   * Execute a JavaScript string in the UI and returns a boolean indicating whether the
    * script execution was successful.
    * @param {string} script - js code to execute.
    * @param options - response timeout (0 means no timeout) and bufferSize,
@@ -203,21 +212,21 @@ export class WebUI {
    * @returns Promise that resolve or reject the client response.
    * @example
    * ```ts
-   * const webui = new WebUI()
-   * webui.show(
+   * const myWindow = new WebUI()
+   * myWindow.show(
    *  `<html>
-   *    <p id="text"></p>
+   *    <p id="textElement"></p>
    *     <script>
    *      function updateText(text) {
-   *        document.getElementById('text').innerText = text
+   *        document.getElementById('textElement').innerText = text
    *        return 'ok'
    *      }
    *    </script>
    *  </html>`
    * )
    *
-   * const response = await webui.script('return updateText("backend action")').catch(console.error)
-   * //response == "ok"
+   * const response = await myWindow.script('return updateText("backend action")').catch(console.error)
+   * // response == "ok"
    * ```
    */
   script(
@@ -246,7 +255,8 @@ export class WebUI {
 
     const response = fromCString(buffer);
 
-    //TODO call symbol asynchronously
+    // TODO:
+    // Call symbol asynchronously
     if (status) {
       return Promise.resolve(response);
     }
@@ -254,25 +264,24 @@ export class WebUI {
   }
 
   /**
-   * Execute client code from backend.
-   * Execute a JavaScript script string in a web UI without awaiting the result.
+   * Execute a JavaScript string in the UI without awaiting the result.
    * @param {string} script - js code to execute.
    * @example
    * ```ts
-   * const webui = new WebUI()
-   * webui.show(
+   * const myWindow = new WebUI()
+   * myWindow.show(
    *  `<html>
-   *    <p id="text"></p>
+   *    <p id="textElement"></p>
    *     <script>
    *      function updateText(text) {
-   *        document.getElementById('text').innerText = text
+   *        document.getElementById('textElement').innerText = text
    *        return 'ok'
    *      }
    *    </script>
    *  </html>`
    * )
    *
-   * webui.run('updateText("backend action")')
+   * myWindow.run('updateText("backend action")')
    * ```
    */
   run(script: string) {
@@ -292,22 +301,22 @@ export class WebUI {
    * **Value will be stringified.**
    * @example
    * ```ts
-   * const webui = new WebUI()
-   * webui.show(
+   * const myWindow = new WebUI()
+   * myWindow.show(
    *  `<html>
    *    <button id="btn"></button>
    *     <script>
-   *      const response = await webui_fn('myLabel', 'payload') //global function injected by webui loader
+   *      const response = await webui.call('myLabel', 'payload') // Global function injected by webui loader
    *    </script>
    *  </html>`
    * )
    *
-   * webui.bind('btn', ({ element }) => console.log(`${element} was clicked`))
-   * webui.bind('myLabel', ({ data }) => {
-   *  console.log(`ui send "${data}"`)
+   * myWindow.bind('btn', ({ element }) => console.log(`${element} was clicked`))
+   * myWindow.bind('myLabel', ({ data }) => {
+   *  console.log(`UI send "${data}"`)
    *  return "backend response"
    * })
-   * webui.bind('', (event) => console.log(`new ui event was fired (${JSON.stringify(event)})`))
+   * myWindow.bind('', (event) => console.log(`new UI event was fired (${JSON.stringify(event)})`))
    * ```
    */
   bind<T extends JSONValue | undefined | void>(
@@ -373,16 +382,16 @@ export class WebUI {
    * __handler need to be set before rendering the ui__
    *
    * @example
-   * const webui = new WebUI()
+   * const myWindow = new WebUI()
    *
-   * //set handler before calling webui.show
-   * webui.setFileHandler(({ pathname }) => {
+   * // Set handler before calling myWindow.show
+   * myWindow.setFileHandler(({ pathname }) => {
    *  if (pathname === '/app.js') return "console.log('hello from client')"
    *  if (pathname === '/img.png') return imgBytes
    *  throw new Error(`uknown request "${pathname}""`)
    * })
    *
-   * webui.show(
+   * myWindow.show(
    *  `<html>
    *     <script src="app.js"></script>
    *     <img src="img.png" />
@@ -418,30 +427,43 @@ export class WebUI {
   }
 
   /**
-   * Waits until all web UI was closed for preventing exiting the main thread.
+   * Waits until all opened windows are closed for preventing exiting the main thread.
    * @exemple
    * ```ts
-   * const webui = new WebUI()
-   * webui.show(`<html><p>Your page</p></html>`)
-   * //code ...
-   * webui.show('list.txt')
-   * //code ...
-   * WebUI.wait() // aync wait until all windows are closed
+   * const myWindow = new WebUI()
+   * myWindow.show(`<html>Your Page</html>`)
+   * // ...
+   * await WebUI.wait() // Async wait until all windows are closed
    * ```
    */
   static async wait() {
-    //Wait for all opened lib to resolve
-    for (const lib of libs.values()) {
-      await lib.symbols.webui_wait();
-    }
+    // Wait for all opened lib to resolve
+    // for (const lib of libs.values()) {
+    //   await lib.symbols.webui_wait();
+    // }
+
+    // TODO:
+    // The `await lib.symbols.webui_wait()` will block `callbackResource`
+    // so all events (clicks) will be executed when `webui_wait()` finish.
+    // as a work around, we are going to use `sleep()`.
+    let sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    let leave = false
+    while(!leave) {
+      await sleep(10);
+      leave = true
+      for (const lib of libs.values()) {
+        if(lib.symbols.webui_interface_is_app_running())
+          leave = false
+      }
+    }    
   }
 
   static get version() {
-    return "2.3.0";
+    return "2.4.0";
   }
 }
 
-//deno-lint-ignore no-namespace
+// Deno-lint-ignore no-namespace
 export namespace WebUI {
   export type Event = WebUIEvent;
   export enum Browser {

@@ -1,4 +1,4 @@
-# WebUI Deno v2.3.0
+# WebUI Deno v2.4.0
 
 [![Website](https://img.shields.io/circleci/project/github/badges/shields/master?style=for-the-badge)](https://github.com/webui-dev/deno-webui)
 [![Website](https://img.shields.io/github/issues/webui-dev/deno-webui.svg?branch=master&style=for-the-badge&url=https://google.com)](https://github.com/webui-dev/deno-webui/issues)

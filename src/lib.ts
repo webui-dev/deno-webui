@@ -102,6 +102,11 @@ export function loadLib(
         parameters: ["usize", "function"],
         result: "void",
       },
+      webui_interface_is_app_running: {
+        // bool webui_interface_is_app_running(void)
+        parameters: [],
+        result: 'i32',
+      },
     } as const,
   );
 }
