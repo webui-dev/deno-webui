@@ -11,6 +11,7 @@ const myHtml = `
 <!DOCTYPE html>
 <html>
 	<head>
+    <script src="webui.js"></script>
 		<title>WebUI 2 - Deno Hello World Example</title>
         <style>
             body {
