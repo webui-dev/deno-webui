@@ -8,11 +8,11 @@ export function loadLib(
   const libName = (() => {
     switch (Deno.build.os) {
       case "windows":
-        return "webui-2-x64.dll";
+        return "webui-2.dll";
       case "darwin":
-        return "webui-2-x64.dyn";
+        return "webui-2.dyn";
       default:
-        return "webui-2-x64.so";
+        return "webui-2.so";
     }
   })();
 
@@ -53,18 +53,18 @@ export function loadLib(
         result: "bool",
       },
       webui_show_browser: {
-        // bool webui_show_browser(size_t window, const char* content, unsigned int browser)
-        parameters: ["usize", "buffer", "u32"],
+        // bool webui_show_browser(size_t window, const char* content, size_t browser)
+        parameters: ["usize", "buffer", "usize"],
         result: "bool",
       },
       webui_interface_bind: {
-        // unsigned int webui_interface_bind(size_t window, const char* element, void (*func)(size_t, unsigned int, char*, char*, unsigned int))
+        // size_t webui_interface_bind(size_t window, const char* element, void (*func)(size_t, size_t, char*, char*, size_t, size_t))
         parameters: ["usize", "buffer", "function"],
-        result: "u32",
+        result: "usize",
       },
       webui_script: {
-        // bool webui_script(size_t window, const char* script, unsigned int timeout, char* buffer, size_t buffer_length)
-        parameters: ["usize", "buffer", "u32", "buffer", "i32"],
+        // bool webui_script(size_t window, const char* script, size_t timeout, char* buffer, size_t buffer_length)
+        parameters: ["usize", "buffer", "usize", "buffer", "usize"],
         result: "bool",
       },
       webui_run: {
@@ -73,8 +73,8 @@ export function loadLib(
         result: "void",
       },
       webui_interface_set_response: {
-        // void webui_interface_set_response(size_t window, unsigned int event_number, const char* response)
-        parameters: ["usize", "u32", "buffer"],
+        // void webui_interface_set_response(size_t window, size_t event_number, const char* response)
+        parameters: ["usize", "usize", "buffer"],
         result: "void",
       },
       webui_exit: {
@@ -83,29 +83,29 @@ export function loadLib(
         result: "void",
       },
       webui_is_shown: {
-        //bool webui_is_shown(size_t window)
+        // bool webui_is_shown(size_t window)
         parameters: ["usize"],
         result: "bool",
       },
       webui_close: {
-        //void webui_close(size_t window)
+        // void webui_close(size_t window)
         parameters: ["usize"],
         result: "void",
       },
       webui_set_multi_access: {
-        //void webui_set_multi_access(size_t window, bool status)
+        // void webui_set_multi_access(size_t window, bool status)
         parameters: ["usize", "bool"],
         result: "void",
       },
       webui_set_file_handler: {
-        //void webui_set_file_handler(size_t window, const void* (*handler)(const char *filename, int *length)) {
+        // void webui_set_file_handler(size_t window, const void* (*handler)(const char* filename, int* length))
         parameters: ["usize", "function"],
         result: "void",
       },
       webui_interface_is_app_running: {
         // bool webui_interface_is_app_running(void)
         parameters: [],
-        result: 'i32',
+        result: 'bool',
       },
     } as const,
   );

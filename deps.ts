@@ -1,20 +1,20 @@
-//Preload lib files statically
+// Preload lib files statically
 export {
   //@ts-ignore ejm serve { b64: string }
   default as webui2Darwin,
-} from "https://ejm.sh/raw.githubusercontent.com/webui-dev/deno-webui/6fa36e7c15b6ea643e52d9edfcd2fac102d313ce/src/webui-2-x64.dyn" assert {
+} from "https://ejm.sh/raw.githubusercontent.com/webui-dev/deno-webui/_COM_NUM_HERE_/src/webui-macos-clang-x64/webui-2.dyn" assert {
   type: "json",
 };
 export {
   //@ts-ignore ejm serve { b64: string }
   default as webui2Windows,
-} from "https://ejm.sh/raw.githubusercontent.com/webui-dev/deno-webui/6fa36e7c15b6ea643e52d9edfcd2fac102d313ce/src/webui-2-x64.dll" assert {
+} from "https://ejm.sh/raw.githubusercontent.com/webui-dev/deno-webui/_COM_NUM_HERE_/src/webui-windows-msvc-x64/webui-2.dll" assert {
   type: "json",
 };
 export {
   //@ts-ignore ejm serve { b64: string }
   default as webui2Linux,
-} from "https://ejm.sh/raw.githubusercontent.com/webui-dev/deno-webui/6fa36e7c15b6ea643e52d9edfcd2fac102d313ce/src/webui-2-x64.so" assert {
+} from "https://ejm.sh/raw.githubusercontent.com/webui-dev/deno-webui/_COM_NUM_HERE_/src/webui-linux-gcc-x64/webui-2.so" assert {
   type: "json",
 };
 

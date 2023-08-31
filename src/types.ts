@@ -14,6 +14,7 @@ export interface WebUIEvent {
   eventType: number;
   element: string;
   data: string;
+  size: number;
 }
 
 export type WebUILib = Awaited<ReturnType<typeof loadLib>>;

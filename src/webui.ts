@@ -325,15 +325,16 @@ export class WebUI {
   ) {
     const callbackResource = new Deno.UnsafeCallback(
       {
-        // unsigned int webui_interface_bind(..., void (*func)(size_t, unsigned int, char*, char*, unsigned int))
-        parameters: ["usize", "u32", "pointer", "pointer", "u32"],
+        // unsigned int webui_interface_bind(..., void (*func)(size_t, size_t, char*, char*, size_t, size_t))
+        parameters: ["usize", "usize", "pointer", "pointer", "usize", "usize"],
         result: "void",
       } as const,
       async (
-        param_window: Usize,
+        param_window: number,
         param_event_type: number,
         param_element: Deno.PointerValue,
         param_data: Deno.PointerValue,
+        param_event_size: number,
         param_event_number: number,
       ) => {
         // Create elements

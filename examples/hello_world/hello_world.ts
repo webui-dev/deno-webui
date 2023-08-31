@@ -3,7 +3,7 @@
 import { WebUI } from "../../mod.ts";
 
 // Optional - Set a custom library path:
-//  const libPath = './webui-2-x64.dll';
+//  const libPath = './webui-2.dll';
 //  console.log("Looking for the WebUI dynamic library at: " + libPath);
 //  new WebUI({ libPath });
 
