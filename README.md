@@ -41,6 +41,15 @@ webui.show("<html>Hello World</html>");
 await WebUI.wait();
 ```
 
+_MacOS ARM_: To get deno-webui working with an Apple Silicon Mac, you'll need to build [WebUI](https://github.com/webui-dev/webui) your self then pass the path to your dylib:
+
+```js
+const myWindow = new WebUI({
+  libPath: "/path/to/webui-2.dylib",
+  clearCache: false,
+});
+```
+
 ## Repository Examples
 
 - Hello world example:
