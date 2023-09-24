@@ -2,19 +2,19 @@
 export {
   //@ts-ignore ejm serve { b64: string }
   default as webui2Darwin,
-} from "https://ejm.sh/github.com/webui-dev/deno-webui/blob/main/src/webui-macos-clang-x64/webui-2.dylib" assert {
+} from "https://ejm.sh/github.com/7flash/deno-webui/blob/main/src/webui-macos-clang-x64/webui-2.dylib" assert {
   type: "json",
 };
 export {
   //@ts-ignore ejm serve { b64: string }
   default as webui2Windows,
-} from "https://ejm.sh/github.com/webui-dev/deno-webui/blob/main/src/webui-windows-msvc-x64/webui-2.dll" assert {
+} from "https://ejm.sh/github.com/7flash/deno-webui/blob/main/src/webui-windows-msvc-x64/webui-2.dll" assert {
   type: "json",
 };
 export {
   //@ts-ignore ejm serve { b64: string }
   default as webui2Linux,
-} from "https://ejm.sh/github.com/webui-dev/deno-webui/blob/main/src/webui-linux-gcc-x64/webui-2.so" assert {
+} from "https://ejm.sh/github.com/7flash/deno-webui/blob/main/src/webui-linux-gcc-x64/webui-2.so" assert {
   type: "json",
 };
 

@@ -10,7 +10,7 @@ export function loadLib(
       case "windows":
         return "webui-2.dll";
       case "darwin":
-        return "webui-2.dyn";
+        return "webui-2.dylib";
       default:
         return "webui-2.so";
     }
@@ -106,6 +106,11 @@ export function loadLib(
         // bool webui_interface_is_app_running(void)
         parameters: [],
         result: 'bool',
+      },
+      webui_set_profile: {
+        // void webui_set_profile(size_t window, const char* name, const char* path)
+        parameters: ["usize", "buffer", "buffer"],
+        result: "void",
       },
     } as const,
   );
