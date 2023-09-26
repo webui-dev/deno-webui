@@ -409,11 +409,12 @@ export class WebUI {
     // const void* (*handler)(const char *filename, int *length)
     const cb = new Deno.UnsafeCallback(
       {
-        parameters: ["buffer"],
+        parameters: ["buffer", "pointer"],
         result: "pointer",
       },
       (
         pointerUrl: Deno.PointerValue,
+        pointerLength: Deno.PointerValue
       ) => {
         const url = pointerUrl !== null
           ? new Deno.UnsafePointerView(pointerUrl).getCString()
@@ -423,6 +424,10 @@ export class WebUI {
         const buffer = typeof response === "string"
           ? toCString(response)
           : response;
+
+        const lengthView = new Int32Array(Deno.UnsafePointerView.getArrayBuffer(pointerLength, 4));
+        lengthView[0] = buffer.length;
+
         return Deno.UnsafePointer.of(buffer);
       },
     );
@@ -432,7 +437,7 @@ export class WebUI {
       cb.pointer,
     );
   }
-
+  
   /**
    * Waits until all opened windows are closed for preventing exiting the main thread.
    * @exemple
