@@ -86,14 +86,14 @@ export class WebUI {
       throw new WebUIError(`unable to show content`)
     }
 
-    for(let i = 0; i < 120; i++) { // 30 seconds timeout
-      if(!this.isShown)
+    for (let i = 0; i < 120; i++) { // 30 seconds timeout
+      if (!this.isShown)
         await new Promise((resolve) => setTimeout(resolve, 250))
       else
         break
     }
 
-    if(!this.isShown)
+    if (!this.isShown)
       throw new WebUIError(`unable to show content`)
   }
 
@@ -439,6 +439,20 @@ export class WebUI {
   }
   
   /**
+   * Sets the profile name and path for the current window.
+   * @param name - Profile name.
+   * @param path - Profile path.
+   * @example
+   * ```ts
+   * const myWindow = new WebUI();
+   * myWindow.setProfile("myProfile", "/path/to/profile");
+   * ```
+   */
+  setProfile(name: string, path: string) {
+    return this.#lib.symbols.webui_set_profile(this.#window, toCString(name), toCString(path));
+  }
+
+  /**
    * Waits until all opened windows are closed for preventing exiting the main thread.
    * @exemple
    * ```ts
@@ -460,14 +474,14 @@ export class WebUI {
     // as a work around, we are going to use `sleep()`.
     let sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
     let leave = false
-    while(!leave) {
+    while (!leave) {
       await sleep(10);
       leave = true
       for (const lib of libs.values()) {
-        if(lib.symbols.webui_interface_is_app_running())
+        if (lib.symbols.webui_interface_is_app_running())
           leave = false
       }
-    }    
+    }
   }
 
   static get version() {
