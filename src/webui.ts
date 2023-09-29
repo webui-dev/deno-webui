@@ -66,13 +66,13 @@ export class WebUI {
    * @example
    * ```ts
    * const myWindow = new WebUI()
-   * 
+   *
    * // Show the current time
    * myWindow.show(`<html><p>It is ${new Date().toLocaleTimeString()}</p></html>`)
-   * 
+   *
    * // Show a local file
    * await myWindow.show('list.txt')
-   * 
+   *
    * // Await to ensure WebUI.script and WebUI.run can send datas to the client
    * console.assert(myWindow.isShown, true)
    * ```
@@ -83,18 +83,20 @@ export class WebUI {
       toCString(content),
     );
     if (!status) {
-      throw new WebUIError(`unable to show content`)
+      throw new WebUIError(`unable to show content`);
     }
 
     for (let i = 0; i < 120; i++) { // 30 seconds timeout
-      if (!this.isShown)
-        await new Promise((resolve) => setTimeout(resolve, 250))
-      else
-        break
+      if (!this.isShown) {
+        await new Promise((resolve) => setTimeout(resolve, 250));
+      } else {
+        break;
+      }
     }
 
-    if (!this.isShown)
-      throw new WebUIError(`unable to show content`)
+    if (!this.isShown) {
+      throw new WebUIError(`unable to show content`);
+    }
   }
 
   /**
@@ -106,13 +108,13 @@ export class WebUI {
    * @example
    *  ```ts
    * const myWindow = new WebUI()
-   * 
+   *
    * // Show the current time
    * myWindow.showBrowser(`<html><p>It is ${new Date().toLocaleTimeString()}</p></html>`, WebUI.Browser.Firefox)
-   * 
+   *
    * // Show a local file
    * await myWindow.showBrowser('list.txt', Webui.Browser.Firefox)
-   * 
+   *
    * // Await to ensure WebUI.script and WebUI.run can send datas to the client
    * console.assert(myWindow.isShown, true)
    * ```
@@ -142,7 +144,7 @@ export class WebUI {
    * ```ts
    * const myWindow1 = new WebUI()
    * const myWindow2 = new WebUI()
-   * 
+   *
    * myWindow1.show(`<html><p>View 1</p></html>`)
    *
    * myWindow1.isShown // true
@@ -160,7 +162,7 @@ export class WebUI {
    * ```ts
    * const myWindow1 = new WebUI()
    * const myWindow2 = new WebUI()
-   * 
+   *
    * myWindow1.show(`<html><p>View 1</p></html>`)
    * myWindow2.show(`<html><p>View 2</p></html>`)
    *
@@ -195,12 +197,12 @@ export class WebUI {
    * ```ts
    * const myWindow1 = new WebUI()
    * const myWindow2 = new WebUI()
-   * 
+   *
    * myWindow1.show(`<html><p>View 1</p></html>`)
    * myWindow2.show(`<html><p>View 2</p></html>`)
    *
    * WebUI.exit()
-   * 
+   *
    * myWindow1.isShown // false
    * myWindow2.isShown // false
    * ```
@@ -414,7 +416,7 @@ export class WebUI {
       },
       (
         pointerUrl: Deno.PointerValue,
-        pointerLength: Deno.PointerValue
+        pointerLength: Deno.PointerValue,
       ) => {
         const url = pointerUrl !== null
           ? new Deno.UnsafePointerView(pointerUrl).getCString()
@@ -425,7 +427,9 @@ export class WebUI {
           ? toCString(response)
           : response;
 
-        const lengthView = new Int32Array(Deno.UnsafePointerView.getArrayBuffer(pointerLength, 4));
+        const lengthView = new Int32Array(
+          Deno.UnsafePointerView.getArrayBuffer(pointerLength, 4),
+        );
         lengthView[0] = buffer.length;
 
         return Deno.UnsafePointer.of(buffer);
@@ -437,7 +441,7 @@ export class WebUI {
       cb.pointer,
     );
   }
-  
+
   /**
    * Sets the profile name and path for the current window.
    * @param name - Profile name.
@@ -449,7 +453,11 @@ export class WebUI {
    * ```
    */
   setProfile(name: string, path: string) {
-    return this.#lib.symbols.webui_set_profile(this.#window, toCString(name), toCString(path));
+    return this.#lib.symbols.webui_set_profile(
+      this.#window,
+      toCString(name),
+      toCString(path),
+    );
   }
 
   /**
@@ -473,13 +481,14 @@ export class WebUI {
     // so all events (clicks) will be executed when `webui_wait()` finish.
     // as a work around, we are going to use `sleep()`.
     let sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-    let leave = false
+    let leave = false;
     while (!leave) {
       await sleep(10);
-      leave = true
+      leave = true;
       for (const lib of libs.values()) {
-        if (lib.symbols.webui_interface_is_app_running())
-          leave = false
+        if (lib.symbols.webui_interface_is_app_running()) {
+          leave = false;
+        }
       }
     }
   }
@@ -504,5 +513,6 @@ export namespace WebUI {
     Vivaldi, // 8. The Vivaldi Browser
     Epic, // 9. The Epic Browser
     Yandex0, // 10. The Yandex Browser
+    ChromiumBased, // 11. Any Chromium based browser
   }
 }
