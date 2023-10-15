@@ -177,21 +177,6 @@ export class WebUI {
   }
 
   /**
-   * After the window is loaded, the URL is not valid anymore for safety.
-   * WebUI will show an error if someone else tries to access the URL.
-   * To allow multi-user access to the same URL, you can use multiAccess.
-   * @param {boolean} status - Multi access status of the window.
-   * @example
-   * ```ts
-   * const myWindow = new WebUI()
-   * myWindow.setMultiAccess(true) // UI is accessible through the page url
-   * ```
-   */
-  setMultiAccess(status: boolean) {
-    return this.#lib.symbols.webui_set_multi_access(this.#window, status);
-  }
-
-  /**
    * Tries to close all opened windows and make WebUI.wait() break.
    * @example
    * ```ts

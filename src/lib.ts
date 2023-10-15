@@ -175,11 +175,6 @@ export function loadLib(
         parameters: ["usize"],
         result: "void",
       },
-      webui_set_multi_access: {
-        // void webui_set_multi_access(size_t window, bool status)
-        parameters: ["usize", "bool"],
-        result: "void",
-      },
       webui_set_file_handler: {
         // void webui_set_file_handler(size_t window, const void* (*handler)(const char* filename, int* length))
         parameters: ["usize", "function"],
