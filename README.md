@@ -37,7 +37,7 @@ is written in Deno using WebUI as the GUI library.
 import { WebUI } from "https://deno.land/x/webui/mod.ts";
 
 const myWindow = new WebUI();
-webui.show("<html>Hello World</html>");
+myWindow.show("<html>Hello World</html>");
 await WebUI.wait();
 ```
 
