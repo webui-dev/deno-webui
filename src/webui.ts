@@ -14,7 +14,7 @@ import { existsSync } from "../deps.ts";
 import { loadLib } from "./lib.ts";
 import {
   BindCallback,
-  JSONValue,
+  Datatypes,
   Usize,
   WebUIEvent,
   WebUILib,
@@ -286,49 +286,46 @@ export class WebUI {
   }
 
   /**
-   * The `bind` function in TypeScript binds a callback function to a web UI event, passing the event
-   * details to the callback and sending back the response.
-   * @param {string} idOrlabel - DOM element id or webui label to bind the code with. Blank string bind to all DOM elements.
-   * @param callback - Callback to execute.
-   * If a value is returned by the callback it will be sent to client and must be a valid JSON value.
-   * **Value will be stringified.**
+   * Bind a callback function to a an HTML element
+   * 
+   * @param {string} id - DOM element id. Blank string bind to all DOM elements.
+   * @param callback - The callback function.
+   * 
    * @example
    * ```ts
-   * const myWindow = new WebUI()
+   * const myWindow = new WebUI();
    * myWindow.show(
    *  `<html>
-   *    <button id="btn"></button>
-   *     <script>
-   *      const response = await webui.call('myLabel', 'payload') // Global function injected by webui loader
-   *    </script>
+   *    <button id="myBtn"></button>
+   *    <button OnClick="alert(myBackend('Test', 123456))"></button>
    *  </html>`
    * )
    *
-   * myWindow.bind('btn', ({ element }) => console.log(`${element} was clicked`))
-   * myWindow.bind('myLabel', ({ data }) => {
-   *  console.log(`UI send "${data}"`)
-   *  return "backend response"
-   * })
-   * myWindow.bind('', (event) => console.log(`new UI event was fired (${JSON.stringify(event)})`))
+   * myWindow.bind('myBtn', (e: WebUI.Event) => console.log(`${e.element} was clicked`));
+   * myWindow.bind('myBackend', (e: WebUI.Event) => {
+   *    const myArg1 = e.arg.string(0)
+   *    const myArg2 = e.arg.number(1)
+   *    return "backend response"
+   * });
    * ```
    */
-  bind<T extends JSONValue | undefined | void>(
-    idOrlabel: string,
+  bind<T extends Datatypes | undefined | void>(
+    id: string,
     callback: BindCallback<T>,
   ) {
     const callbackResource = new Deno.UnsafeCallback(
       {
-        // unsigned int webui_interface_bind(..., void (*func)(size_t, size_t, char*, char*, size_t, size_t))
-        parameters: ["usize", "usize", "pointer", "pointer", "usize", "usize"],
+        // size_t webui_interface_bind(..., void (*func)(size_t, size_t, char*, size_t, size_t))
+        // func (Window, EventType, Element, EventNumber, BindID)
+        parameters: ["usize", "usize", "pointer", "usize", "usize"],
         result: "void",
       } as const,
       async (
         param_window: number,
         param_event_type: number,
         param_element: Deno.PointerValue,
-        param_data: Deno.PointerValue,
-        param_event_size: number,
         param_event_number: number,
+        param_bind_id: number,
       ) => {
         // Create elements
         const win = param_window;
@@ -336,21 +333,36 @@ export class WebUI {
         const element = param_element !== null
           ? new Deno.UnsafePointerView(param_element).getCString()
           : "";
-        const data = param_data !== null
-          ? new Deno.UnsafePointerView(param_data).getCString()
-          : "";
         const event_number = Math.trunc(param_event_number);
+        const bind_id = Math.trunc(param_bind_id);
+
+        // Set get argument methods
+        const args = {
+          number: (index: number): number => {
+            return this.#lib.symbols.webui_interface_get_int_at(win, event_number, index) as number
+          },
+          string: (index: number): string => {
+            return (
+              new Deno.UnsafePointerView(
+                this.#lib.symbols.webui_interface_get_string_at(win, event_number, index)
+              ).getCString()
+            ) as string
+          },
+          boolean: (index: number): boolean => {
+            return this.#lib.symbols.webui_interface_get_bool_at(win, event_number, index) as boolean
+          }
+        }
 
         // Create struct
         const e: WebUIEvent = {
           window: windows.get(win)!,
           eventType: event_type,
           element: element,
-          data: data,
+          arg: args
         };
 
         // Call the user callback
-        const result = JSON.stringify(await callback(e));
+        const result = await callback(e) as string;
 
         // Send back the response
         this.#lib.symbols.webui_interface_set_response(
@@ -363,26 +375,23 @@ export class WebUI {
 
     this.#lib.symbols.webui_interface_bind(
       this.#window,
-      toCString(idOrlabel),
+      toCString(id),
       callbackResource.pointer,
     );
   }
 
   /**
    * Sets a handlers to respond to file requests of the browser.
+   * 
    * @param handler - Callback that takes an URL and return a string of a byte array.
-   *
-   * __mime-type of the content only depends of the pathname extension.__
-   * __handler need to be set before rendering the ui__
    *
    * @example
    * const myWindow = new WebUI()
-   *
-   * // Set handler before calling myWindow.show
-   * myWindow.setFileHandler(({ pathname }) => {
-   *  if (pathname === '/app.js') return "console.log('hello from client')"
-   *  if (pathname === '/img.png') return imgBytes
-   *  throw new Error(`uknown request "${pathname}""`)
+   * 
+   * myWindow.setFileHandler((myUrl: URL) => {
+   *  if (myUrl.pathname === '/app.js') return "console.log('hello from client')"
+   *  if (myUrl.pathname === '/img.png') return imgBytes
+   *  throw new Error(`uknown request "${myUrl.pathname}""`)
    * })
    *
    * myWindow.show(
@@ -446,13 +455,23 @@ export class WebUI {
   }
 
   /**
+   * Clean all memory resources. WebUI is not usable after this call.
+   */
+  clean() {
+    this.#lib.symbols.webui_clean();
+  }
+
+  /**
    * Waits until all opened windows are closed for preventing exiting the main thread.
+   * 
    * @exemple
    * ```ts
    * const myWindow = new WebUI()
    * myWindow.show(`<html>Your Page</html>`)
-   * // ...
+   * 
    * await WebUI.wait() // Async wait until all windows are closed
+   * 
+   * // You can show windows again, or call WebUI.clean()
    * ```
    */
   static async wait() {
