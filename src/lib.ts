@@ -141,7 +141,7 @@ export function loadLib(
         result: "bool",
       },
       webui_interface_bind: {
-        // size_t webui_interface_bind(size_t window, const char* element, void (*func)(size_t, size_t, char*, char*, size_t, size_t))
+        // size_t webui_interface_bind(size_t window, const char* element, void (*func)(size_t, size_t, char*, size_t, size_t));
         parameters: ["usize", "buffer", "function"],
         result: "usize",
       },
@@ -188,6 +188,31 @@ export function loadLib(
       webui_set_profile: {
         // void webui_set_profile(size_t window, const char* name, const char* path)
         parameters: ["usize", "buffer", "buffer"],
+        result: "void",
+      },
+      webui_interface_get_int_at: {
+        // long long int webui_interface_get_int_at(size_t window, size_t event_number, size_t index)
+        parameters: ["usize", "usize", "usize"],
+        result: "i64",
+      },
+      webui_interface_get_string_at: {
+        // const char* webui_interface_get_string_at(size_t window, size_t event_number, size_t index)
+        parameters: ["usize", "usize", "usize"],
+        result: "buffer",
+      },
+      webui_interface_get_bool_at: {
+        // bool webui_interface_get_bool_at(size_t window, size_t event_number, size_t index)
+        parameters: ["usize", "usize", "usize"],
+        result: "bool",
+      },
+      // webui_interface_get_size_at: {
+      //   // size_t webui_interface_get_size_at(size_t window, size_t event_number, size_t index)
+      //   parameters: ["usize", "usize", "usize"],
+      //   result: "usize",
+      // },
+      webui_clean: {
+        // void webui_clean()
+        parameters: [],
         result: "void",
       },
     } as const,

@@ -47,18 +47,18 @@ const myHtml = `
 </html>
 `;
 
-async function calculate({ window }: WebUI.Event) {
+async function calculate(e: WebUI.Event) {
   // Settings if needed
   // timeout = 30 // Set javascript execution timeout
   // bufferSize = 64 // Set the response size in bytes
 
   // Call a js function
-  const getA = await window.script("return get_A()").catch((error) => {
+  const getA = await e.window.script("return get_A()").catch((error) => {
     console.error(`Error in the JavaScript: ${error}`);
     return "";
   });
 
-  const getB = await window.script("return get_B()").catch((error) => {
+  const getB = await e.window.script("return get_B()").catch((error) => {
     console.error(`Error in the JavaScript: ${error}`);
     return "";
   });
@@ -67,7 +67,7 @@ async function calculate({ window }: WebUI.Event) {
   const result = parseInt(getA) + parseInt(getB);
 
   // Run js (Quick Way)
-  window.run(`set_result(${result});`);
+  e.window.run(`set_result(${result});`);
 }
 
 // Create new window
@@ -82,4 +82,5 @@ myWindow.show(myHtml); // Or myWindow.show('./hello_world.html');
 
 // Wait until all windows get closed
 await WebUI.wait();
+
 console.log("Thank you.");
