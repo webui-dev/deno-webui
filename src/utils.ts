@@ -30,9 +30,9 @@ export function writeLib(
   const cachePath = path.join(getHome(), ".deno_webui");
   const hash = (CRC32.buf(libBuffer) + 2 ** 32).toString(16);
   libName = `${hash}-${libName}`;
-  fs.ensureDirSync(cachePath);
   const libPath = path.join(getHome(), ".deno_webui", libName);
-  if (!fs.existsSync(libPath) || clearCache) {
+  if (clearCache || !fs.existsSync(libPath)) {
+    fs.ensureDirSync(path.dirname(libPath));
     Deno.writeFileSync(libPath, libBuffer);
   }
   if (!fs.existsSync(libPath)) {
