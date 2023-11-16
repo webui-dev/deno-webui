@@ -5,9 +5,7 @@ export type Usize = number | bigint;
 
 export type BindCallback<
   T extends Datatypes | undefined | void,
-> = (
-  event: WebUIEvent,
-) => T | Promise<T>;
+> = (event: WebUIEvent) => T | Promise<T>;
 
 export interface WebUIEvent {
   window: WebUI;

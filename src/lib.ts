@@ -1,123 +1,13 @@
+// Deno WebUI
 // FFI (Foreign Function Interface) for webui.ts
 
 import {
-  webuiLinuxClangX64,
-  webuiLinuxGccAarch64,
-  webuiLinuxGccArm,
-  webuiLinuxGccX64,
-  webuiMacosClangArm64,
-  webuiMacosClangX64,
-  webuiWindowsGccX64,
-  webuiWindowsMsvcX64,
+  libName,
 } from "../deps.ts";
-import { b64ToBuffer, writeLib } from "./utils.ts";
-export function loadLib(
-  { libPath, clearCache }: { libPath?: string; clearCache: boolean },
-) {
-  // Determine the library name based
-  // on the current operating system
-  const libName = (() => {
-    let fileName = "";
-    switch (Deno.build.os) {
-      case "windows":
-        switch (Deno.build.arch) {
-          case "x86_64":
-            fileName = "webui-windows-msvc-x64/webui-2.dll";
-            break;
-          default:
-            throw new Error(
-              `Unsupported architecture ${Deno.build.arch} for Windows`,
-            );
-        }
-        break;
-      case "darwin":
-        switch (Deno.build.arch) {
-          case "x86_64":
-            fileName = "webui-macos-clang-x64/webui-2.dylib";
-            break;
-          // case "arm64":
-          //   fileName = "webui-macos-clang-arm64/webui-2.dylib";
-          //   break;
-          case "aarch64":
-            fileName = "webui-macos-clang-arm64/webui-2.dylib";
-            break;
-          default:
-            throw new Error(
-              `Unsupported architecture ${Deno.build.arch} for Darwin`,
-            );
-        }
-        break;
-      default:
-        // Assuming Linux for default
-        switch (Deno.build.arch) {
-          case "x86_64":
-            fileName = "webui-linux-gcc-x64/webui-2.so";
-            break;
-          // case "arm":
-          //   fileName = "webui-linux-gcc-arm/webui-2.so";
-          //   break;
-          case "aarch64":
-            fileName = "webui-linux-gcc-aarch64/webui-2.so";
-            break;
-          default:
-            throw new Error(
-              `Unsupported architecture ${Deno.build.arch} for Linux`,
-            );
-        }
-        break;
-    }
-    return fileName;
-  })();
 
-  const libBuffer = (() => {
-    if (libPath === undefined) {
-      switch (Deno.build.os) {
-        case "windows":
-          switch (Deno.build.arch) {
-            case "x86_64":
-              return b64ToBuffer(webuiWindowsMsvcX64.b64);
-            default:
-              throw new Error(
-                `Unsupported architecture ${Deno.build.arch} for Windows`,
-              );
-          }
-        case "darwin":
-          switch (Deno.build.arch) {
-            case "x86_64":
-              return b64ToBuffer(webuiMacosClangX64.b64);
-            case "aarch64":
-              return b64ToBuffer(webuiMacosClangArm64.b64);
-            // case "arm64":
-            //   return b64ToBuffer(webuiMacosClangArm64.b64);
-            default:
-              throw new Error(
-                `Unsupported architecture ${Deno.build.arch} for Darwin`,
-              );
-          }
-        default:
-          // Assuming Linux for default
-          switch (Deno.build.arch) {
-            case "x86_64":
-              return b64ToBuffer(webuiLinuxGccX64.b64);
-            // case "arm":
-            //   return b64ToBuffer(webuiLinuxGccArm.b64);
-            case "aarch64":
-              return b64ToBuffer(webuiLinuxGccArm.b64);
-            default:
-              throw new Error(
-                `Unsupported architecture ${Deno.build.arch} for Linux`,
-              );
-          }
-      }
-    }
-    return new Uint8Array();
-  })();
-
-  // Use user defined lib or cached one
-  const libFullPath = libPath ?? writeLib(libName, libBuffer, clearCache);
-
+export function loadLib() {
   return Deno.dlopen(
-    libFullPath,
+    libName,
     {
       webui_wait: {
         // void webui_wait(void)

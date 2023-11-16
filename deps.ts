@@ -1,72 +1,77 @@
+// Deno WebUI
 // Dependences needed by webui.ts
 
-export { existsSync } from "https://deno.land/std@0.192.0/fs/mod.ts";
-export * as path from "https://deno.land/std@0.192.0/path/mod.ts";
-export * as fs from "https://deno.land/std@0.192.0/fs/mod.ts";
-export { default as CRC32 } from "npm:crc-32@1.2.2";
+// Get the current module full path
+const currentModulePath = (() => {
+  const __dirname = new URL('.', import.meta.url).pathname;
+  let directory = String(__dirname);
+  if (Deno.build.os === 'windows') {
+    // Remove first '/'
+    directory = directory.substring(1);
+  }
+  return directory;
+})();
 
-// Preload lib files statically
-
-// Linux Clang x64
-export {
-  //@ts-ignore ejm serve { b64: string }
-  default as webuiLinuxClangX64,
-} from "https://ejm.sh/github.com/webui-dev/deno-webui/blob/main/src/webui-linux-clang-x64/webui-2.so" assert {
-  type: "json",
-};
-
-// Linux GCC aarch64
-export {
-  //@ts-ignore ejm serve { b64: string }
-  default as webuiLinuxGccAarch64,
-} from "https://ejm.sh/github.com/webui-dev/deno-webui/blob/main/src/webui-linux-gcc-aarch64/webui-2.so" assert {
-  type: "json",
-};
-
-// Linux GCC arm
-export {
-  //@ts-ignore ejm serve { b64: string }
-  default as webuiLinuxGccArm,
-} from "https://ejm.sh/github.com/webui-dev/deno-webui/blob/main/src/webui-linux-gcc-arm/webui-2.so" assert {
-  type: "json",
-};
-
-// Linux GCC x64
-export {
-  //@ts-ignore ejm serve { b64: string }
-  default as webuiLinuxGccX64,
-} from "https://ejm.sh/github.com/webui-dev/deno-webui/blob/main/src/webui-linux-gcc-x64/webui-2.so" assert {
-  type: "json",
-};
-
-// MacOS Clang arm64
-export {
-  //@ts-ignore ejm serve { b64: string }
-  default as webuiMacosClangArm64,
-} from "https://ejm.sh/github.com/webui-dev/deno-webui/blob/main/src/webui-macos-clang-arm64/webui-2.dylib" assert {
-  type: "json",
-};
-
-// MacOS Clang x64
-export {
-  //@ts-ignore ejm serve { b64: string }
-  default as webuiMacosClangX64,
-} from "https://ejm.sh/github.com/webui-dev/deno-webui/blob/main/src/webui-macos-clang-x64/webui-2.dylib" assert {
-  type: "json",
-};
-
-// Windows GCC x64
-export {
-  //@ts-ignore ejm serve { b64: string }
-  default as webuiWindowsGccX64,
-} from "https://ejm.sh/github.com/webui-dev/deno-webui/blob/main/src/webui-windows-gcc-x64/webui-2.dll" assert {
-  type: "json",
-};
-
-// Windows MSVC x64
-export {
-  //@ts-ignore ejm serve { b64: string }
-  default as webuiWindowsMsvcX64,
-} from "https://ejm.sh/github.com/webui-dev/deno-webui/blob/main/src/webui-windows-msvc-x64/webui-2.dll" assert {
-  type: "json",
-};
+// Determine the library name based
+// on the current operating system
+export const libName = (() => {
+  let fileName = "";
+  switch (Deno.build.os) {
+    case "windows":
+      switch (Deno.build.arch) {
+        case "x86_64":
+          fileName = "webui-windows-msvc-x64/webui-2.dll";
+          break;
+        case "arm":
+          fileName = "webui-windows-msvc-arm/webui-2.dll";
+          break;
+        case "arm64":
+        case "aarch64":
+          fileName = "webui-windows-msvc-arm64/webui-2.dll";
+          break;
+        default:
+          throw new Error(
+            `Unsupported architecture ${Deno.build.arch} for Windows`,
+          );
+      }
+      break;
+    case "darwin":
+      switch (Deno.build.arch) {
+        case "x86_64":
+          fileName = "webui-macos-clang-x64/webui-2.dylib";
+          break;
+        case "arm":
+          fileName = "webui-macos-clang-arm/webui-2.dylib";
+          break;
+        case "arm64":
+        case "aarch64":
+          fileName = "webui-macos-clang-arm64/webui-2.dylib";
+          break;
+        default:
+          throw new Error(
+            `Unsupported architecture ${Deno.build.arch} for macOS`,
+          );
+      }
+      break;
+    default:
+      // Assuming Linux for default
+      switch (Deno.build.arch) {
+        case "x86_64":
+          fileName = "webui-linux-gcc-x64/webui-2.so";
+          break;
+        case "arm":
+          fileName = "webui-linux-gcc-arm/webui-2.so";
+          break;
+        case "arm64":
+        case "aarch64":
+          fileName = "webui-linux-gcc-arm64/webui-2.so";
+          break;
+        default:
+          throw new Error(
+            `Unsupported architecture ${Deno.build.arch} for Linux`,
+          );
+      }
+      break;
+  }
+  return currentModulePath + '/src/' + fileName;
+})();

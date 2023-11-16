@@ -1,3 +1,17 @@
+# Deno binaries
+src/webui-windows-msvc-x64/
+src/webui-windows-msvc-arm/
+src/webui-windows-msvc-arm64/
+src/webui-macos-clang-x64/
+src/webui-macos-clang-arm/
+src/webui-macos-clang-arm64/
+src/webui-linux-gcc-x64/
+src/webui-linux-gcc-arm/
+src/webui-linux-gcc-arm64/
+*.dll
+*.so
+*.dylib
+
 # Build
 *.exe
 *.ilk

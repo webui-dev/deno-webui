@@ -1,11 +1,11 @@
-// Run this script by:
+// To run this script:
 // deno run --allow-all --unstable hello_world.ts
+
+// Import from local
 import { WebUI } from "../../mod.ts";
 
-// Optional - Set a custom library path:
-//  const libPath = './webui-2.dll';
-//  console.log("Looking for the WebUI dynamic library at: " + libPath);
-//  new WebUI({ libPath });
+// Import from deno.land
+// import { WebUI } from "https://deno.land/x/webui/mod.ts";
 
 const myHtml = `
 <!DOCTYPE html>
@@ -13,24 +13,42 @@ const myHtml = `
 	<head>
     <script src="webui.js"></script>
 		<title>WebUI 2 - Deno Hello World Example</title>
-        <style>
-            body {
-                color: white;
-                background: #101314;
-                background: linear-gradient(to right, #101314, #0f1c20, #061f2a);
-                text-align: center;
-                font-size: 16px;
-                font-family: sans-serif;
-            }
-        </style>
+    <style>
+      body {
+        font-family: 'Arial', sans-serif;
+        color: white;
+        background: linear-gradient(to right, #507d91, #1c596f, #022737);
+        text-align: center;
+        font-size: 18px;
+      }
+      button, input {
+        padding: 10px;
+        margin: 10px;
+        border-radius: 3px;
+        border: 1px solid #ccc;
+        box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+        transition: 0.2s;
+      }
+      button {
+        background: #3498db;
+        color: #fff; 
+        cursor: pointer;
+        font-size: 16px;
+      }
+      h1 { text-shadow: -7px 10px 7px rgb(67 57 57 / 76%); }
+      button:hover { background: #c9913d; }
+      input:focus { outline: none; border-color: #3498db; }
+    </style>
     </head>
     <body>
         <h1>WebUI 2 - Deno Hello World (File)</h1><br>
         A: <input id="MyInputA" value="4"><br><br>
         B: <input id="MyInputB" value="6"><br><br>
-        <div id="Result" style="color: #dbdd52">A + B = ?</div><br><br>
-	    <button id="Calculate">Calculate</button> - <button id="Exit">Exit</button>
+        <div id="Result" style="color: #dbdd52">Result: ?</div><br><br>
+	    <button id="calculate">Calculate</button> - <button OnClick="startCheck()">Check Result</button> - <button id="exit">Exit</button>
         <script>
+            let Res = 0;
+
             function get_A() {
               return parseInt(document.getElementById('MyInputA').value);
             }
@@ -40,24 +58,39 @@ const myHtml = `
             }
 
             function set_result(res) {
-              document.getElementById("Result").innerHTML = 'A + B = ' + res;
+              Res = res;
+              document.getElementById("Result").innerHTML = 'Result: ' + Res;
+            }
+
+            function startCheck() {
+              // Call Deno backend function and pass arguments
+              checkResult(get_A(), get_B(), Res).then((response) => {
+                alert(response);
+              });
             }
         </script>
     </body>    
 </html>
 `;
 
-async function calculate(e: WebUI.Event) {
-  // Settings if needed
-  // timeout = 30 // Set javascript execution timeout
-  // bufferSize = 64 // Set the response size in bytes
+async function checkResult(e: WebUI.Event) {
+  const a = e.arg.number(0); // First argument
+  const b = e.arg.number(1); // Second argument
+  const res = e.arg.number(2); // Third argument
+  if ((a + b) == res) {
+    return `Correct: ${a} + ${b} = ${res}`;
+  }
+  else {
+    return `Incorrect: ${a} + ${b} != ${res}`;
+  }
+}
 
-  // Call a js function
+async function calculate(e: WebUI.Event) {
+  // Run JavaScript and wait for response
   const getA = await e.window.script("return get_A()").catch((error) => {
     console.error(`Error in the JavaScript: ${error}`);
     return "";
   });
-
   const getB = await e.window.script("return get_B()").catch((error) => {
     console.error(`Error in the JavaScript: ${error}`);
     return "";
@@ -66,7 +99,7 @@ async function calculate(e: WebUI.Event) {
   // Calculate
   const result = parseInt(getA) + parseInt(getB);
 
-  // Run js (Quick Way)
+  // Run JavaScript without waiting for response (Quick)
   e.window.run(`set_result(${result});`);
 }
 
@@ -74,11 +107,15 @@ async function calculate(e: WebUI.Event) {
 const myWindow = new WebUI();
 
 // Bind
-myWindow.bind("Calculate", calculate);
-myWindow.bind("Exit", () => WebUI.exit()); // Close all windows and exit
+myWindow.bind("calculate", calculate);
+myWindow.bind("checkResult", checkResult);
+myWindow.bind("exit", () => {
+  // Close all windows and exit
+  WebUI.exit();
+});
 
 // Show the window
-myWindow.show(myHtml); // Or myWindow.show('./hello_world.html');
+myWindow.show(myHtml); // Or myWindow.show('./myFile.html');
 
 // Wait until all windows get closed
 await WebUI.wait();

@@ -1,13 +1,26 @@
-# WebUI Deno v2.4.0
+<div align="center">
 
-[![Website](https://img.shields.io/circleci/project/github/badges/shields/master?style=for-the-badge)](https://github.com/webui-dev/deno-webui)
-[![Website](https://img.shields.io/github/issues/webui-dev/deno-webui.svg?branch=master&style=for-the-badge&url=https://google.com)](https://github.com/webui-dev/deno-webui/issues)
-[![Website](https://img.shields.io/website?label=webui.me&style=for-the-badge&url=https://google.com)](https://webui.me/)
+![Logo](https://github.com/webui-dev/deno-webui/assets/34311583/c92e712f-0698-486a-a460-d4acea28a4f8)
 
-> Use any web browser as GUI, with Deno in the backend and HTML5 in the
-> frontend, all in a lightweight Deno module.
+# Deno WebUI v2.4.0
 
-![ScreenShot](img/screenshot.png)
+[last-commit]: https://img.shields.io/github/last-commit/webui-dev/webui?style=for-the-badge&logo=github&logoColor=C0CAF5&labelColor=414868
+[release-version]: https://img.shields.io/github/v/tag/webui-dev/webui?style=for-the-badge&logo=webtrees&logoColor=C0CAF5&labelColor=414868&color=7664C6
+[license]: https://img.shields.io/github/license/webui-dev/webui?style=for-the-badge&logo=opensourcehardware&label=License&logoColor=C0CAF5&labelColor=414868&color=8c73cc
+
+[![][last-commit]](https://github.com/webui-dev/deno-webui/pulse)
+[![][release-version]](https://github.com/webui-dev/deno-webui/releases/latest)
+[![][license]](https://github.com/webui-dev/deno-webui/blob/main/LICENSE)
+
+> WebUI is not a web-server solution or a framework, but it allows you to use any web browser as a GUI, with your preferred language in the backend and HTML5 in the frontend. All in a lightweight portable lib.
+
+![Screenshot](https://github.com/webui-dev/webui/assets/34311583/57992ef1-4f7f-4d60-8045-7b07df4088c6)
+
+</div>
+
+## Download
+
+- [Latest Stable Release](https://github.com/webui-dev/deno-webui/releases)
 
 ## Features
 
@@ -21,8 +34,7 @@
 
 ## Screenshot
 
-This
-[text editor example](https://github.com/webui-dev/deno-webui/tree/main/examples)
+This [text editor example](https://github.com/webui-dev/deno-webui/tree/main/examples)
 is written in Deno using WebUI as the GUI library.
 
 ![ScreenShot](img/webui_deno_example.png)
@@ -37,32 +49,15 @@ is written in Deno using WebUI as the GUI library.
 import { WebUI } from "https://deno.land/x/webui/mod.ts";
 
 const myWindow = new WebUI();
-myWindow.show("<html>Hello World</html>");
+webui.show("<html>Hello World</html>");
 await WebUI.wait();
 ```
 
-_MacOS ARM_: To get deno-webui working with an Apple Silicon Mac, you'll need to build [WebUI](https://github.com/webui-dev/webui) your self then pass the path to your dylib:
-
-```js
-const myWindow = new WebUI({
-  libPath: "/path/to/webui-2.dylib",
-  clearCache: false,
-});
-```
-
-## Repository Examples
+## Examples
 
 - Hello world example:
   ```sh
   deno run -A --unstable https://deno.land/x/webui/examples/hello_world/hello_world.ts
-  ```
-- Manage multi windows:
-  ```sh
-  deno run -A --unstable https://deno.land/x/webui/examples/multi_windows/main.ts
-  ```
-- Browse your local filesystem
-  ```sh
-  deno run -A --unstable https://deno.land/x/webui/examples/file_explorer/main.ts
   ```
 
 [More examples](https://github.com/webui-dev/deno-webui/tree/main/examples)
@@ -138,57 +133,38 @@ browser**.
 
 |                                 | WebView           | Qt                         | WebUI               |
 | ------------------------------- | ----------------- | -------------------------- | ------------------- |
-| Runtime Dependencies on Windows | _WebView2_        | _QtCore, QtGui, QtWidgets_ | _**A Web Browser**_ |
-| Runtime Dependencies on Linux   | _GTK3, WebKitGTK_ | _QtCore, QtGui, QtWidgets_ | _**A Web Browser**_ |
-| Runtime Dependencies on macOS   | _Cocoa, WebKit_   | _QtCore, QtGui, QtWidgets_ | _**A Web Browser**_ |
+| Runtime Dependencies on Windows | _WebView2_        | _QtCore, QtGui, QtWidgets_ | **_A Web Browser_** |
+| Runtime Dependencies on Linux   | _GTK3, WebKitGTK_ | _QtCore, QtGui, QtWidgets_ | **_A Web Browser_** |
+| Runtime Dependencies on macOS   | _Cocoa, WebKit_   | _QtCore, QtGui, QtWidgets_ | **_A Web Browser_** |
 
 ## Supported Web Browsers
 
-| OS      | Browser         | Status           |
-| ------- | --------------- | ---------------- |
-| Windows | Mozilla Firefox | ✔️                |
-| Windows | Google Chrome   | ✔️                |
-| Windows | Microsoft Edge  | ✔️                |
-| Windows | Chromium        | ✔️                |
-| Windows | Yandex          | ✔️                |
-| Windows | Brave           | ✔️                |
-| Windows | Vivaldi         | ✔️                |
-| Windows | Epic            | ✔️                |
-| Windows | Opera           | _coming soon_    |
-| -       | -               | -                |
-| Linux   | Mozilla Firefox | ✔️                |
-| Linux   | Google Chrome   | ✔️                |
-| Linux   | Microsoft Edge  | ✔️                |
-| Linux   | Chromium        | ✔️                |
-| Linux   | Yandex          | ✔️                |
-| Linux   | Brave           | ✔️                |
-| Linux   | Vivaldi         | ✔️                |
-| Linux   | Epic            | _Does Not Exist_ |
-| Linux   | Opera           | _coming soon_    |
-| -       | -               | -                |
-| macOS   | Mozilla Firefox | ✔️                |
-| macOS   | Google Chrome   | ✔️                |
-| macOS   | Microsoft Edge  | ✔️                |
-| macOS   | Chromium        | ✔️                |
-| macOS   | Yandex          | ✔️                |
-| macOS   | Brave           | ✔️                |
-| macOS   | Vivaldi         | ✔️                |
-| macOS   | Epic            | ✔️                |
-| macOS   | Apple Safari    | _coming soon_    |
-| macOS   | Opera           | _coming soon_    |
+| Browser         | Windows         | macOS         | Linux           |
+| --------------- | --------------- | ------------- | --------------- |
+| Mozilla Firefox | ✔️              | ✔️            | ✔️              |
+| Google Chrome   | ✔️              | ✔️            | ✔️              |
+| Microsoft Edge  | ✔️              | ✔️            | ✔️              |
+| Chromium        | ✔️              | ✔️            | ✔️              |
+| Yandex          | ✔️              | ✔️            | ✔️              |
+| Brave           | ✔️              | ✔️            | ✔️              |
+| Vivaldi         | ✔️              | ✔️            | ✔️              |
+| Epic            | ✔️              | ✔️            | _not available_ |
+| Apple Safari    | _not available_ | _coming soon_ | _not available_ |
+| Opera           | _coming soon_   | _coming soon_ | _coming soon_   |
 
 ## Supported Languages
 
 | Language                | Status         | Link                                                      |
 | ----------------------- | -------------- | --------------------------------------------------------- |
-| C/C++                   | ✔️              | [WebUI](https://github.com/webui-dev/webui)               |
-| Python                  | ✔️              | [Python-WebUI](https://github.com/webui-dev/python-webui) |
-| TypeScript / JavaScript | ✔️              | [Deno-WebUI](https://github.com/webui-dev/deno-webui)     |
-| Go                      | ✔️              | [Go-WebUI](https://github.com/webui-dev/go-webui)         |
-| Rust                    | _Not Complete_ | [Rust-WebUI](https://github.com/webui-dev/rust-webui)     |
-| V                       | ✔️              | [V-WebUI](https://github.com/webui-dev/v-webui)           |
-| Nim                     | ✔️              | [Nim-WebUI](https://github.com/webui-dev/nim-webui)       |
-| Zig                     | _Not Complete_ | [Zig-WebUI](https://github.com/webui-dev/zig-webui)       |
+| Go                      | ✔️             | [Go-WebUI](https://github.com/webui-dev/go-webui)         |
+| Nim                     | ✔️             | [Nim-WebUI](https://github.com/webui-dev/nim-webui)       |
+| Pascal                  | ✔️             | [Pascal-WebUI](https://github.com/webui-dev/pascal-webui) |
+| Python                  | ✔️             | [Python-WebUI](https://github.com/webui-dev/python-webui) |
+| Rust                    | _not complete_ | [Rust-WebUI](https://github.com/webui-dev/rust-webui)     |
+| TypeScript / JavaScript | ✔️             | [Deno-WebUI](https://github.com/webui-dev/deno-webui)     |
+| V                       | ✔️             | [V-WebUI](https://github.com/webui-dev/v-webui)           |
+| Zig                     | _not complete_ | [Zig-WebUI](https://github.com/webui-dev/zig-webui)       |
+| Odin                    | _not complete_ | [Odin-WebUI](https://github.com/webui-dev/odin-webui)       |
 
 ### License
 
