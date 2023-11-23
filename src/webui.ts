@@ -23,6 +23,9 @@ import { fromCString, toCString, WebUIError } from "./utils.ts";
 // Register windows to bind instance to WebUI.Event
 const windows: Map<Usize, WebUI> = new Map();
 
+// Global lib entry
+let _lib: WebUILib;
+
 export class WebUI {
   #window: Usize;
   #lib: WebUILib;
@@ -40,6 +43,11 @@ export class WebUI {
     this.#lib = loadLib();
     this.#window = this.#lib.symbols.webui_new_window();
     windows.set(this.#window, this);
+    // Global lib entry
+    if (typeof _lib === 'undefined') {
+      // The ref _lib is used by static members like `wait()`
+      _lib = this.#lib;
+    }
   }
 
   /**
@@ -185,8 +193,7 @@ export class WebUI {
    * ```
    */
   static exit() {
-    let lib = loadLib();
-    lib.symbols.webui_exit();
+    _lib.symbols.webui_exit();
   }
 
   /**
@@ -431,7 +438,7 @@ export class WebUI {
    * Clean all memory resources. WebUI is not usable after this call.
    */
   clean() {
-    this.#lib.symbols.webui_clean();
+    _lib.symbols.webui_clean();
   }
 
   /**
@@ -449,17 +456,14 @@ export class WebUI {
    */
   static async wait() {
     // TODO:
-    // The `await lib.symbols.webui_wait()` will block `callbackResource`
+    // The `await _lib.symbols.webui_wait()` will block `callbackResource`
     // so all events (clicks) will be executed when `webui_wait()` finish.
     // as a work around, we are going to use `sleep()`.
     let sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-    let leave = false;
-    while (!leave) {
-      await sleep(10);
-      leave = true;
-      let lib = loadLib();
-      if (lib.symbols.webui_interface_is_app_running()) {
-        leave = false;
+    while (1) {
+      await sleep(100);
+      if (!_lib.symbols.webui_interface_is_app_running()) {
+        break;
       }
     }
   }
