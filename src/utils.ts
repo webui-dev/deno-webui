@@ -1,6 +1,27 @@
 // Deno WebUI
 // Utilities
 
+export async function fileExists(path) {
+  try {
+    await Deno.stat(path);
+    return true;
+  } catch (error) {
+    if (error instanceof Deno.errors.NotFound) {
+      return false;
+    } else {
+      throw error;
+    }
+  }
+}
+
+export async function runCommand(command) {
+  const process = Deno.run({
+    cmd: command
+  });
+  await process.status();
+  process.close();
+}
+
 /**
  * Convert a String to C-String.
  * @param {string} value

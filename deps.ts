@@ -1,20 +1,27 @@
 // Deno WebUI
 // Dependences needed by webui.ts
 
+import { 
+  fileExists,
+  runCommand
+} from "./src/utils.ts";
+
 // Get the current module full path
 const currentModulePath = (() => {
   const __dirname = new URL('.', import.meta.url).pathname;
   let directory = String(__dirname);
   if (Deno.build.os === 'windows') {
-    // Remove first '/'
-    directory = directory.substring(1);
+    if (directory.startsWith('/')) {
+      // Remove first '/'
+      directory = directory.slice(1);
+    }
   }
   return directory;
 })();
 
 // Determine the library name based
 // on the current operating system
-export const libName = (() => {
+async function getLibName() {
   let fileName = "";
   switch (Deno.build.os) {
     case "windows":
@@ -73,5 +80,25 @@ export const libName = (() => {
       }
       break;
   }
-  return currentModulePath + '/src/' + fileName;
-})();
+  const srcFullPath = currentModulePath + '/src/';
+  const FullPath = srcFullPath + fileName;
+  const exists = await fileExists(FullPath);
+  if (!exists) {
+    // Run bootstrap script to download WebUI binaries
+    switch (Deno.build.os) {
+      case "windows":
+        // Windows
+        let path = srcFullPath.replace(/\//g, "\\");
+        await runCommand(["cmd.exe", "/c", `cd ${path} && bootstrap.bat minimal`]);
+        break;
+      default:
+        // Linux - macOS
+        // TODO: Run: cd {srcFullPath} && sh bootstrap.sh minimal
+        //
+        // await runCommand(["/bin/bash", "-c", `cd ${srcFullPath} && sh bootstrap.sh minimal`]);
+    }
+  }
+  return FullPath;
+}
+
+export const libName = await getLibName();
