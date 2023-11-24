@@ -5,6 +5,8 @@ import * as path from "https://deno.land/std/path/mod.ts";
 import { ensureDir, move } from "https://deno.land/std/fs/mod.ts";
 import { BlobReader, BlobWriter, ZipReader } from "https://deno.land/x/zipjs/index.js";
 
+configure({ useWebWorkers: false });
+
 // Get current module full folder path
 export const currentModulePath = (() => {
   const __dirname = new URL('.', import.meta.url).pathname;
