@@ -3,7 +3,6 @@ SETLOCAL
 
 :: This script downloads the trusted WebUI compiled library by GitHub CI for Windows.
 
-SET "BASE_URL=https://github.com/webui-dev/webui/releases/download/2.4.0/"
 IF "%1"=="minimal" (
     goto MINIMAL
 )
@@ -17,20 +16,20 @@ echo.
 mkdir "cache" 2>nul 1>nul
 
 :: Nightly Build
-SET "LINUX_ARM=https://github.com/webui-dev/webui/releases/download/nightly/webui-linux-gcc-arm.zip"
-SET "LINUX_ARM64=https://github.com/webui-dev/webui/releases/download/nightly/webui-linux-gcc-arm64.zip"
-SET "LINUX_X64=https://github.com/webui-dev/webui/releases/download/nightly/webui-linux-gcc-x64.zip"
-SET "MACOS_ARM64=https://github.com/webui-dev/webui/releases/download/nightly/webui-macos-clang-arm64.zip"
-SET "MACOS_X64=https://github.com/webui-dev/webui/releases/download/nightly/webui-macos-clang-x64.zip"
-SET "WINDOWS_MSVC_X64=https://github.com/webui-dev/webui/releases/download/nightly/webui-windows-msvc-x64.zip"
+:: SET "LINUX_ARM=https://github.com/webui-dev/webui/releases/download/nightly/webui-linux-gcc-arm.zip"
+:: SET "LINUX_ARM64=https://github.com/webui-dev/webui/releases/download/nightly/webui-linux-gcc-arm64.zip"
+:: SET "LINUX_X64=https://github.com/webui-dev/webui/releases/download/nightly/webui-linux-gcc-x64.zip"
+:: SET "MACOS_ARM64=https://github.com/webui-dev/webui/releases/download/nightly/webui-macos-clang-arm64.zip"
+:: SET "MACOS_X64=https://github.com/webui-dev/webui/releases/download/nightly/webui-macos-clang-x64.zip"
+:: SET "WINDOWS_MSVC_X64=https://github.com/webui-dev/webui/releases/download/nightly/webui-windows-msvc-x64.zip"
 
 :: Release
-:: SET "LINUX_ARM=https://github.com/webui-dev/webui/releases/download/2.4.0/webui-linux-gcc-arm.zip"
-:: SET "LINUX_ARM64=https://github.com/webui-dev/webui/releases/download/2.4.0/webui-linux-gcc-arm64.zip"
-:: SET "LINUX_X64=https://github.com/webui-dev/webui/releases/download/2.4.0/webui-linux-gcc-x64.zip"
-:: SET "MACOS_ARM64=https://github.com/webui-dev/webui/releases/download/2.4.0/webui-macos-clang-arm64.zip"
-:: SET "MACOS_X64=https://github.com/webui-dev/webui/releases/download/2.4.0/webui-macos-clang-x64.zip"
-:: SET "WINDOWS_MSVC_X64=https://github.com/webui-dev/webui/releases/download/2.4.0/webui-windows-msvc-x64.zip"
+SET "LINUX_ARM=https://github.com/webui-dev/webui/releases/download/2.4.1/webui-linux-gcc-arm.zip"
+SET "LINUX_ARM64=https://github.com/webui-dev/webui/releases/download/2.4.1/webui-linux-gcc-arm64.zip"
+SET "LINUX_X64=https://github.com/webui-dev/webui/releases/download/2.4.1/webui-linux-gcc-x64.zip"
+SET "MACOS_ARM64=https://github.com/webui-dev/webui/releases/download/2.4.1/webui-macos-clang-arm64.zip"
+SET "MACOS_X64=https://github.com/webui-dev/webui/releases/download/2.4.1/webui-macos-clang-x64.zip"
+SET "WINDOWS_MSVC_X64=https://github.com/webui-dev/webui/releases/download/2.4.1/webui-windows-msvc-x64.zip"
 
 :: Download and extract archives
 CALL :DOWNLOAD_AND_EXTRACT %LINUX_ARM% webui-linux-gcc-arm webui-2.so
@@ -73,6 +72,8 @@ GOTO :EOF
 :: --- Minimal ----------------------------------
 :: Download WebUI library for only the current OS.
 :MINIMAL
+
+SET "BASE_URL=https://github.com/webui-dev/webui/releases/download/2.4.1/"
 
 :: Check the CPU architecture
 IF "%PROCESSOR_ARCHITECTURE%"=="x86" (

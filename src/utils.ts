@@ -77,7 +77,7 @@ export async function fileExists(filePath: string) {
 
 export async function downloadCoreLibrary() {
   // Base URL
-  const baseUrl = "https://github.com/webui-dev/webui/releases/download/nightly/";
+  const baseUrl = "https://github.com/webui-dev/webui/releases/download/2.4.1/";
   // Detect OS
   let os, cc, ext, arch;
   switch (Deno.build.os) {

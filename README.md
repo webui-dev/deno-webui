@@ -2,7 +2,7 @@
 
 ![Logo](img/webui.png)
 
-# Deno WebUI v2.4.0
+# Deno WebUI v2.4.1
 
 [last-commit]: https://img.shields.io/github/last-commit/webui-dev/webui?style=for-the-badge&logo=github&logoColor=C0CAF5&labelColor=414868
 [release-version]: https://img.shields.io/github/v/tag/webui-dev/webui?style=for-the-badge&logo=webtrees&logoColor=C0CAF5&labelColor=414868&color=7664C6
