@@ -1,11 +1,11 @@
 // To run this script:
 // deno run --allow-all --unstable hello_world.ts
 
-// Import from local
-import { WebUI } from "../../mod.ts";
+// Import from local (Debugging and Development)
+// import { WebUI } from "../../mod.ts";
 
-// Import from deno.land
-// import { WebUI } from "https://deno.land/x/webui/mod.ts";
+// Import from deno.land (Production)
+import { WebUI } from "https://deno.land/x/webui/mod.ts";
 
 const myHtml = `
 <!DOCTYPE html>

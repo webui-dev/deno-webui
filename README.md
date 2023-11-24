@@ -49,16 +49,13 @@ is written in Deno using WebUI as the GUI library.
 import { WebUI } from "https://deno.land/x/webui/mod.ts";
 
 const myWindow = new WebUI();
-webui.show("<html><script src="webui.js"></script> Hello World! </html>");
+myWindow.show('<html><script src="webui.js"></script> Hello World! </html>');
 await WebUI.wait();
 ```
 
-## Examples
-
-- Hello world example:
-  ```sh
-  deno run --allow-all --unstable hello_world.ts
-  ```
+```sh
+deno run --allow-all --unstable minimal.ts
+```
 
 [More examples](https://github.com/webui-dev/deno-webui/tree/main/examples)
 
