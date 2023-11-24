@@ -1,6 +1,6 @@
 <div align="center">
 
-![Logo](https://github.com/webui-dev/deno-webui/assets/34311583/c92e712f-0698-486a-a460-d4acea28a4f8)
+![Logo](img/webui.png)
 
 # Deno WebUI v2.4.0
 
@@ -14,7 +14,7 @@
 
 > WebUI is not a web-server solution or a framework, but it allows you to use any web browser as a GUI, with your preferred language in the backend and HTML5 in the frontend. All in a lightweight portable lib.
 
-![Screenshot](https://github.com/webui-dev/webui/assets/34311583/57992ef1-4f7f-4d60-8045-7b07df4088c6)
+![Screenshot](img/screenshot.png)
 
 </div>
 
@@ -34,7 +34,7 @@
 
 ## Screenshot
 
-This [text editor example](https://github.com/webui-dev/deno-webui/tree/main/examples)
+This [hello world example](https://github.com/webui-dev/deno-webui/tree/main/examples/hello_world)
 is written in Deno using WebUI as the GUI library.
 
 ![ScreenShot](img/webui_deno_example.png)
@@ -49,7 +49,7 @@ is written in Deno using WebUI as the GUI library.
 import { WebUI } from "https://deno.land/x/webui/mod.ts";
 
 const myWindow = new WebUI();
-webui.show("<html>Hello World</html>");
+webui.show("<html><script src="webui.js"></script> Hello World! </html>");
 await WebUI.wait();
 ```
 
@@ -57,30 +57,10 @@ await WebUI.wait();
 
 - Hello world example:
   ```sh
-  deno run -A --unstable https://deno.land/x/webui/examples/hello_world/hello_world.ts
+  deno run --allow-all --unstable hello_world.ts
   ```
 
 [More examples](https://github.com/webui-dev/deno-webui/tree/main/examples)
-
-## Security flags
-
-Minimal required flags for running the module are:
-
-| flag        | value                                  | purpose                                  |
-| ----------- | -------------------------------------- | ---------------------------------------- |
-| unstable    | NA                                     | FFI UnsafePointer and UnsafeCallback use |
-| allow-env   | USERPROFILE (windows) or HOME (others) | Caching dynamic library                  |
-| allow-write | ~/.deno_webui                          | Saving cache                             |
-| allow-read  | ~/.deno_webui                          | Opening cache                            |
-| allow-ffi   | ~/.deno_webui (unstable so allow all)  | Using FFI                                |
-
-Example:
-
-```sh
-deno run --unstable --allow-env=HOME --allow-ffi --allow-read=~/.deno_webui --allow-write=~/.deno_webui https://deno.land/x/webui/examples/hello_world/hello_world.ts
-```
-
-You can see all permissions prompt by using `deno run` without any.
 
 ## Documentation
 

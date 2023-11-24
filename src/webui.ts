@@ -292,28 +292,35 @@ export class WebUI {
     id: string,
     callback: BindCallback<T>,
   ) {
+    // Create the callback
     const callbackResource = new Deno.UnsafeCallback(
       {
         // size_t webui_interface_bind(..., void (*func)(size_t, size_t, char*, size_t, size_t))
-        // func (Window, EventType, Element, EventNumber, BindID)
+        // func = (Window, EventType, Element, EventNumber, BindID)
         parameters: ["usize", "usize", "pointer", "usize", "usize"],
         result: "void",
       } as const,
       async (
-        param_window: number,
-        param_event_type: number,
+        param_window: number | bigint,
+        param_event_type: number | bigint,
         param_element: Deno.PointerValue,
-        param_event_number: number,
-        param_bind_id: number,
+        param_event_number: number | bigint,
+        param_bind_id: number | bigint,
       ) => {
         // Create elements
         const win = param_window;
-        const event_type = Math.trunc(param_event_type);
+        const event_type = typeof param_event_type === 'bigint'
+          ? Number(param_event_type)
+          : Math.trunc(param_event_type);
         const element = param_element !== null
           ? new Deno.UnsafePointerView(param_element).getCString()
           : "";
-        const event_number = Math.trunc(param_event_number);
-        const bind_id = Math.trunc(param_bind_id);
+        const event_number = typeof param_event_number === 'bigint'
+          ? Number(param_event_number)
+          : Math.trunc(param_event_number);
+        const bind_id = typeof param_bind_id === 'bigint'
+          ? Number(param_bind_id)
+          : Math.trunc(param_bind_id);
 
         // Set get argument methods
         const args = {
@@ -323,7 +330,7 @@ export class WebUI {
           string: (index: number): string => {
             return (
               new Deno.UnsafePointerView(
-                this.#lib.symbols.webui_interface_get_string_at(win, event_number, index)
+                (this.#lib.symbols.webui_interface_get_string_at(win, event_number, index) as Deno.PointerObject<unknown>)
               ).getCString()
             ) as string
           },
@@ -351,7 +358,7 @@ export class WebUI {
         );
       },
     );
-
+    // Pass the callback pointer to WebUI
     this.#lib.symbols.webui_interface_bind(
       this.#window,
       toCString(id),
@@ -402,7 +409,7 @@ export class WebUI {
           : response;
 
         const lengthView = new Int32Array(
-          Deno.UnsafePointerView.getArrayBuffer(pointerLength, 4),
+          Deno.UnsafePointerView.getArrayBuffer((pointerLength as Deno.PointerObject<unknown>), 4),
         );
         lengthView[0] = buffer.length;
 

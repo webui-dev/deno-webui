@@ -1,9 +1,52 @@
 // Deno WebUI
 // Utilities
 
-import * as path from "https://deno.land/std/path/mod.ts";
-import { ensureDir, move } from "https://deno.land/std/fs/mod.ts";
-import { BlobReader, BlobWriter, ZipReader } from "https://deno.land/x/zipjs/index.js";
+// Combine paths
+function joinPath(...segments: string[]): string {
+  const isWindows = Deno.build.os === "windows";
+  const separator = isWindows ? "\\" : "/";
+  let joinedPath = segments
+    .join(separator) // Join all segments with the OS-specific separator
+    .replace(/[\/\\]+/g, separator); // Replace multiple separators with a single one
+  return joinedPath;
+}
+
+// Download a file from Internet
+async function downloadFile(url: string, dest: string) {
+  const res = await fetch(url);
+  const fileData = new Uint8Array(await res.arrayBuffer());
+  await Deno.writeFile(dest, fileData);
+}
+
+// Run a system command
+async function runCommand(command: string[]): Promise<void> {
+  const process = Deno.run({
+      cmd: command,
+      stdout: "null",
+      stderr: "null",
+  });
+  await process.status();
+  process.close();
+}
+
+// Create a directory
+async function createDirectory(dirPath: string): Promise<void> {
+  const isWindows = Deno.build.os === "windows";
+  const command = isWindows ? ["cmd", "/c", "mkdir", dirPath] : ["mkdir", "-p", dirPath];
+  await runCommand(command);
+}
+
+// Copy file and overwrite
+async function copyFileOverwrite(srcPath: string, destPath: string) {
+  try {
+    await Deno.remove(destPath);
+  } catch (error) {
+    if (!(error instanceof Deno.errors.NotFound)) {
+      throw error;
+    }
+  }
+  await Deno.copyFile(srcPath, destPath);
+}
 
 // Get current module full folder path
 export const currentModulePath = (() => {
@@ -19,9 +62,9 @@ export const currentModulePath = (() => {
 })();
 
 // Check if a file exist
-export async function fileExists(path) {
+export async function fileExists(filePath: string) {
   try {
-    await Deno.stat(path);
+    await Deno.stat(filePath);
     return true;
   } catch (error) {
     if (error instanceof Deno.errors.NotFound) {
@@ -30,32 +73,6 @@ export async function fileExists(path) {
       throw error;
     }
   }
-}
-
-// Download a file from Internet
-async function downloadFile(url: string, dest: string) {
-  const res = await fetch(url);
-  const fileData = new Uint8Array(await res.arrayBuffer());
-  await Deno.writeFile(dest, fileData);
-}
-
-// Uncompress a .Zip archive
-async function unzipFile(zipFilePath: string, outputDir: string) {
-  const zipFileData = await Deno.readFile(zipFilePath);
-  const zipFileReader = new BlobReader(new Blob([zipFileData]));
-  const zipReader = new ZipReader(zipFileReader);
-  const entries = await zipReader.getEntries();
-  for (const entry of entries) {
-    const fullPath = path.join(outputDir, entry.filename);
-    if (entry.directory) {
-      await ensureDir(fullPath);
-    } else {
-      const entryWriter = new BlobWriter();
-      const entryData = await entry.getData(entryWriter);
-      await Deno.writeFile(fullPath, new Uint8Array(await entryData.arrayBuffer()));
-    }
-  }
-  await zipReader.close();
 }
 
 export async function downloadCoreLibrary() {
@@ -95,25 +112,32 @@ export async function downloadCoreLibrary() {
   }
 
   // Construct file name and download URL
-  const cacheDir = path.join(currentModulePath, `cache`);
+  const cacheDir = joinPath(currentModulePath, `cache`);
   const fileName = `webui-${os}-${cc}-${arch}`;
   const fileUrl = `${baseUrl}${fileName}.zip`;
-  const outputDir = path.join(currentModulePath, fileName);
+  const outputDir = joinPath(currentModulePath, fileName);
 
   // Create cache directory
-  await ensureDir(cacheDir);
+  await createDirectory(cacheDir);
 
   // Download the archive
-  const zipPath = path.join(cacheDir, `${fileName}.zip`);
+  const zipPath = joinPath(cacheDir, `${fileName}.zip`);
   await downloadFile(fileUrl, zipPath);
 
   // Extract the archive
-  await unzipFile(zipPath, cacheDir);
+  switch (Deno.build.os) {
+    case "windows":
+      await runCommand(["tar", "-xf", zipPath, "-C", cacheDir]);
+      break;
+    default:
+      await runCommand(["unzip", "-q", zipPath, "-d", cacheDir]);
+      break;
+  }
 
   // Copy library
   const libFile = `webui-2.${ext}`;
-  await ensureDir(outputDir);
-  await Deno.copyFile(path.join(cacheDir, fileName, libFile), path.join(outputDir, libFile), { overwrite: true });
+  await createDirectory(outputDir);
+  await copyFileOverwrite(joinPath(cacheDir, fileName, libFile), joinPath(outputDir, libFile));
 
   // Remove cache directory
   await Deno.remove(cacheDir, { recursive: true });

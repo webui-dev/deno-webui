@@ -12,6 +12,11 @@ src/webui-linux-gcc-arm64/
 *.so
 *.dylib
 
+# Archives
+*.zip
+*.tar
+*.gz
+
 # Build
 *.exe
 *.ilk

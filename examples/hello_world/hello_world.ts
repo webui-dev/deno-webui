@@ -41,7 +41,7 @@ const myHtml = `
     </style>
     </head>
     <body>
-        <h1>WebUI 2 - Deno Hello World (File)</h1><br>
+        <h1>WebUI 2 - Deno Hello World</h1><br>
         A: <input id="MyInputA" value="4"><br><br>
         B: <input id="MyInputB" value="6"><br><br>
         <div id="Result" style="color: #dbdd52">Result: ?</div><br><br>
