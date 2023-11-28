@@ -1,5 +1,5 @@
 /*
-  WebUI Library 2.4.1
+  WebUI Library 2.4.3
 
   http://webui.me
   https://github.com/webui-dev/deno-webui
@@ -476,7 +476,7 @@ export class WebUI {
   }
 
   static get version() {
-    return "2.4.1";
+    return "2.4.3";
   }
 }
 

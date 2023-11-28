@@ -6,8 +6,10 @@ function joinPath(...segments: string[]): string {
   const isWindows = Deno.build.os === "windows";
   const separator = isWindows ? "\\" : "/";
   let joinedPath = segments
-    .join(separator) // Join all segments with the OS-specific separator
-    .replace(/[\/\\]+/g, separator); // Replace multiple separators with a single one
+    // Join all segments with the OS-specific separator
+    .join(separator)
+    // Replace multiple separators with a single one
+    .replace(/[\/\\]+/g, separator);
   return joinedPath;
 }
 
@@ -58,11 +60,24 @@ export const currentModulePath = (() => {
       // Remove first '/'
       directory = directory.slice(1);
     }
+    // Replace all forward slashes with
+    // backslashes for Windows paths
+    directory = directory.replaceAll('/', '\\');
   }
-  // Get absolute path without script name
+  // Get absolute path without the script name
   const pathSeparator = isWindows ? '\\' : '/';
   const lastIndex = directory.lastIndexOf(pathSeparator);
-  return directory.substring(0, lastIndex + 1);
+  directory = directory.substring(0, lastIndex + 1);
+  // Check if empty
+  if (directory === "") {
+    return "." + pathSeparator;
+  }
+  // Check if `X` module folder
+  if (directory.startsWith("/x/")) {
+    return "." + pathSeparator + directory.slice(1).replace(/\//g, pathSeparator);
+  }
+  // Other paths
+  return directory;
 })();
 
 // Check if a file exist
