@@ -50,15 +50,19 @@ async function copyFileOverwrite(srcPath: string, destPath: string) {
 
 // Get current module full folder path
 export const currentModulePath = (() => {
-  const __dirname = new URL('.', import.meta.url).pathname;
+  const __dirname = new URL(import.meta.url).pathname;
   let directory = String(__dirname);
-  if (Deno.build.os === 'windows') {
+  const isWindows = (Deno.build.os === 'windows');
+  if (isWindows) {
     if (directory.startsWith('/')) {
       // Remove first '/'
       directory = directory.slice(1);
     }
   }
-  return directory;
+  // Get absolute path without script name
+  const pathSeparator = isWindows ? '\\' : '/';
+  const lastIndex = directory.lastIndexOf(pathSeparator);
+  return directory.substring(0, lastIndex + 1);
 })();
 
 // Check if a file exist
