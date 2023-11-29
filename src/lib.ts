@@ -110,6 +110,11 @@ export function loadLib() {
           parameters: ["usize", "buffer"],
           result: "bool",
       },
+      webui_set_tls_certificate: {
+          // bool webui_set_tls_certificate(const char* certificate_pem, const char* private_key_pem)
+          parameters: ["buffer", "buffer"],
+          result: "bool",
+      },
     } as const,
   );
 }

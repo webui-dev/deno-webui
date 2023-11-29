@@ -79,6 +79,39 @@ export class WebUI {
   }
 
   /**
+   * Set certificate
+   * @param certificatePem Set certificate
+   * @param privateKeyPem Set private key
+   * @throws {WebUIError} - If lib return false status.
+   * @example
+   * ```ts
+   * const myWindow = new WebUI()
+   *
+   * // Show the current time
+   * myWindow.setRootFolder('some/root/folder')
+   *
+   * const certificatePem = await Deno.readTextFile("some/root/certificate.pem");
+   * const privateKeyPem = await Deno.readTextFile("some/root/private_key.pem");
+   * WebUI.setTLSCertificate(certificatePem, privateKeyPem);
+   *
+   * // Show a local file
+   * await myWindow.show('some/root/folder/index.html')
+   *
+   * // Await to ensure WebUI.script and WebUI.run can send datas to the client
+   * console.assert(myWindow.isShown, true)
+   * ```
+   */
+  static setTLSCertificate(certificatePem: string, privateKeyPem: string) {
+    const status = _lib.symbols.webui_set_tls_certificate(
+        toCString(certificatePem),
+        toCString(privateKeyPem),
+    );
+    if (!status) {
+      throw new WebUIError(`unable to set certificate`);
+    }
+  }
+
+  /**
    * Show the window or update the UI with the new content.
    * @returns Promise that resolves when the client bridge is linked.
    * @param {string} content - Valid html content or same root file path.
