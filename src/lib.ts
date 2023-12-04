@@ -115,6 +115,111 @@ export function loadLib() {
           parameters: ["buffer", "buffer"],
           result: "bool",
       },
+      webui_set_kiosk: {
+        // void webui_set_kiosk(size_t window, bool status)
+        parameters: ["usize", "bool"],
+        result: "void",
+      },
+      webui_destroy: {
+        // void webui_destroy(size_t window)
+        parameters: ["usize"],
+        result: "void",
+      },
+      webui_set_timeout: {
+        // void webui_set_timeout(size_t second)
+        parameters: ["usize"],
+        result: "void",
+      },
+      webui_set_icon: {
+        // void webui_set_icon(size_t window, const char* icon, const char* icon_type)
+        parameters: ["usize", "buffer", "buffer"],
+        result: "void",
+      },
+      webui_encode: {
+        // char* webui_encode(const char* str)
+        parameters: ["buffer"],
+        result: "buffer",
+      },
+      webui_decode: {
+        // char* webui_decode(const char* str)
+        parameters: ["buffer"],
+        result: "buffer",
+      },
+      webui_free: {
+        // void webui_free(void* ptr)
+        parameters: ["pointer"],
+        result: "void",
+      },
+      webui_malloc: {
+        // void* webui_malloc(size_t size)
+        parameters: ["usize"],
+        result: "pointer",
+      },
+      webui_send_raw: {
+        // void webui_send_raw(size_t window, const char* function, const void* raw, size_t size)
+        parameters: ["usize", "buffer", "buffer", "usize"],
+        result: "void",
+      },
+      webui_set_hide: {
+        // void webui_set_hide(size_t window, bool status)
+        parameters: ["usize", "bool"],
+        result: "void",
+      },
+      webui_set_size: {
+        // void webui_set_size(size_t window, unsigned int width, unsigned int height)
+        parameters: ["usize", "u32", "u32"],
+        result: "void",
+      },
+      webui_set_position: {
+        // void webui_set_position(size_t window, unsigned int x, unsigned int y)
+        parameters: ["usize", "u32", "u32"],
+        result: "void",
+      },
+      webui_get_url: {
+        // const char* webui_get_url(size_t window)
+        parameters: ["usize"],
+        result: "buffer",
+      },
+      webui_set_public: {
+        // void webui_set_public(size_t window, bool status)
+        parameters: ["usize", "bool"],
+        result: "void",
+      },
+      webui_navigate: {
+        // void webui_navigate(size_t window, const char* url)
+        parameters: ["usize", "buffer"],
+        result: "void",
+      },
+      webui_delete_all_profiles: {
+        // void webui_delete_all_profiles(void)
+        parameters: [],
+        result: "void",
+      },
+      webui_delete_profile: {
+        // void webui_delete_profile(size_t window)
+        parameters: ["usize"],
+        result: "void",
+      },
+      webui_get_parent_process_id: {
+        // size_t webui_get_parent_process_id(size_t window)
+        parameters: ["usize"],
+        result: "usize",
+      },
+      webui_get_child_process_id: {
+        // size_t webui_get_child_process_id(size_t window)
+        parameters: ["usize"],
+        result: "usize",
+      },
+      webui_set_port: {
+        // bool webui_set_port(size_t window, size_t port)
+        parameters: ["usize", "usize"],
+        result: "bool",
+      },
+      webui_set_runtime: {
+        // void webui_set_runtime(size_t window, size_t runtime)
+        parameters: ["usize", "usize"],
+        result: "void",
+      }      
     } as const,
   );
 }
