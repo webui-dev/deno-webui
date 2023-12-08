@@ -1,88 +1,46 @@
 // Deno WebUI
 // Dependences needed by webui.ts
 
-import { 
+import * as b64 from "https://deno.land/std@0.91.0/encoding/base64.ts";
+
+import {
   fileExists,
-  downloadCoreLibrary,
-  currentModulePath
+  joinPath
 } from "./src/utils.ts";
+
+import libs from './dir.ts';
 
 // Determine the library name based
 // on the current operating system
 async function getLibName() {
-  let fileName = "";
-  switch (Deno.build.os) {
-    case "windows":
-      switch (Deno.build.arch) {
-        case "x86_64":
-          fileName = "webui-windows-msvc-x64/webui-2.dll";
-          break;
-        // case "arm":
-        //   fileName = "webui-windows-msvc-arm/webui-2.dll";
-        //   break;
-        // case "arm64":
-        case "aarch64":
-          fileName = "webui-windows-msvc-arm64/webui-2.dll";
-          break;
-        default:
-          throw new Error(
-            `Unsupported architecture ${Deno.build.arch} for Windows`,
-          );
-      }
-      break;
-    case "darwin":
-      switch (Deno.build.arch) {
-        case "x86_64":
-          fileName = "webui-macos-clang-x64/webui-2.dylib";
-          break;
-        // case "arm":
-        //   fileName = "webui-macos-clang-arm/webui-2.dylib";
-        //   break;
-        // case "arm64":
-        case "aarch64":
-          fileName = "webui-macos-clang-arm64/webui-2.dylib";
-          break;
-        default:
-          throw new Error(
-            `Unsupported architecture ${Deno.build.arch} for macOS`,
-          );
-      }
-      break;
-    default:
-      // Linux
-      // freebsd
-      // netbsd
-      // aix
-      // solaris
-      // illumos
-      switch (Deno.build.arch) {
-        case "x86_64":
-          fileName = "webui-linux-gcc-x64/webui-2.so";
-          break;
-        // case "arm":
-        //   fileName = "webui-linux-gcc-arm/webui-2.so";
-        //   break;
-        // case "arm64":
-        case "aarch64":
-          fileName = "webui-linux-gcc-arm64/webui-2.so";
-          break;
-        default:
-          throw new Error(
-            `Unsupported architecture ${Deno.build.arch} for ${Deno.build.os}`,
-          );
-      }
-      break;
+  const it = libs[Deno.build.os];
+  const xit = `webui-2.${it.ext}`;
+  const ixit = joinPath(Deno.env.get('HOME'), '.webui', xit);
+  if (!await fileExists(ixit)) {
+    const zit = it.encoded[Deno.build.arch];
+    const izit = b64.decode(zit);
+    const xizit = await decompress(izit, 'gzip');
+    await Deno.writeFile(ixit, xizit);
   }
-  // Get the current module full path
-  const srcFullPath = currentModulePath;
-  const FullPath = srcFullPath + fileName;
-  // Check if WebUI library exist
-  const exists = await fileExists(FullPath);
-  if (!exists) {
-    // Download the WebUI library
-    await downloadCoreLibrary();
-  }
-  return FullPath;
+  return ixit;
+}
+
+async function decompress(data: Uint8Array, compression: string): Promise<Uint8Array> {
+  let input = new Blob([data])
+  let ds = new DecompressionStream(compression)
+  let stream = input.stream().pipeThrough(ds)
+
+  let outParts: Uint8Array[] = []
+  let writer = new WritableStream<Uint8Array>({
+    write(chunk) {
+      outParts.push(chunk)
+    }
+  })
+
+  await stream.pipeTo(writer)
+
+  let buf = await new Blob(outParts).arrayBuffer()
+  return new Uint8Array(buf)
 }
 
 export const libName = await getLibName();
