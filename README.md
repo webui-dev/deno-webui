@@ -54,7 +54,7 @@ await WebUI.wait();
 ```
 
 ```sh
-deno run --allow-all --unstable minimal.ts
+deno run --allow-all --unstable-ffi --allow-ffi minimal.ts
 ```
 
 [More examples](https://github.com/webui-dev/deno-webui/tree/main/examples)
