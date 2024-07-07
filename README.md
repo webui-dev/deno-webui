@@ -1,8 +1,8 @@
 <div align="center">
 
-![Logo](img/webui.png)
+![Logo](https://raw.githubusercontent.com/webui-dev/webui-logo/main/webui_deno.png)
 
-# Deno WebUI v2.4.4
+# Deno-WebUI v2.4.4
 
 [last-commit]: https://img.shields.io/github/last-commit/webui-dev/webui?style=for-the-badge&logo=github&logoColor=C0CAF5&labelColor=414868
 [release-version]: https://img.shields.io/github/v/tag/webui-dev/webui?style=for-the-badge&logo=webtrees&logoColor=C0CAF5&labelColor=414868&color=7664C6
@@ -14,7 +14,7 @@
 
 > WebUI is not a web-server solution or a framework, but it allows you to use any web browser as a GUI, with your preferred language in the backend and HTML5 in the frontend. All in a lightweight portable lib.
 
-![Screenshot](img/screenshot.png)
+![Screenshot](https://raw.githubusercontent.com/webui-dev/webui-logo/main/screenshot.png)
 
 </div>
 
