@@ -2,7 +2,7 @@
 // Utilities
 
 // The WebUI core version to download
-const WebUICoreVersion = '2.4.2';
+const WebUICoreVersion = '2.5.0-beta.2';
 
 // Combine paths
 function joinPath(...segments: string[]): string {
