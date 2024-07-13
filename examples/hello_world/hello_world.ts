@@ -1,5 +1,5 @@
 // To run this script:
-// deno run --allow-all --unstable hello_world.ts
+// deno run --allow-all --unstable-ffi --allow-ffi hello_world.ts
 
 // Import from local (Debugging and Development)
 // import { WebUI } from "../../mod.ts";

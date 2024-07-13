@@ -1,9 +1,7 @@
 /*
-  WebUI Library 2.4.4
-
+  WebUI Library 2.5.0
   http://webui.me
   https://github.com/webui-dev/deno-webui
-
   Copyright (c) 2020-2023 Hassan Draga.
   Licensed under MIT License.
   All rights reserved.
@@ -751,7 +749,7 @@ export class WebUI {
   }
 
   static get version() {
-    return "2.4.4";
+    return "2.5.0";
   }
 }
 
