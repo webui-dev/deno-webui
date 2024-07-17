@@ -5,7 +5,7 @@
 const WebUICoreVersion = '2.5.0-beta.2';
 
 // Combine paths
-function joinPath(...segments: string[]): string {
+export function joinPath(...segments: string[]): string {
   const isWindows = Deno.build.os === "windows";
   const separator = isWindows ? "\\" : "/";
   let joinedPath = segments
@@ -17,14 +17,14 @@ function joinPath(...segments: string[]): string {
 }
 
 // Download a file from Internet
-async function downloadFile(url: string, dest: string) {
+export async function downloadFile(url: string, dest: string) {
   const res = await fetch(url);
   const fileData = new Uint8Array(await res.arrayBuffer());
   await Deno.writeFile(dest, fileData);
 }
 
 // Run a system command
-async function runCommand(command: string[]): Promise<void> {
+export async function runCommand(command: string[]): Promise<void> {
   const process = Deno.run({
       cmd: command,
       stdout: "null",
@@ -35,14 +35,14 @@ async function runCommand(command: string[]): Promise<void> {
 }
 
 // Create a directory
-async function createDirectory(dirPath: string): Promise<void> {
+export async function createDirectory(dirPath: string): Promise<void> {
   const isWindows = Deno.build.os === "windows";
   const command = isWindows ? ["cmd", "/c", "mkdir", dirPath] : ["mkdir", "-p", dirPath];
   await runCommand(command);
 }
 
 // Copy file and overwrite
-async function copyFileOverwrite(srcPath: string, destPath: string) {
+export async function copyFileOverwrite(srcPath: string, destPath: string) {
   try {
     await Deno.remove(destPath);
   } catch (error) {
