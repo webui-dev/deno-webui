@@ -277,21 +277,14 @@ export class WebUI {
    * myWindow.show(
    *  `<html>
    *    <script src="webui.js"></script>
-   *    <button id="myBtn"></button>
-   *    <button OnClick="alert(myBackend('Test', 123456))"></button>
+   *    <button id="myBtn">Click Me</button>
    *  </html>`
    * )
    *
-   * async function myFunc(e: WebUI.Event) {
+   * function myFunc(e: WebUI.Event) {
    *   console.log(`${e.element} was clicked`);
    * }
    * myWindow.bind('myBtn', myFunc);
-   * 
-   * myWindow.bind('myBackend', (e: WebUI.Event) => {
-   *    const myArg1 = e.arg.string(0) // Test
-   *    const myArg2 = e.arg.number(1) // 123456
-   *    return "backend response"
-   * });
    * ```
    */
   bind<T extends Datatypes | undefined | void>(
