@@ -219,7 +219,18 @@ export function loadLib() {
         // void webui_set_runtime(size_t window, size_t runtime)
         parameters: ["usize", "usize"],
         result: "void",
-      }      
+      },
+      webui_set_config: {
+        // void webui_set_config(webui_config option, bool status)
+        //   show_wait_connection: 0
+        //   ui_event_blocking: 1
+        //   folder_monitor: 2
+        //   multi_client: 3
+        //   use_cookies: 4
+        //   asynchronous_response: 5
+        parameters: ["usize", "bool"],
+        result: "void",
+      }
     } as const,
   );
 }
