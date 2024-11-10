@@ -11,18 +11,22 @@ import {
 // on the current operating system
 async function getLibName() {
   let fileName = "";
+  let localFileName = "";
   switch (Deno.build.os) {
     case "windows":
       switch (Deno.build.arch) {
         case "x86_64":
           fileName = "webui-windows-msvc-x64/webui-2.dll";
+          localFileName = "./webui-2.dll";
           break;
         // case "arm":
         //   fileName = "webui-windows-msvc-arm/webui-2.dll";
+        //   localFileName = "./webui-2.dll";
         //   break;
         // case "arm64":
         case "aarch64":
           fileName = "webui-windows-msvc-arm64/webui-2.dll";
+          localFileName = "./webui-2.dll";
           break;
         default:
           throw new Error(
@@ -34,13 +38,16 @@ async function getLibName() {
       switch (Deno.build.arch) {
         case "x86_64":
           fileName = "webui-macos-clang-x64/webui-2.dylib";
+          localFileName = "./webui-2.dylib";
           break;
         // case "arm":
         //   fileName = "webui-macos-clang-arm/webui-2.dylib";
+        //   localFileName = "./webui-2.dylib";
         //   break;
         // case "arm64":
         case "aarch64":
           fileName = "webui-macos-clang-arm64/webui-2.dylib";
+          localFileName = "./webui-2.dylib";
           break;
         default:
           throw new Error(
@@ -58,13 +65,16 @@ async function getLibName() {
       switch (Deno.build.arch) {
         case "x86_64":
           fileName = "webui-linux-gcc-x64/webui-2.so";
+          localFileName = "./webui-2.so";
           break;
         // case "arm":
         //   fileName = "webui-linux-gcc-arm/webui-2.so";
+        //   localFileName = "./webui-2.so";
         //   break;
         // case "arm64":
         case "aarch64":
           fileName = "webui-linux-gcc-arm64/webui-2.so";
+          localFileName = "./webui-2.so";
           break;
         default:
           throw new Error(
@@ -73,6 +83,10 @@ async function getLibName() {
       }
       break;
   }
+  // Check if local file exisit
+  const localExists = await fileExists(localFileName);
+  if (localExists)
+    return localFileName;
   // Get the current module full path
   const srcFullPath = currentModulePath;
   const FullPath = srcFullPath + fileName;
