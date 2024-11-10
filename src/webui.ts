@@ -39,9 +39,9 @@ export class WebUI {
    */
   constructor() {
     this.#lib = loadLib();
-    this.#lib.symbols.webui_set_config(5, true); // Enable async calls
+    this.#lib.symbols.webui_set_config(BigInt(5), true); // Enable async calls
     this.#window = this.#lib.symbols.webui_new_window();
-    windows.set(this.#window, this);
+    windows.set(BigInt(this.#window), this);
     // Global lib entry
     if (typeof _lib === 'undefined') {
       // The ref _lib is used by static members like `wait()`
@@ -69,7 +69,7 @@ export class WebUI {
    */
   setRootFolder(rootFolder: string) {
     const status = this.#lib.symbols.webui_set_root_folder(
-        this.#window,
+        BigInt(this.#window),
         toCString(rootFolder),
     );
     if (!status) {
@@ -98,7 +98,7 @@ export class WebUI {
    */
   async show(content: string) {
     const status = this.#lib.symbols.webui_show(
-      this.#window,
+      BigInt(this.#window),
       toCString(content),
     );
     if (!status) {
@@ -143,9 +143,9 @@ export class WebUI {
     browser: WebUI.Browser,
   ) {
     const status = this.#lib.symbols.webui_show_browser(
-      this.#window,
+      BigInt(this.#window),
       toCString(content),
-      browser,
+      BigInt(browser),
     );
     if (!status) {
       throw new WebUIError(`unable to start the browser`);
@@ -179,7 +179,7 @@ export class WebUI {
    * ```
    */
   get isShown() {
-    return this.#lib.symbols.webui_is_shown(this.#window);
+    return this.#lib.symbols.webui_is_shown(BigInt(this.#window));
   }
 
   /**
@@ -200,7 +200,7 @@ export class WebUI {
    * ```
    */
   close() {
-    return this.#lib.symbols.webui_close(this.#window);
+    return this.#lib.symbols.webui_close(BigInt(this.#window));
   }
 
   /**
@@ -233,11 +233,11 @@ export class WebUI {
 
     // Execute the script
     const status = this.#lib.symbols.webui_script(
-      this.#window,
+      BigInt(this.#window),
       toCString(script),
-      timeout,
+      BigInt(timeout),
       buffer,
-      bufferSize,
+      BigInt(bufferSize),
     );
 
     const response = fromCString(buffer);
@@ -261,7 +261,7 @@ export class WebUI {
   run(script: string) {
     // Execute the script
     this.#lib.symbols.webui_run(
-      this.#window,
+      BigInt(this.#window),
       toCString(script),
     );
   }
@@ -332,17 +332,17 @@ export class WebUI {
         // Set get argument methods
         const args = {
           number: (index: number): number => {
-            return this.#lib.symbols.webui_interface_get_int_at(win, event_number, index) as number
+            return Number(this.#lib.symbols.webui_interface_get_int_at(BigInt(win), BigInt(event_number), BigInt(index)))
           },
           string: (index: number): string => {
             return (
               new Deno.UnsafePointerView(
-                (this.#lib.symbols.webui_interface_get_string_at(win, event_number, index) as Deno.PointerObject<unknown>)
+                (this.#lib.symbols.webui_interface_get_string_at(BigInt(win), BigInt(event_number), BigInt(index)) as Deno.PointerObject<unknown>)
               ).getCString()
             ) as string
           },
           boolean: (index: number): boolean => {
-            return this.#lib.symbols.webui_interface_get_bool_at(win, event_number, index) as boolean
+            return this.#lib.symbols.webui_interface_get_bool_at(BigInt(win), BigInt(event_number), BigInt(index)) as boolean
           }
         }
 
@@ -359,15 +359,15 @@ export class WebUI {
 
         // Send back the response
         this.#lib.symbols.webui_interface_set_response(
-          this.#window,
-          event_number,
+          BigInt(this.#window),
+          BigInt(event_number),
           toCString(result),
         );
       },
     );
     // Pass the callback pointer to WebUI
     this.#lib.symbols.webui_interface_bind(
-      this.#window,
+      BigInt(this.#window),
       toCString(id),
       callbackResource.pointer,
     );
@@ -426,7 +426,7 @@ export class WebUI {
     );
 
     this.#lib.symbols.webui_set_file_handler(
-      this.#window,
+      BigInt(this.#window),
       cb.pointer,
     );
   }
@@ -443,7 +443,7 @@ export class WebUI {
    */
   setProfile(name: string, path: string) {
     return this.#lib.symbols.webui_set_profile(
-      this.#window,
+      BigInt(this.#window),
       toCString(name),
       toCString(path),
     );
@@ -460,14 +460,14 @@ export class WebUI {
    * ```
    */
   setKiosk(status: boolean): void {
-    this.#lib.symbols.webui_set_kiosk(this.#window, status);
+    this.#lib.symbols.webui_set_kiosk(BigInt(this.#window), status);
   }
 
   /**
    * Close a specific window and free all memory resources.
    */
   destroy(): void {
-    this.#lib.symbols.webui_destroy(this.#window);
+    this.#lib.symbols.webui_destroy(BigInt(this.#window));
   }
 
   /**
@@ -477,7 +477,7 @@ export class WebUI {
    * @param iconType - The icon type: `image/svg+xml`
    */
   setIcon(icon: string, iconType: string): void {
-    this.#lib.symbols.webui_set_icon(this.#window, toCString(icon), toCString(iconType));
+    this.#lib.symbols.webui_set_icon(BigInt(this.#window), toCString(icon), toCString(iconType));
   }
 
   /**
@@ -487,7 +487,7 @@ export class WebUI {
    * @param raw - The raw data to send.
    */
   sendRaw(functionName: string, raw: ArrayBuffer): void {
-    this.#lib.symbols.webui_send_raw(this.#window, toCString(functionName), raw, ArrayBuffer.length);
+    this.#lib.symbols.webui_send_raw(BigInt(this.#window), toCString(functionName), raw, BigInt(ArrayBuffer.length));
   }
 
   /**
@@ -496,7 +496,7 @@ export class WebUI {
    * @param status - True to hide, false to show.
    */
   setHide(status: boolean): void {
-    this.#lib.symbols.webui_set_hide(this.#window, status);
+    this.#lib.symbols.webui_set_hide(BigInt(this.#window), status);
   }
 
   /**
@@ -506,7 +506,7 @@ export class WebUI {
    * @param height - The height of the window.
    */
   setSize(width: number, height: number): void {
-    this.#lib.symbols.webui_set_size(this.#window, width, height);
+    this.#lib.symbols.webui_set_size(BigInt(this.#window), width, height);
   }
 
   /**
@@ -516,7 +516,7 @@ export class WebUI {
    * @param y - The y-coordinate of the window.
    */
   setPosition(x: number, y: number): void {
-    this.#lib.symbols.webui_set_position(this.#window, x, y);
+    this.#lib.symbols.webui_set_position(BigInt(this.#window), x, y);
   }
 
   /**
@@ -527,7 +527,7 @@ export class WebUI {
   getUrl(): string {
     return (
       new Deno.UnsafePointerView(
-        (this.#lib.symbols.webui_get_url(this.#window) as Deno.PointerObject<unknown>)
+        (this.#lib.symbols.webui_get_url(BigInt(this.#window)) as Deno.PointerObject<unknown>)
       ).getCString()
     ) as string
   }
@@ -538,7 +538,7 @@ export class WebUI {
    * @param status - True to allow public access, false to restrict.
    */
   setPublic(status: boolean): void {
-    this.#lib.symbols.webui_set_public(this.#window, status);
+    this.#lib.symbols.webui_set_public(BigInt(this.#window), status);
   }
 
   /**
@@ -547,14 +547,14 @@ export class WebUI {
    * @param url - The URL to navigate to.
    */
   navigate(url: string): void {
-    this.#lib.symbols.webui_navigate(this.#window, toCString(url));
+    this.#lib.symbols.webui_navigate(BigInt(this.#window), toCString(url));
   }
 
   /**
    * Delete the web-browser local profile folder.
    */
   deleteProfile(): void {
-    this.#lib.symbols.webui_delete_profile(this.#window);
+    this.#lib.symbols.webui_delete_profile(BigInt(this.#window));
   }
 
   /**
@@ -563,8 +563,8 @@ export class WebUI {
    * 
    * @return - The parent process ID.
    */
-  getParentProcessId(): number {
-    return this.#lib.symbols.webui_get_parent_process_id(this.#window);
+  getParentProcessId(): BigInt {
+    return this.#lib.symbols.webui_get_parent_process_id(BigInt(this.#window));
   }
 
   /**
@@ -573,7 +573,7 @@ export class WebUI {
    * @return - The last child process ID.
    */
   getChildProcessId(): number {
-    return this.#lib.symbols.webui_get_child_process_id(this.#window);
+    return Number(this.#lib.symbols.webui_get_child_process_id(BigInt(this.#window)));
   }
 
   /**
@@ -585,7 +585,7 @@ export class WebUI {
    * @return - True if the port is set successfully.
    */
   setPort(port: number): boolean {
-    return this.#lib.symbols.webui_set_port(this.#window, port);
+    return this.#lib.symbols.webui_set_port(BigInt(this.#window), BigInt(port));
   }
 
   /**
@@ -594,7 +594,7 @@ export class WebUI {
    * @param runtime - The runtime value.
    */
   setRuntime(runtime: number): void {
-    this.#lib.symbols.webui_set_runtime(this.#window, runtime);
+    this.#lib.symbols.webui_set_runtime(BigInt(this.#window), BigInt(runtime));
   }
 
   // --[ Static Methods ]------------------------
@@ -721,7 +721,7 @@ export class WebUI {
    * @return - A pointer to the allocated memory block.
    */
   static malloc(size: number): Deno.PointerValue {
-    return _lib.symbols.webui_malloc(size);
+    return _lib.symbols.webui_malloc(BigInt(size));
   }
 
   /**
@@ -739,7 +739,7 @@ export class WebUI {
    * @param second - The timeout duration in seconds.
    */
   static setTimeout(second: number): void {
-    _lib.symbols.webui_set_timeout(second);
+    _lib.symbols.webui_set_timeout(BigInt(second));
   }
 
   /**
