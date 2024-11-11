@@ -24,21 +24,19 @@ async function downloadFile(url: string, dest: string) {
 }
 
 // Run a system command
-async function runCommand(command: string[]): Promise<void> {
-  const process = Deno.run({
-      cmd: command,
-      stdout: "null",
-      stderr: "null",
-  });
-  await process.status();
-  process.close();
+async function runCommand(cmd: string, arg: string[]): Promise<void> {
+  await new Deno.Command(cmd, { 
+    args: arg
+  }).output();
 }
 
 // Create a directory
 async function createDirectory(dirPath: string): Promise<void> {
   const isWindows = Deno.build.os === "windows";
-  const command = isWindows ? ["cmd", "/c", "mkdir", dirPath] : ["mkdir", "-p", dirPath];
-  await runCommand(command);
+  if (isWindows)
+    await runCommand("cmd", ["/c", "mkdir", dirPath]);
+  else
+    await runCommand("mkdir", ["-p", dirPath]);
 }
 
 // Copy file and overwrite
@@ -149,10 +147,10 @@ export async function downloadCoreLibrary() {
   // Extract the archive
   switch (Deno.build.os) {
     case "windows":
-      await runCommand(["tar", "-xf", zipPath, "-C", cacheDir]);
+      await runCommand("tar", ["-xf", zipPath, "-C", cacheDir]);
       break;
     default:
-      await runCommand(["unzip", "-q", zipPath, "-d", cacheDir]);
+      await runCommand("unzip", ["-q", zipPath, "-d", cacheDir]);
       break;
   }
 
