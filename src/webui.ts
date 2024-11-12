@@ -278,20 +278,20 @@ export class WebUI {
    * myWindow.show(
    *  `<html>
    *    <script src="webui.js"></script>
-   *    <button id="myBtn"></button>
-   *    <button OnClick="alert(myBackend('Test', 123456))"></button>
+   *    <button id="myBtn">Foo</button>
+   *    <button OnClick="myBackend('Test', 123456).then(result => { alert(result) })">Bar</button>
    *  </html>`
    * )
    *
-   * async function myFunc(e: WebUI.Event) {
+   * async function myBtn(e: WebUI.Event) {
    *   console.log(`${e.element} was clicked`);
    * }
-   * myWindow.bind('myBtn', myFunc);
-   * 
+   * myWindow.bind('myBtn', myBtn);
+   *
    * myWindow.bind('myBackend', (e: WebUI.Event) => {
-   *    const myArg1 = e.arg.string(0) // Test
-   *    const myArg2 = e.arg.number(1) // 123456
-   *    return "backend response"
+   *    const myArg1 = e.arg.string(0); // Test
+   *    const myArg2 = e.arg.number(1); // 123456
+   *    return "backend response";
    * });
    * ```
    */
@@ -355,7 +355,7 @@ export class WebUI {
         };
 
         // Call the user callback
-        const result: string = await callback(e) as string;
+        const result: string = (await callback(e) as string) ?? '';
 
         // Send back the response
         this.#lib.symbols.webui_interface_set_response(
