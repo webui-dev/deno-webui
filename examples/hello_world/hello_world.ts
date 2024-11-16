@@ -7,12 +7,11 @@
 // Import from deno.land (Production)
 import { WebUI } from "https://deno.land/x/webui/mod.ts";
 
-const myHtml = `
-<!DOCTYPE html>
+const myHtml = `<!DOCTYPE html>
 <html>
-	<head>
+  <head>
     <script src="webui.js"></script>
-		<title>WebUI 2 - Deno Hello World Example</title>
+      <title>WebUI 2 - Deno Hello World Example</title>
     <style>
       body {
         font-family: 'Arial', sans-serif;
@@ -31,7 +30,7 @@ const myHtml = `
       }
       button {
         background: #3498db;
-        color: #fff; 
+        color: #fff;
         cursor: pointer;
         font-size: 16px;
       }
@@ -45,7 +44,7 @@ const myHtml = `
         A: <input id="MyInputA" value="4"><br><br>
         B: <input id="MyInputB" value="6"><br><br>
         <div id="Result" style="color: #dbdd52">Result: ?</div><br><br>
-	    <button id="calculate">Calculate</button> - <button OnClick="startCheck()">Check Result</button> - <button id="exit">Exit</button>
+            <button id="calculate">Calculate</button> - <button OnClick="startCheck()">Check Result</button> - <button id="exit">Exit</button>
         <script>
             let Res = 0;
 
@@ -69,9 +68,8 @@ const myHtml = `
               });
             }
         </script>
-    </body>    
-</html>
-`;
+    </body>
+</html>`;
 
 async function checkResult(e: WebUI.Event) {
   const a = e.arg.number(0); // First argument
