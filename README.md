@@ -12,7 +12,7 @@
 [![][release-version]](https://github.com/webui-dev/deno-webui/releases/latest)
 [![][license]](https://github.com/webui-dev/deno-webui/blob/main/LICENSE)
 
-> WebUI is not a web-server solution or a framework, but it allows you to use any web browser as a GUI, with your preferred language in the backend and HTML5 in the frontend. All in a lightweight portable lib.
+> Use any web browser or WebView as GUI, with your preferred language in the backend and modern web technologies in the frontend, all in a lightweight portable library.
 
 ![Screenshot](https://raw.githubusercontent.com/webui-dev/webui-logo/main/screenshot.png)
 
@@ -24,13 +24,12 @@
 
 ## Features
 
-- Fully Independent (_No need for any third-party runtimes_)
-- Lightweight _~900 Kb_ for the whole package & Small memory footprint
-- Fast binary communication protocol between WebUI and the browser (_Instead of
-  JSON_)
+- Portable (*Needs only a web browser or a WebView at runtime*)
+- Lightweight (*Few Kb library*) & Small memory footprint
+- Fast binary communication protocol
 - Multi-platform & Multi-Browser
 - Using private profile for safety
-- Original library written in Pure C
+- Cross-platform WebView
 
 ## Screenshot
 
@@ -54,14 +53,14 @@ await WebUI.wait();
 ```
 
 ```sh
-deno run --allow-all --unstable-ffi --allow-ffi minimal.ts
+deno run --allow-read --allow-write --allow-run --allow-net --allow-ffi minimal.ts
 ```
 
 [More examples](https://github.com/webui-dev/deno-webui/tree/main/examples)
 
 ## Documentation
 
-- [Online Documentation](https://webui.me/docs/#/deno_api)
+- [Online Documentation](https://webui.me/docs/2.5/#/)
 
 ## CppCon 2019 Presentation
 
@@ -108,7 +107,7 @@ browser**.
 
 ## Runtime Dependencies Comparison
 
-|                                 | WebView           | Qt                         | WebUI               |
+|                                 | Tauri / WebView   | Qt                         | WebUI               |
 | ------------------------------- | ----------------- | -------------------------- | ------------------- |
 | Runtime Dependencies on Windows | _WebView2_        | _QtCore, QtGui, QtWidgets_ | **_A Web Browser_** |
 | Runtime Dependencies on Linux   | _GTK3, WebKitGTK_ | _QtCore, QtGui, QtWidgets_ | **_A Web Browser_** |
@@ -131,17 +130,35 @@ browser**.
 
 ## Supported Languages
 
-| Language                | Status         | Link                                                      |
-| ----------------------- | -------------- | --------------------------------------------------------- |
-| Go                      | ✔️             | [Go-WebUI](https://github.com/webui-dev/go-webui)         |
-| Nim                     | ✔️             | [Nim-WebUI](https://github.com/webui-dev/nim-webui)       |
-| Pascal                  | ✔️             | [Pascal-WebUI](https://github.com/webui-dev/pascal-webui) |
-| Python                  | ✔️             | [Python-WebUI](https://github.com/webui-dev/python-webui) |
-| Rust                    | _not complete_ | [Rust-WebUI](https://github.com/webui-dev/rust-webui)     |
-| TypeScript / JavaScript | ✔️             | [Deno-WebUI](https://github.com/webui-dev/deno-webui)     |
-| V                       | ✔️             | [V-WebUI](https://github.com/webui-dev/v-webui)           |
-| Zig                     | _not complete_ | [Zig-WebUI](https://github.com/webui-dev/zig-webui)       |
-| Odin                    | _not complete_ | [Odin-WebUI](https://github.com/webui-dev/odin-webui)       |
+| Language        | v2.4.0 API | v2.5.0 API | Link                                                    |
+| --------------- | --- | -------------- | ---------------------------------------------------------  |
+| Python          | ✔️ | _not complete_ | [Python-WebUI](https://github.com/webui-dev/python-webui)  |
+| Go              | ✔️ | _not complete_ | [Go-WebUI](https://github.com/webui-dev/go-webui)          |
+| Zig             | ✔️ |  _not complete_ | [Zig-WebUI](https://github.com/webui-dev/zig-webui)        |
+| Nim             | ✔️ |  _not complete_ | [Nim-WebUI](https://github.com/webui-dev/nim-webui)        |
+| V               | ✔️ |  _not complete_ | [V-WebUI](https://github.com/webui-dev/v-webui)            |
+| Rust            | _not complete_ |  _not complete_ | [Rust-WebUI](https://github.com/webui-dev/rust-webui)      |
+| TS / JS (Deno)  | ✔️ |  _not complete_ | [Deno-WebUI](https://github.com/webui-dev/deno-webui)      |
+| TS / JS (Bun)   | _not complete_ |  _not complete_ | [Bun-WebUI](https://github.com/webui-dev/bun-webui)        |
+| Swift           | _not complete_ |  _not complete_ | [Swift-WebUI](https://github.com/webui-dev/swift-webui)    |
+| Odin            | _not complete_ |  _not complete_ | [Odin-WebUI](https://github.com/webui-dev/odin-webui)      |
+| Pascal          | _not complete_ |  _not complete_ | [Pascal-WebUI](https://github.com/webui-dev/pascal-webui)  |
+| Purebasic       | _not complete_ |  _not complete_ | [Purebasic-WebUI](https://github.com/webui-dev/purebasic-webui)|
+| - |  |  |
+| Common Lisp     | _not complete_ |  _not complete_ | [cl-webui](https://github.com/garlic0x1/cl-webui)          |
+| Delphi          | _not complete_ |  _not complete_ | [WebUI4Delphi](https://github.com/salvadordf/WebUI4Delphi) |
+| C#              | _not complete_ |  _not complete_ | [WebUI4CSharp](https://github.com/salvadordf/WebUI4CSharp) |
+| WebUI.NET       | _not complete_ |  _not complete_ | [WebUI.NET](https://github.com/Juff-Ma/WebUI.NET)          |
+| QuickJS         | _not complete_ |  _not complete_ | [QuickUI](https://github.com/xland/QuickUI)                |
+| PHP             | _not complete_ |  _not complete_ | [PHPWebUiComposer](https://github.com/KingBes/php-webui-composer) |
+
+## Supported WebView
+
+| WebView         | Status         |
+| --------------- | --------------- |
+| Windows WebView2 | ✔️ |
+| Linux GTK WebView   | ✔️ |
+| macOS WKWebView  | ✔️ |
 
 ### License
 
