@@ -40,12 +40,14 @@ is written in Deno using WebUI as the GUI library.
 
 ## Installation
 
-`import { WebUI } from "https://deno.land/x/webui/mod.ts";`
+Specific version: `import { WebUI } from "https://deno.land/x/webui@2.5.0/mod.ts";`
+
+Latest version: `import { WebUI } from "https://deno.land/x/webui/mod.ts";`
 
 ## Minimal Example
 
 ```js
-import { WebUI } from "https://deno.land/x/webui/mod.ts";
+import { WebUI } from "https://deno.land/x/webui@2.5.0/mod.ts";
 
 const myWindow = new WebUI();
 myWindow.show('<html><script src="webui.js"></script> Hello World! </html>');

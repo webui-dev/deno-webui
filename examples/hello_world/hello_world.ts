@@ -5,7 +5,7 @@
 // import { WebUI } from "../../mod.ts";
 
 // Import from online `https://deno.land` (Production)
-import { WebUI } from "https://deno.land/x/webui/mod.ts";
+import { WebUI } from "https://deno.land/x/webui@2.5.0/mod.ts";
 
 const myHtml = `<!DOCTYPE html>
 <html>
