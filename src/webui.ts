@@ -680,6 +680,15 @@ export class WebUI {
   }
 
   /**
+   * Allow multiple clients to connect to the same window.
+   * 
+   * @param allow - True or False.
+   */
+  static setMultiClient(allow: Boolean): void {
+    _lib.symbols.webui_set_config(BigInt(3), allow);
+  }
+
+  /**
    * Delete all local web-browser profiles folder.
    */
   static deleteAllProfiles(): void {
