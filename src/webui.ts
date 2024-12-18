@@ -38,15 +38,10 @@ export class WebUI {
    * ```
    */
   constructor() {
-    this.#lib = loadLib();
-    this.#lib.symbols.webui_set_config(BigInt(5), true); // Enable async calls
-    this.#window = this.#lib.symbols.webui_new_window();
+    WebUI.init(); // Init lib if not already initialized
+    this.#lib = _lib;
+    this.#window = _lib.symbols.webui_new_window();
     windows.set(BigInt(this.#window), this);
-    // Global lib entry
-    if (typeof _lib === 'undefined') {
-      // The ref _lib is used by static members like `wait()`
-      _lib = this.#lib;
-    }
   }
 
   /**
@@ -600,6 +595,16 @@ export class WebUI {
   // --[ Static Methods ]------------------------
 
   /**
+   * Initialize WebUI library if it's not already initialized.
+   */
+  private static init() {
+    if (typeof _lib === 'undefined') {
+      _lib = loadLib();
+      _lib.symbols.webui_set_config(BigInt(5), true); // Enable async calls
+    }
+  }
+
+  /**
    * Tries to close all opened windows and make WebUI.wait() break.
    * @example
    * ```ts
@@ -616,6 +621,7 @@ export class WebUI {
    * ```
    */
   static exit() {
+    WebUI.init();
     _lib.symbols.webui_exit();
   }
 
@@ -643,6 +649,7 @@ export class WebUI {
    * ```
    */
   static setTLSCertificate(certificatePem: string, privateKeyPem: string) {
+    WebUI.init();
     const status = _lib.symbols.webui_set_tls_certificate(
         toCString(certificatePem),
         toCString(privateKeyPem),
@@ -666,6 +673,7 @@ export class WebUI {
    * ```
    */
   static async wait() {
+    WebUI.init();
     // TODO:
     // The `await _lib.symbols.webui_wait()` will block `callbackResource`
     // so all events (clicks) will be executed when `webui_wait()` finish.
@@ -685,6 +693,7 @@ export class WebUI {
    * @param allow - True or False.
    */
   static setMultiClient(allow: boolean): void {
+    WebUI.init();
     _lib.symbols.webui_set_config(BigInt(3), allow);
   }
 
@@ -692,6 +701,7 @@ export class WebUI {
    * Delete all local web-browser profiles folder.
    */
   static deleteAllProfiles(): void {
+    WebUI.init();
     _lib.symbols.webui_delete_all_profiles();
   }
 
@@ -702,6 +712,7 @@ export class WebUI {
    * @return - The encoded string.
    */
   static encode(str: string): string {
+    WebUI.init();
     return (
       new Deno.UnsafePointerView(
         (_lib.symbols.webui_encode(toCString(str)) as Deno.PointerObject<unknown>)
@@ -716,6 +727,7 @@ export class WebUI {
    * @return - The decoded string.
    */
   static decode(str: string): string {
+    WebUI.init();
     return (
       new Deno.UnsafePointerView(
         (_lib.symbols.webui_decode(toCString(str)) as Deno.PointerObject<unknown>)
@@ -730,6 +742,7 @@ export class WebUI {
    * @return - A pointer to the allocated memory block.
    */
   static malloc(size: number): Deno.PointerValue {
+    WebUI.init();
     return _lib.symbols.webui_malloc(BigInt(size));
   }
 
@@ -739,6 +752,7 @@ export class WebUI {
    * @param ptr - The pointer to the memory block.
    */
   static free(ptr: Deno.PointerValue): void {
+    WebUI.init();
     _lib.symbols.webui_free(ptr);
   }
 
@@ -748,6 +762,7 @@ export class WebUI {
    * @param second - The timeout duration in seconds.
    */
   static setTimeout(second: number): void {
+    WebUI.init();
     _lib.symbols.webui_set_timeout(BigInt(second));
   }
 
@@ -755,6 +770,7 @@ export class WebUI {
    * Clean all memory resources. WebUI is not usable after this call.
    */
   static clean() {
+    WebUI.init();
     _lib.symbols.webui_clean();
   }
 
