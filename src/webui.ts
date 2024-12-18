@@ -692,7 +692,7 @@ export class WebUI {
    * 
    * @param allow - True or False.
    */
-  static setMultiClient(allow: Boolean): void {
+  static setMultiClient(allow: boolean): void {
     WebUI.init();
     _lib.symbols.webui_set_config(BigInt(3), allow);
   }
