@@ -10,6 +10,7 @@ export type BindCallback<
 export interface WebUIEvent {
   window: WebUI;
   eventType: number;
+  eventNumber: number;
   element: string;
   arg: {
     number: (index: number) => number;
