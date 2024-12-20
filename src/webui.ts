@@ -246,6 +246,58 @@ export class WebUI {
   }
 
   /**
+   * Same as `.script()`, but for one specific client. Use this API when using `setMultiClient(true)`.
+   * @param {WebUIEvent} e - event.
+   * @param {string} script - js code to execute.
+   * @param options - response timeout (0 means no timeout), bufferSize,
+   * default is `{ timeout: 0, bufferSize: 1024 * 1000 }`.
+   * @returns Promise that resolve or reject the client response.
+   * @example
+   * ```ts
+   * setMultiClient(true);
+   * myWindow.bind('myBackend', (e: WebUI.Event) => {
+   *  const response = await myWindow.scriptClient(e, 'return 6 + 4;').catch(console.error)
+   *  // response == "10"
+   * });
+   * ```
+   */
+  scriptClient(
+    e: WebUIEvent,
+    script: string,
+    options?: {
+      timeout?: number;
+      bufferSize?: number;
+    },
+  ) {
+    // Response Buffer
+    const bufferSize =
+      (options?.bufferSize !== undefined && options.bufferSize > 0)
+        ? options.bufferSize
+        : 1024 * 1000;
+    const buffer = new Uint8Array(bufferSize);
+    const timeout = options?.timeout ?? 0;
+
+    // Execute the script
+    const status = this.#lib.symbols.webui_interface_script_client(
+      BigInt(this.#window),
+      BigInt(e.eventNumber),
+      toCString(script),
+      BigInt(timeout),
+      buffer,
+      BigInt(bufferSize),
+    );
+
+    const response = fromCString(buffer);
+
+    // TODO:
+    // Call symbol asynchronously
+    if (status) {
+      return Promise.resolve(response);
+    }
+    return Promise.reject(response);
+  }
+
+  /**
    * Execute a JavaScript string in the UI without waiting for the result.
    * @param {string} script - js code to execute.
    * @example
