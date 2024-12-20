@@ -1,11 +1,11 @@
 // To run this script:
 // deno run --allow-read --allow-write --allow-run --allow-net --allow-ffi hello_world.ts
 
-// Import from local (Debugging and Development)
+// To import from local (Debugging and Development)
 // import { WebUI } from "../../mod.ts";
 
-// Import from online `https://deno.land` (Production)
-import { WebUI } from "https://deno.land/x/webui@2.5.0/mod.ts";
+// To import from online `https://deno.land` (Production)
+import { WebUI } from "https://deno.land/x/webui@2.5.1/mod.ts";
 
 const myHtml = `<!DOCTYPE html>
 <html>
