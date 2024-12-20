@@ -230,6 +230,38 @@ export function loadLib() {
         //   asynchronous_response: 5
         parameters: ["usize", "bool"],
         result: "void",
+      },
+      webui_interface_show_client: {
+        // bool webui_interface_show_client(size_t window, size_t event_number, const char* content)
+        parameters: ["usize", "usize", "buffer"],
+        result: "bool",
+      },
+      webui_interface_close_client: {
+        // void webui_interface_close_client(size_t window, size_t event_number)
+        parameters: ["usize", "usize"],
+        result: "void",
+      },
+      webui_interface_send_raw_client: {
+        // void webui_interface_send_raw_client(
+        //  size_t window, size_t event_number, const char* function, const void* raw, size_t size)
+        parameters: ["usize", "usize", "buffer", "buffer", "usize"],
+        result: "void",
+      },
+      webui_interface_navigate_client: {
+        // void webui_interface_navigate_client(size_t window, size_t event_number, const char* url)
+        parameters: ["usize", "usize", "buffer"],
+        result: "void",
+      },
+      webui_interface_run_client: {
+        // void webui_interface_run_client(size_t window, size_t event_number, const char* script)
+        parameters: ["usize", "usize", "buffer"],
+        result: "void",
+      },
+      webui_interface_script_client: {
+        // bool webui_interface_script_client(
+        //  size_t window, size_t event_number, const char* script, size_t timeout, char* buffer, size_t buffer_length)
+        parameters: ["usize", "usize", "buffer", "usize", "buffer", "usize"],
+        result: "bool",
       }
     } as const,
   );
