@@ -797,5 +797,12 @@ export namespace WebUI {
     Epic, // 10. The Epic Browser
     Yandex, // 11. The Yandex Browser
     ChromiumBased, // 12. Any Chromium based browser
+  };
+  export enum EventType {
+    Disconnected = 0, // 0. Window disconnection event
+    Connected, // 1. Window connection event
+    MouseClick, // 2. Mouse click event
+    Navigation, // 3. Window navigation event
+    Callback, // 4. Function call event
   }
 }
