@@ -262,6 +262,11 @@ export function loadLib() {
         //  size_t window, size_t event_number, const char* script, size_t timeout, char* buffer, size_t buffer_length)
         parameters: ["usize", "usize", "buffer", "usize", "buffer", "usize"],
         result: "bool",
+      },
+      webui_interface_set_response_file_handler: {
+        // void webui_interface_set_response_file_handler(size_t window, const void* response, int length)
+        parameters: ["usize", "buffer", "usize"],
+        result: "void",
       }
     } as const,
   );
