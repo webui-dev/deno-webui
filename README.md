@@ -2,7 +2,7 @@
 
 ![Logo](https://raw.githubusercontent.com/webui-dev/webui-logo/main/webui_deno.png)
 
-# Deno-WebUI v2.5.1 (Beta)
+# Deno-WebUI v2.5.2 (Beta)
 
 [last-commit]: https://img.shields.io/github/last-commit/webui-dev/webui?style=for-the-badge&logo=github&logoColor=C0CAF5&labelColor=414868
 [release-version]: https://img.shields.io/github/v/tag/webui-dev/webui?style=for-the-badge&logo=webtrees&logoColor=C0CAF5&labelColor=414868&color=7664C6
@@ -40,14 +40,14 @@ is written in Deno using WebUI as the GUI library.
 
 ## Installation
 
-Specific version: `import { WebUI } from "https://deno.land/x/webui@2.5.1/mod.ts";`
+Specific version: `import { WebUI } from "https://deno.land/x/webui@2.5.2/mod.ts";`
 
 Latest version: `import { WebUI } from "https://deno.land/x/webui/mod.ts";`
 
 ## Minimal Example
 
 ```js
-import { WebUI } from "https://deno.land/x/webui@2.5.1/mod.ts";
+import { WebUI } from "https://deno.land/x/webui@2.5.2/mod.ts";
 
 const myWindow = new WebUI();
 myWindow.show('<html><script src="webui.js"></script> Hello World! </html>');
