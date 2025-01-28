@@ -25,8 +25,9 @@ const windows: Map<Usize, WebUI> = new Map();
 let _lib: WebUILib;
 
 export class WebUI {
-  #window: Usize;
+  #window: Usize = 0;
   #lib: WebUILib;
+  #isFileHandler: Boolean = false;
 
   /**
    * Instanciate a new WebUI window.
@@ -96,20 +97,23 @@ export class WebUI {
       BigInt(this.#window),
       toCString(content),
     );
-    if (!status) {
-      throw new WebUIError(`unable to start the browser`);
-    }
-
-    for (let i = 0; i < 120; i++) { // 30 seconds timeout
-      if (!this.isShown) {
-        await new Promise((resolve) => setTimeout(resolve, 250));
-      } else {
-        break;
+    if (!this.#isFileHandler) {
+      // Check if window is lanched
+      if (!status) {
+        throw new WebUIError(`unable to start the browser`);
       }
-    }
-
-    if (!this.isShown) {
-      throw new WebUIError(`unable to connect to the browser`);
+      // Wait for window connection
+      for (let i = 0; i < 120; i++) { // 30 seconds timeout
+        if (!this.isShown) {
+          await new Promise((resolve) => setTimeout(resolve, 250));
+        } else {
+          break;
+        }
+      }
+      // Check if window is connected
+      if (!this.isShown) {
+        throw new WebUIError(`unable to connect to the browser`);
+      }
     }
   }
 
@@ -422,62 +426,73 @@ export class WebUI {
   }
 
   /**
-   * Sets a custom handler to respond to file requests from the web browser.
+   * Sets a custom files handler to respond to HTTP requests.
    * 
-   * @param handler - Callback that takes an URL, and return a HTTP header + body `string` or `Uint8Array`.
+   * @param handler - Callback that takes an URL, and return a full HTTP header 
+   * + body. (`string` or `Uint8Array`).
    *
    * @example
-   * const myWindow = new WebUI()
    * 
-   * myWindow.setFileHandler((myUrl: URL) => {
-   *  if (myUrl.pathname === '/app.js') return "console.log('hello from client')"
-   *  if (myUrl.pathname === '/img.png') return imgBytes
-   *  throw new Error(`Unknown request "${myUrl.pathname}""`)
-   * })
+   * async function myFileHandler(myUrl: URL) {
+   *  if (myUrl.pathname === '/test') {
+   *   return "HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nHello";
+   *  }
+   * };
    *
-   * myWindow.show(
-   *  `<html>
-   *     <script src="webui.js">/script>
-   *     <script src="app.js"></script>
-   *     <img src="img.png" />
-   *  </html>`
-   * )
+   * myWindow.setFileHandler(myFileHandler);
    */
-  setFileHandler(handler: (url: URL) => string | Uint8Array) {
-    // const void* (*handler)(const char *filename, int *length)
-    const cb = new Deno.UnsafeCallback(
+  setFileHandler(callback: (url: URL) => Promise<string | Uint8Array>) {
+
+    // C: .show_wait_connection = false; // 0
+    // Disable `.show()` auto waiting for window connection,
+    // otherwise `.setFileHandler()` will be blocked.
+    _lib.symbols.webui_set_config(BigInt(0), false);
+
+    // C: .use_cookies = false; // 4
+    // We need to disable WebUI Cookies because
+    // user will use his own custom HTTP header
+    // in `.setFileHandler()`.
+    _lib.symbols.webui_set_config(BigInt(4), false);
+
+    // Let `.show()` knows that the user is using `.setFileHandler()`
+    // so no need to wait for window connection in `.show()`.
+    this.#isFileHandler = true;
+
+    // Create the callback
+    const callbackResource = new Deno.UnsafeCallback(
       {
+        // const void* (*handler)(const char *filename, int *length)
         parameters: ["buffer", "pointer"],
         result: "pointer",
-      },
-      (
-        pointerUrl: Deno.PointerValue,
-        pointerLength: Deno.PointerValue,
+      } as const,
+      async (
+        param_url: Deno.PointerValue,
+        param_length: Deno.PointerValue,
       ) => {
         // Get URL as string
-        const url_str :string = pointerUrl !== null ? 
-          new Deno.UnsafePointerView(pointerUrl).getCString()
+        const url_str :string = param_url !== null ? 
+          new Deno.UnsafePointerView(param_url).getCString()
           : "";
 
         // Create URL Obj
         const url_obj :URL = new URL(url_str, "http://localhost");
 
-        // Call user callback
-        const user_response :string|Uint8Array = handler(url_obj);
+        // Call the user callback
+        const user_response: string|Uint8Array = await callback(url_obj);
 
         // We can pass a local buffer to WebUI like this: 
         // `return Deno.UnsafePointer.of(user_response);` However, 
         // this may create a memory leak because WebUI cannot free 
         // it, or cause memory corruption as Deno may free the buffer 
         // before WebUI uses it. Therefore, the solution is to create 
-        // a safe WebUI buffer through WebUI. This WebUI buffer will 
+        // a safe WebUI buffer through WebUI API. This WebUI buffer will 
         // be automatically freed by WebUI later.
         const webui_buffer :Deno.PointerValue = _lib.symbols.webui_malloc(BigInt(user_response.length));
 
         // Copy data to C safe buffer
         if (typeof user_response === "string") {
           // copy `user_response` to `webui_buffer` as String data
-          const cString = Deno.UnsafePointerView.toCString(user_response);
+          const cString = toCString(user_response);
           const webui_buffer_ref = new Uint8Array(Deno.UnsafePointerView.getArrayBuffer(webui_buffer, cString.byteLength));
           webui_buffer_ref.set(new Uint8Array(cString));
         } else {
@@ -492,18 +507,15 @@ export class WebUI {
           webui_buffer,
           BigInt(user_response.length),
         );
-
-        // Return webui-buffer to webui
-        return 0;
       },
     );
-
+    // Pass the callback pointer to WebUI
     this.#lib.symbols.webui_set_file_handler(
       BigInt(this.#window),
-      cb.pointer,
+      callbackResource.pointer,
     );
   }
-
+  
   /**
    * Sets the profile name and path for the current window.
    * @param name - Profile name.
@@ -678,7 +690,9 @@ export class WebUI {
   private static init() {
     if (typeof _lib === 'undefined') {
       _lib = loadLib();
-      _lib.symbols.webui_set_config(BigInt(5), true); // Enable async calls
+      // C: .asynchronous_response = true; // 5
+      // Enable async calls, this is needed for `.bind()`
+      _lib.symbols.webui_set_config(BigInt(5), true);
     }
   }
 
