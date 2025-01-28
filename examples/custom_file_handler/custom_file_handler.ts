@@ -2,10 +2,10 @@
 // deno run --allow-read --allow-write --allow-run --allow-net --allow-ffi custom_file_handler.ts
 
 // To import from local (Debugging and Development)
-import { WebUI } from "../../mod.ts";
+// import { WebUI } from "../../mod.ts";
 
 // To import from online `https://deno.land` (Production)
-// import { WebUI } from "https://deno.land/x/webui@2.5.2/mod.ts";
+import { WebUI } from "https://deno.land/x/webui@2.5.2/mod.ts";
 
 // Return HTTP header + file raw binary content
 const getFile = async (contentType: string, filename: string): Promise<Uint8Array> => {
@@ -18,6 +18,28 @@ const getFile = async (contentType: string, filename: string): Promise<Uint8Arra
   return response;
 };
 
+// Set a custom files handler
+async function myFileHandler(myUrl: URL) {
+  console.log(`File: ${myUrl.pathname}`);
+  // Index example
+  if (myUrl.pathname === '/index.html' || myUrl.pathname === '/') {
+    return await getFile('text/html', 'index.html');
+  }
+  // Custom text string example
+  if (myUrl.pathname === '/test') {
+    return "HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nHello";
+  }
+  // File examples
+  if (myUrl.pathname === '/assets/test_app.js') {
+    return await getFile('application/javascript', 'assets/test_app.js');
+  }
+  if (myUrl.pathname === '/assets/webui.jpeg') {
+    return await getFile('image/jpeg', 'assets/webui.jpeg');
+  }
+  // Error 404 example
+  return "HTTP/1.1 404 Not Found";
+};
+
 // Create new window
 const myWindow = new WebUI();
 
@@ -27,25 +49,12 @@ myWindow.bind("exit", () => {
   WebUI.exit();
 });
 
-// Set a custom files handler
-myWindow.setFileHandler((myUrl: URL) => {
-  console.log(`File: ${myUrl.pathname}`);
-
-  // Index example
-  if ((myUrl.pathname === '/index.html') || (myUrl.pathname === '/')) {
-    return getFile('text/html', 'index.html')
-  }
-  // Custom text string example
-  if (myUrl.pathname === '/test') return "HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nHello"
-  // File example
-  if (myUrl.pathname === '/assets/test_app.js') return getFile('application/javascript', 'assets/test_app.js')
-  if (myUrl.pathname === '/assets/webui.jpeg') return getFile('image/jpeg', 'assets/webui.jpeg')
-  // Error 404 example
-  return "HTTP/1.1 404 Not Found"
-});
+// Set files handler
+// Note: Should be called before `.show()`
+myWindow.setFileHandler(myFileHandler);
 
 // Show the window
-await myWindow.show('index.html')
+await myWindow.show('index.html');
 
 // Wait until all windows get closed
 await WebUI.wait();
