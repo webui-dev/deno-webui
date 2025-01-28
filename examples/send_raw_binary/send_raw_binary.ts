@@ -51,7 +51,7 @@ const myHtml = `<!DOCTYPE html>
             let result = document.getElementById("Result");
 
             function setRawImage(rawImageData) {
-              result.innerHTML = "Received " + rawImageData.length + " bytes from backend";
+              result.innerHTML = "Received a " + rawImageData.length + " bytes file from the backend";
               // Set picture
               const blob = new Blob([rawImageData], { type: 'image/jpeg' });
               const imageUrl = URL.createObjectURL(blob);
@@ -61,8 +61,7 @@ const myHtml = `<!DOCTYPE html>
             }
 
             function processRawData(rawData) {
-              result.innerHTML = "Received " + rawData.length + " bytes from backend";
-              setImage(rawData);
+              result.innerHTML = "Received " + rawData.length + " bytes from backend.";
             }
         </script>
     </body>
