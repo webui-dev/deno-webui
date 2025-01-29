@@ -1,5 +1,5 @@
 /*
-  WebUI Deno 2.5.2
+  WebUI Deno 2.5.3
   http://webui.me
   https://github.com/webui-dev/deno-webui
   Copyright (c) 2020-2025 Hassan Draga.
@@ -1067,7 +1067,7 @@ export class WebUI {
   }
 
   static get version() {
-    return "2.5.2";
+    return "2.5.3";
   }
 }
 
