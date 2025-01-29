@@ -629,7 +629,11 @@ export class WebUI {
   /**
    * Navigate to a specific URL.
    * 
-   * @param url - The URL to navigate to.
+   * @param {string} url - The URL to navigate to.
+   * @example
+   * ```ts
+   * myWindow.navigate("https://webui.me");
+   * ```
    */
   navigate(url: string): void {
     this.#lib.symbols.webui_navigate(BigInt(this.#window), toCString(url));
