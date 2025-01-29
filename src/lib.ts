@@ -263,11 +263,76 @@ export function loadLib() {
         parameters: ["usize", "usize", "buffer", "usize", "buffer", "usize"],
         result: "bool",
       },
+      webui_send_raw_client: {
+        // void webui_send_raw_client(webui_event_t* e, const char* function, const void* raw, size_t size)
+        parameters: ["pointer", "buffer", "buffer", "usize"],
+        result: "void",
+      },
       webui_interface_set_response_file_handler: {
         // void webui_interface_set_response_file_handler(size_t window, const void* response, int length)
         parameters: ["usize", "pointer", "usize"],
         result: "void",
-      }
+      },
+      webui_get_best_browser: {
+        // size_t webui_get_best_browser(size_t window)
+        parameters: ["usize"],
+        result: "usize",
+      },
+      webui_start_server: {
+        // const char* webui_start_server(size_t window, const char* content)
+        parameters: ["usize", "buffer"],
+        result: "buffer",
+      },
+      webui_show_wv: {
+        // bool webui_show_wv(size_t window, const char* content)
+        parameters: ["usize", "buffer"],
+        result: "bool",
+      },
+      webui_set_custom_parameters: {
+        // void webui_set_custom_parameters(size_t window, char *params)
+        parameters: ["usize", "buffer"],
+        result: "void",
+      },
+      webui_set_high_contrast: {
+        // void webui_set_high_contrast(size_t window, bool status)
+        parameters: ["usize", "bool"],
+        result: "void",
+      },
+      webui_is_high_contrast: {
+        // bool webui_is_high_contrast(void)
+        parameters: [],
+        result: "bool",
+      },
+      webui_browser_exist: {
+        // bool webui_browser_exist(size_t browser)
+        parameters: ["usize"],
+        result: "bool",
+      },
+      webui_set_default_root_folder: {
+        // bool webui_set_default_root_folder(const char* path)
+        parameters: ["buffer"],
+        result: "bool",
+      },
+      webui_set_minimum_size: {
+        // void webui_set_minimum_size(size_t window, unsigned int width, unsigned int height)
+        parameters: ["usize", "u32", "u32"],
+        result: "void",
+      },
+      webui_set_proxy: {
+        // void webui_set_proxy(size_t window, const char* proxy_server)
+        parameters: ["usize", "buffer"],
+        result: "void",
+      },
+      webui_open_url: {
+        // void webui_open_url(const char* url)
+        parameters: ["buffer"],
+        result: "void",
+      },
+      webui_get_free_port: {
+        // size_t webui_get_free_port(void)
+        parameters: [],
+        result: "usize",
+      },
     } as const,
   );
 }

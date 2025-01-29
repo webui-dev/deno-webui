@@ -682,6 +682,206 @@ export class WebUI {
     this.#lib.symbols.webui_set_runtime(BigInt(this.#window), BigInt(runtime));
   }
 
+  /**
+   * Get the recommended web browser ID to use. If you are already using one, 
+   * this function will return the same ID.
+   * 
+   * @return Returns a web browser ID.
+   * @example
+   * ```ts
+   * const browserID = myWindow.getBestBrowser();
+   * ```
+   */
+  getBestBrowser(): number {
+    return Number(this.#lib.symbols.webui_get_best_browser(BigInt(this.#window)));
+  }
+
+  /**
+   * Start only the web server and return the URL. No window will be shown.
+   * 
+   * @param {string} content - The HTML, Or a local file
+   * @return Returns the url of this window server.
+   * @example
+   * ```ts
+   * const url = myWindow.startServer("/full/root/path");
+   * ```
+   */
+  startServer(content: string): string {
+    return fromCString(this.#lib.symbols.webui_start_server(
+      BigInt(this.#window),
+      toCString(content),
+    ));
+  }
+
+  /**
+   * Show a WebView window using embedded HTML, or a file. If the window is already
+   * open, it will be refreshed. Note: Win32 need `WebView2Loader.dll`.
+   * 
+   * @param {string} content - The HTML, URL, Or a local file
+   * @return Returns True if showing the WebView window is successful.
+   * @example
+   * ```ts
+   * myWindow.showWebView("<html>...</html>");
+   * // or
+   * myWindow.showWebView("index.html");
+   * ```
+   */
+  showWebView(content: string): boolean {
+    return this.#lib.symbols.webui_show_wv(
+      BigInt(this.#window),
+      toCString(content),
+    );
+  }
+
+  /**
+   * Add a user-defined web browser's CLI parameters.
+   * 
+   * @param {string} params - Command line parameters
+   * @example
+   * ```ts
+   * myWindow.setCustomParameters("--remote-debugging-port=9222");
+   * ```
+   */
+  setCustomParameters(params: string): void {
+    this.#lib.symbols.webui_set_custom_parameters(
+      BigInt(this.#window),
+      toCString(params),
+    );
+  }
+
+  /**
+   * Set the window with high-contrast support. Useful when you want to 
+   * build a better high-contrast theme with CSS.
+   * 
+   * @param {boolean} status - True or False
+   * @example
+   * ```ts
+   * myWindow.setHighContrast(true);
+   * ```
+   */
+  setHighContrast(status: boolean): void {
+    this.#lib.symbols.webui_set_high_contrast(BigInt(this.#window), status);
+  }
+
+  /**
+   * Set the window minimum size.
+   * 
+   * @param {number} width - The window width
+   * @param {number} height - The window height
+   * @example
+   * ```ts
+   * myWindow.setMinimumSize(800, 600);
+   * ```
+   */
+  setMinimumSize(width: number, height: number): void {
+    this.#lib.symbols.webui_set_minimum_size(BigInt(this.#window), width, height);
+  }
+
+  /**
+   * Set the web browser proxy server to use. Need to be called before `show()`.
+   * 
+   * @param {string} proxyServer - The web browser proxy server
+   * @example
+   * ```ts
+   * myWindow.setProxy("http://127.0.0.1:8888");
+   * ```
+   */
+  setProxy(proxyServer: string): void {
+    this.#lib.symbols.webui_set_proxy(
+      BigInt(this.#window),
+      toCString(proxyServer),
+    );
+  }
+
+  // Static methods
+
+  /**
+   * Get OS high contrast preference.
+   * 
+   * @return Returns True if OS is using high contrast theme
+   * @example
+   * ```ts
+   * const hc = WebUI.isHighContrast();
+   * ```
+   */
+  static isHighContrast(): boolean {
+    WebUI.init();
+    return _lib.symbols.webui_is_high_contrast();
+  }
+
+  /**
+   * Check if a web browser is installed.
+   * 
+   * @param {WebUI.Browser} browser - The browser to check
+   * @return Returns True if the specified browser is available
+   * @example
+   * ```ts
+   * const status = WebUI.browserExist(WebUI.Browser.Chrome);
+   * ```
+   */
+  static browserExist(browser: WebUI.Browser): boolean {
+    WebUI.init();
+    return _lib.symbols.webui_browser_exist(BigInt(browser));
+  }
+
+  /**
+   * Set the web-server root folder path for all windows. Should be used
+   * before `show()`.
+   * 
+   * @param {string} path - The local folder full path
+   * @return Returns True if the path is valid
+   * @example
+   * ```ts
+   * WebUI.setDefaultRootFolder("/home/Foo/Bar/");
+   * ```
+   */
+  static setDefaultRootFolder(path: string): boolean {
+    WebUI.init();
+    return _lib.symbols.webui_set_default_root_folder(toCString(path));
+  }
+
+  /**
+   * Open an URL in the native default web browser.
+   * 
+   * @param {string} url - The URL to open
+   * @example
+   * ```ts
+   * WebUI.openUrl("https://webui.me");
+   * ```
+   */
+  static openUrl(url: string): void {
+    WebUI.init();
+    _lib.symbols.webui_open_url(toCString(url));
+  }
+
+  /**
+   * Get an available usable free network port.
+   * 
+   * @return Returns a free port
+   * @example
+   * ```ts
+   * const port = WebUI.getFreePort();
+   * ```
+   */
+  static getFreePort(): number {
+    WebUI.init();
+    return Number(_lib.symbols.webui_get_free_port());
+  }
+
+  /**
+   * Automatically refresh the window UI when any file in the root folder gets changed.
+   * 
+   * @param {boolean} status - True to enable monitoring, false to disable
+   * @example
+   * ```ts
+   * WebUI.setFolderMonitor(true);
+   * ```
+   */
+  static setFolderMonitor(status: boolean): void {
+    WebUI.init();
+    _lib.symbols.webui_set_config(BigInt(2), status);
+  }
+
   // --[ Static Methods ]------------------------
 
   /**
