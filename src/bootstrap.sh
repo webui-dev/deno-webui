@@ -47,11 +47,11 @@ if [[ "$1" == "" ]]; then
         fi
     }
 
-    download_and_extract $LINUX_ARM "webui-linux-gcc-arm" "webui-2.so"
-    download_and_extract $LINUX_ARM64 "webui-linux-gcc-arm64" "webui-2.so"
-    download_and_extract $LINUX_X64 "webui-linux-gcc-x64" "webui-2.so"
-    download_and_extract $MACOS_ARM64 "webui-macos-clang-arm64" "webui-2.dylib"
-    download_and_extract $MACOS_X64 "webui-macos-clang-x64" "webui-2.dylib"
+    download_and_extract $LINUX_ARM "webui-linux-gcc-arm" "libwebui-2.so"
+    download_and_extract $LINUX_ARM64 "webui-linux-gcc-arm64" "libwebui-2.so"
+    download_and_extract $LINUX_X64 "webui-linux-gcc-x64" "libwebui-2.so"
+    download_and_extract $MACOS_ARM64 "webui-macos-clang-arm64" "libwebui-2.dylib"
+    download_and_extract $MACOS_X64 "webui-macos-clang-x64" "libwebui-2.dylib"
     download_and_extract $WINDOWS_MSVC_X64 "webui-windows-msvc-x64" "webui-2.dll"
 
     # Remove cache folder

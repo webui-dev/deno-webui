@@ -37,17 +37,17 @@ async function getLibName() {
     case "darwin":
       switch (Deno.build.arch) {
         case "x86_64":
-          fileName = "webui-macos-clang-x64/webui-2.dylib";
-          localFileName = "./webui-2.dylib";
+          fileName = "webui-macos-clang-x64/libwebui-2.dylib";
+          localFileName = "./libwebui-2.dylib";
           break;
         // case "arm":
-        //   fileName = "webui-macos-clang-arm/webui-2.dylib";
-        //   localFileName = "./webui-2.dylib";
+        //   fileName = "webui-macos-clang-arm/libwebui-2.dylib";
+        //   localFileName = "./libwebui-2.dylib";
         //   break;
         // case "arm64":
         case "aarch64":
-          fileName = "webui-macos-clang-arm64/webui-2.dylib";
-          localFileName = "./webui-2.dylib";
+          fileName = "webui-macos-clang-arm64/libwebui-2.dylib";
+          localFileName = "./libwebui-2.dylib";
           break;
         default:
           throw new Error(
@@ -64,17 +64,17 @@ async function getLibName() {
       // illumos
       switch (Deno.build.arch) {
         case "x86_64":
-          fileName = "webui-linux-gcc-x64/webui-2.so";
-          localFileName = "./webui-2.so";
+          fileName = "webui-linux-gcc-x64/libwebui-2.so";
+          localFileName = "./libwebui-2.so";
           break;
         // case "arm":
-        //   fileName = "webui-linux-gcc-arm/webui-2.so";
-        //   localFileName = "./webui-2.so";
+        //   fileName = "webui-linux-gcc-arm/libwebui-2.so";
+        //   localFileName = "./libwebui-2.so";
         //   break;
         // case "arm64":
         case "aarch64":
-          fileName = "webui-linux-gcc-arm64/webui-2.so";
-          localFileName = "./webui-2.so";
+          fileName = "webui-linux-gcc-arm64/libwebui-2.so";
+          localFileName = "./libwebui-2.so";
           break;
         default:
           throw new Error(
