@@ -100,22 +100,25 @@ export async function downloadCoreLibrary() {
   // const baseUrl = `https://github.com/webui-dev/webui/releases/download/${WebUICoreVersion}/`;
   const baseUrl = `https://github.com/webui-dev/webui/releases/download/nightly/`;
   // Detect OS
-  let os, cc, ext, arch;
+  let os, cc, ext, arch, libFile;
   switch (Deno.build.os) {
       case "darwin":
           os = "macos";
           cc = "clang";
           ext = "dylib";
+          libFile = `libwebui-2.${ext}`;
           break;
       case "windows":
           os = "windows";
           cc = "msvc";
           ext = "dll";
+          libFile = `webui-2.${ext}`;
           break;
       default:
           os = "linux";
           cc = "gcc";
           ext = "so";
+          libFile = `libwebui-2.${ext}`;
           break;
   }
   // Detect Architecture
@@ -156,7 +159,6 @@ export async function downloadCoreLibrary() {
   }
 
   // Copy library
-  const libFile = `webui-2.${ext}`;
   await createDirectory(outputDir);
   await copyFileOverwrite(joinPath(cacheDir, fileName, libFile), joinPath(outputDir, libFile));
 
