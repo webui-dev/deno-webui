@@ -27,7 +27,7 @@ let _lib: WebUILib;
 export class WebUI {
   #window: Usize = 0;
   #lib: WebUILib;
-  #isFileHandler: Boolean = false;
+  #isFileHandler: boolean = false;
 
   /**
    * Instanciate a new WebUI window.
@@ -376,7 +376,7 @@ export class WebUI {
         const event_number = typeof param_event_number === 'bigint'
           ? Number(param_event_number)
           : Math.trunc(param_event_number);
-        const bind_id = typeof param_bind_id === 'bigint'
+        const _bind_id = typeof param_bind_id === 'bigint'
           ? Number(param_bind_id)
           : Math.trunc(param_bind_id);
 
@@ -463,11 +463,11 @@ export class WebUI {
       {
         // const void* (*handler)(const char *filename, int *length)
         parameters: ["buffer", "pointer"],
-        result: "pointer",
+        result: "void",
       } as const,
       async (
         param_url: Deno.PointerValue,
-        param_length: Deno.PointerValue,
+        _param_length: Deno.PointerValue,
       ) => {
         // Get URL as string
         const url_str :string = param_url !== null ? 
@@ -488,6 +488,9 @@ export class WebUI {
         // a safe WebUI buffer through WebUI API. This WebUI buffer will 
         // be automatically freed by WebUI later.
         const webui_buffer :Deno.PointerValue = _lib.symbols.webui_malloc(BigInt(user_response.length));
+        if (!webui_buffer) {
+          throw new Error("Failed to allocate memory for WebUI buffer");
+        }
 
         // Copy data to C safe buffer
         if (typeof user_response === "string") {
@@ -652,7 +655,7 @@ export class WebUI {
    * 
    * @return - The parent process ID.
    */
-  getParentProcessId(): BigInt {
+  getParentProcessId(): bigint {
     return this.#lib.symbols.webui_get_parent_process_id(BigInt(this.#window));
   }
 
@@ -711,10 +714,11 @@ export class WebUI {
    * ```
    */
   startServer(content: string): string {
-    return fromCString(this.#lib.symbols.webui_start_server(
-      BigInt(this.#window),
-      toCString(content),
-    ));
+    const url = this.#lib.symbols.webui_start_server(
+          BigInt(this.#window),
+          toCString(content),
+      )
+    return  Deno.UnsafePointerView.getCString(url!);
   }
 
   /**
@@ -974,7 +978,7 @@ export class WebUI {
     // The `await _lib.symbols.webui_wait()` will block `callbackResource`
     // so all events (clicks) will be executed when `webui_wait()` finish.
     // as a work around, we are going to use `sleep()`.
-    let sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
     while (1) {
       await sleep(100);
       if (!_lib.symbols.webui_interface_is_app_running()) {
@@ -1075,7 +1079,7 @@ export class WebUI {
   }
 }
 
-// Deno-lint-ignore no-namespace
+// deno-lint-ignore no-namespace
 export namespace WebUI {
   export type Event = WebUIEvent;
   export enum Browser {
