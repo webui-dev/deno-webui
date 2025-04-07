@@ -1,15 +1,8 @@
-## Fork
-
-https://jsr.io/@sigmasd/webui-deno-fork
-
-Uptodate with commit
-https://github.com/webui-dev/deno-webui/commit/d349a44527d129772920f4c097baabf91438f635
-
 <div align="center">
 
 ![Logo](https://raw.githubusercontent.com/webui-dev/webui-logo/main/webui_deno.png)
 
-# Deno-WebUI v2.5.3 (Beta)
+# Deno-WebUI v2.5.4 (Beta)
 
 [last-commit]: https://img.shields.io/github/last-commit/webui-dev/webui?style=for-the-badge&logo=github&logoColor=C0CAF5&labelColor=414868
 [release-version]: https://img.shields.io/github/v/tag/webui-dev/webui?style=for-the-badge&logo=webtrees&logoColor=C0CAF5&labelColor=414868&color=7664C6
@@ -58,7 +51,8 @@ Latest version: `import { WebUI } from "https://deno.land/x/webui/mod.ts";`
 ## Minimal Example
 
 ```js
-import { WebUI } from "jsr:@sigmasd/webui-deno-fork";
+import { WebUI } from "https://deno.land/x/webui@2.5.4/mod.ts";
+// Or import { WebUI } from "jsr:@webui/deno-webui";
 
 const myWindow = new WebUI();
 myWindow.show('<html><script src="webui.js"></script> Hello World! </html>');
