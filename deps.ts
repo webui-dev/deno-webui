@@ -2,7 +2,7 @@
 // Resolves the path to the required native WebUI library,
 // ensuring it is downloaded to a central cache if needed.
 
-import { ensureWebUiLib } from "./src/utils.ts";
+import { ensureWebUiLib, useNightly } from "./src/utils.ts";
 
 // Determine the base library filename based
 // on the current operating system and architecture.
@@ -19,7 +19,7 @@ function getBaseLibName(): string {
       }
       break;
     case "darwin": // macOS
-      baseName = "libwebui-2.dylib";
+      baseName = useNightly ? "libwebui-2.dylib" : "webui-2.dylib";
       // Validate architecture for macOS
       if (Deno.build.arch !== "x86_64" && Deno.build.arch !== "aarch64") {
         throw new Error(
@@ -28,7 +28,7 @@ function getBaseLibName(): string {
       }
       break;
     default: // Linux and other Unix-like OSes
-      baseName = "libwebui-2.so";
+      baseName = useNightly ? "libwebui-2.so" : "webui-2.so";
       // Validate architecture for Linux/others
       if (Deno.build.arch !== "x86_64" && Deno.build.arch !== "aarch64") {
         throw new Error(

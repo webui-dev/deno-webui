@@ -6,16 +6,18 @@ import { BlobReader, BlobWriter, ZipReader } from "jsr:@zip-js/zip-js@2.7.60";
 
 // The WebUI core version to download (Consider using this if not using nightly)
 export const WebUICoreVersion = "2.5.0-beta.3";
-export const useNightly = true; // Set to false to use WebUICoreVersion
+export const useNightly = false; // Set to false to use WebUICoreVersion
 
 // --- Cache Directory Logic ---
 
 /**
- * Gets the appropriate cache directory for the current platform.
- * Creates the directory if it doesn't exist.
- * @returns {Promise<string>} The path to the cache directory.
+ * Gets the base WebUI cache directory for the current platform.
+ * Creates the base directory if it doesn't exist.
+ * This directory will contain version-specific subdirectories.
+ * Example: ~/.cache/deno_webui (Linux) or ~/Library/Caches/deno_webui (macOS)
+ * @returns {Promise<string>} The path to the base WebUI cache directory.
  */
-async function getCacheDir(): Promise<string> {
+async function getBaseWebUICacheDir(): Promise<string> {
   let baseCacheDir: string | undefined;
 
   switch (Deno.build.os) {
@@ -47,24 +49,32 @@ async function getCacheDir(): Promise<string> {
       "Could not determine standard cache directory. Using Deno temporary directory.",
     );
     // Note: Deno's temp dir might be cleaned up unexpectedly.
-    // Consider creating a '.deno_webui_cache' in the user's home as a better fallback.
-    baseCacheDir = await Deno.makeTempDir({ prefix: "deno_webui_cache_" });
-    // Or: const home = Deno.env.get("HOME"); baseCacheDir = home ? join(home, '.deno_webui_cache') : await Deno.makeTempDir(...);
+    // A more persistent fallback might be needed in production scenarios.
+    baseCacheDir = await Deno.makeTempDir({ prefix: "deno_webui_cache_base_" });
   }
 
-  const webuiCacheDir = join(baseCacheDir, "deno_webui_libs");
+  // The main directory for all deno_webui cached libs
+  const webuiBaseCacheDir = join(baseCacheDir, "deno_webui");
 
-  // Ensure the directory exists
-  await Deno.mkdir(webuiCacheDir, { recursive: true });
+  // Ensure the base directory exists
+  await Deno.mkdir(webuiBaseCacheDir, { recursive: true });
 
-  return webuiCacheDir;
+  return webuiBaseCacheDir;
+}
+
+/**
+ * Determines the specific version directory name based on configuration.
+ * @returns {string} "nightly" or the specific WebUICoreVersion.
+ */
+function getVersionDirName(): string {
+  return useNightly ? "nightly" : WebUICoreVersion;
 }
 
 // --- Download and Extraction Logic ---
 
 /**
- * Downloads and extracts the required WebUI library to the cache directory.
- * @param {string} targetLibPath - The final path where the library should exist in the cache.
+ * Downloads and extracts the required WebUI library to the specific version cache directory.
+ * @param {string} targetLibPath - The final path where the library should exist in the cache (e.g., ~/.cache/deno_webui/2.5.0-beta.3/webui-2.dll).
  * @param {string} osName - OS identifier (e.g., "windows", "macos", "linux").
  * @param {string} compilerName - Compiler identifier (e.g., "msvc", "clang", "gcc").
  * @param {string} archName - Architecture identifier (e.g., "x64", "arm64").
@@ -79,20 +89,26 @@ async function downloadAndExtractLibrary(
   archName: string,
   libFileNameInZip: string,
 ): Promise<void> {
-  const cacheDir = dirname(targetLibPath); // Get the parent cache directory
+  // The cache directory for this *specific version*
+  const versionCacheDir = dirname(targetLibPath);
 
   // Determine download URL
-  const baseUrl = useNightly
+  const version = getVersionDirName(); // Get "nightly" or the specific version string
+  const baseUrl = version === "nightly"
     ? `https://github.com/webui-dev/webui/releases/download/nightly/`
-    : `https://github.com/webui-dev/webui/releases/download/${WebUICoreVersion}/`; // Use defined version if not nightly
+    : `https://github.com/webui-dev/webui/releases/download/${version}/`;
 
   const zipFileName = `webui-${osName}-${compilerName}-${archName}.zip`;
   const zipUrl = `${baseUrl}${zipFileName}`;
-  const tempZipPath = join(cacheDir, `${zipFileName}.download`); // Temporary download path
+  // Temporary download path inside the version-specific cache dir
+  const tempZipPath = join(versionCacheDir, `${zipFileName}.download`);
 
-  console.log(`Downloading WebUI library from ${zipUrl}...`);
+  console.log(`Downloading WebUI library (${version}) from ${zipUrl}...`);
 
   try {
+    // Ensure the target version directory exists before downloading
+    await Deno.mkdir(versionCacheDir, { recursive: true });
+
     // Download the archive
     const res = await fetch(zipUrl);
     if (!res.ok) {
@@ -161,22 +177,40 @@ async function downloadAndExtractLibrary(
 }
 
 /**
- * Ensures the correct WebUI native library exists in the cache, downloading it if necessary.
+ * Ensures the correct WebUI native library exists in the versioned cache, downloading it if necessary.
  * @param {string} baseLibName - The OS-specific library filename (e.g., "webui-2.dll").
- * @returns {Promise<string>} The full path to the cached library file.
+ * @returns {Promise<string>} The full path to the cached library file (e.g., ~/.cache/deno_webui/2.5.0-beta.3/webui-2.dll).
  */
 export async function ensureWebUiLib(baseLibName: string): Promise<string> {
-  const cacheDir = await getCacheDir();
-  const targetLibPath = join(cacheDir, baseLibName);
+  // 1. Get the base cache directory (e.g., ~/.cache/deno_webui)
+  const baseWebUICacheDir = await getBaseWebUICacheDir();
 
-  // 1. Check if the library already exists in the cache
+  // 2. Determine the version-specific subdirectory name ("nightly" or "2.5.0-beta.3")
+  const versionDirName = getVersionDirName();
+
+  // 3. Construct the path to the version-specific cache directory
+  const versionCacheDir = join(baseWebUICacheDir, versionDirName);
+
+  // 4. Construct the final target path for the library file
+  const targetLibPath = join(versionCacheDir, baseLibName);
+
+  // 5. Ensure the version-specific cache directory exists *before* checking for the file
+  //    (downloadAndExtractLibrary also does this, but doing it here prevents
+  //     an unnecessary download attempt if only the directory is missing)
+  await Deno.mkdir(versionCacheDir, { recursive: true });
+
+  // 6. Check if the library already exists in the cache
   if (await exists(targetLibPath)) {
-    console.log(`Using cached WebUI library: ${targetLibPath}`);
+    console.log(
+      `Using cached WebUI library (${versionDirName}): ${targetLibPath}`,
+    );
     return targetLibPath;
   }
 
-  // 2. Determine download parameters if not cached
-  console.log(`WebUI library not found in cache. Attempting download...`);
+  // 7. Determine download parameters if not cached
+  console.log(
+    `WebUI library (${versionDirName}) not found in cache. Attempting download...`,
+  );
   let osName: string;
   let compilerName: string;
 
@@ -209,16 +243,16 @@ export async function ensureWebUiLib(baseLibName: string): Promise<string> {
   const zipDirName = `webui-${osName}-${compilerName}-${archName}`;
   const libFileNameInZip = `${zipDirName}/${baseLibName}`; // Path inside the zip
 
-  // 3. Download and extract
+  // 8. Download and extract
   await downloadAndExtractLibrary(
-    targetLibPath,
+    targetLibPath, // Pass the full final path
     osName,
     compilerName,
     archName,
     libFileNameInZip,
   );
 
-  // 4. Return the path
+  // 9. Return the path
   return targetLibPath;
 }
 
