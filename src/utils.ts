@@ -1,201 +1,228 @@
 // Deno WebUI
 // Utilities
-import { UntarStream } from "jsr:@std/tar@0.1.6/untar-stream";
-import { dirname, normalize } from "jsr:@std/path@1.0.8";
+import { dirname, join } from "jsr:@std/path@1.0.8";
+import { exists } from "jsr:@std/fs@0.229.3/exists";
 import { BlobReader, BlobWriter, ZipReader } from "jsr:@zip-js/zip-js@2.7.60";
-// The WebUI core version to download
+
+// The WebUI core version to download (Consider using this if not using nightly)
 export const WebUICoreVersion = "2.5.0-beta.3";
+export const useNightly = true; // Set to false to use WebUICoreVersion
 
-// Combine paths
-function joinPath(...segments: string[]): string {
-  const isWindows = Deno.build.os === "windows";
-  const separator = isWindows ? "\\" : "/";
-  const joinedPath = segments
-    // Join all segments with the OS-specific separator
-    .join(separator)
-    // Replace multiple separators with a single one
-    .replace(/[\/\\]+/g, separator);
-  return joinedPath;
-}
+// --- Cache Directory Logic ---
 
-// Download a file from Internet
-async function downloadFile(url: string, dest: string) {
-  const res = await fetch(url);
-  const fileData = new Uint8Array(await res.arrayBuffer());
-  await Deno.writeFile(dest, fileData);
-}
+/**
+ * Gets the appropriate cache directory for the current platform.
+ * Creates the directory if it doesn't exist.
+ * @returns {Promise<string>} The path to the cache directory.
+ */
+async function getCacheDir(): Promise<string> {
+  let baseCacheDir: string | undefined;
 
-// Create a directory
-async function createDirectory(dirPath: string): Promise<void> {
-  await Deno.mkdir(dirPath, { recursive: true });
-}
-
-// Copy file and overwrite
-async function copyFileOverwrite(srcPath: string, destPath: string) {
-  try {
-    await Deno.remove(destPath);
-  } catch (error) {
-    if (!(error instanceof Deno.errors.NotFound)) {
-      throw error;
-    }
-  }
-  await Deno.copyFile(srcPath, destPath);
-}
-
-// Get current module full folder path
-export const currentModulePath = (() => {
-  const __dirname = new URL(import.meta.url).pathname;
-  let directory = String(__dirname);
-  const isWindows = Deno.build.os === "windows";
-  if (isWindows) {
-    if (directory.startsWith("/")) {
-      // Remove first '/'
-      directory = directory.slice(1);
-    }
-    // Replace all forward slashes with
-    // backslashes for Windows paths
-    directory = directory.replaceAll("/", "\\");
-  }
-  // Get absolute path without the script name
-  const pathSeparator = isWindows ? "\\" : "/";
-  const lastIndex = directory.lastIndexOf(pathSeparator);
-  directory = directory.substring(0, lastIndex + 1);
-  // Check if empty
-  if (directory === "") {
-    return "." + pathSeparator;
-  }
-  // Check if `X` module folder
-  if (directory.startsWith("/x/")) {
-    return "." + pathSeparator +
-      directory.slice(1).replace(/\//g, pathSeparator);
-  }
-  // Other paths
-  return directory;
-})();
-
-// Check if a file exist
-export async function fileExists(filePath: string) {
-  try {
-    await Deno.stat(filePath);
-    return true;
-  } catch (error) {
-    if (error instanceof Deno.errors.NotFound) {
-      return false;
-    } else {
-      throw error;
-    }
-  }
-}
-
-export async function downloadCoreLibrary() {
-  // Base URL
-  // const baseUrl = `https://github.com/webui-dev/webui/releases/download/${WebUICoreVersion}/`;
-  const baseUrl =
-    `https://github.com/webui-dev/webui/releases/download/nightly/`;
-  // Detect OS
-  let os, cc, ext, libFile;
   switch (Deno.build.os) {
-    case "darwin":
-      os = "macos";
-      cc = "clang";
-      ext = "dylib";
-      libFile = `libwebui-2.${ext}`;
+    case "windows": {
+      baseCacheDir = Deno.env.get("LOCALAPPDATA");
       break;
-    case "windows":
-      os = "windows";
-      cc = "msvc";
-      ext = "dll";
-      libFile = `webui-2.${ext}`;
+    }
+    case "darwin": {
+      const home = Deno.env.get("HOME");
+      if (home) {
+        baseCacheDir = join(home, "Library", "Caches");
+      }
       break;
-    default:
-      os = "linux";
-      cc = "gcc";
-      ext = "so";
-      libFile = `libwebui-2.${ext}`;
-      break;
-  }
-  // Detect Architecture
-  const archMap = {
-    "x86": "x86",
-    "x86_64": "x64",
-    "arm": "arm",
-    "aarch64": "arm64",
-    "arm64": "arm64",
-  };
-  const arch = archMap[Deno.build.arch];
-  if (!arch) {
-    console.error(`Error: Unsupported architecture '${Deno.build.arch}'`);
-    return;
-  }
-
-  // Construct file name and download URL
-  const cacheDir = joinPath(currentModulePath, `cache`);
-  const fileName = `webui-${os}-${cc}-${arch}`;
-  const fileUrl = `${baseUrl}${fileName}.zip`;
-  const outputDir = joinPath(currentModulePath, fileName);
-
-  // Create cache directory
-  await createDirectory(cacheDir);
-
-  // Download the archive
-  const zipPath = joinPath(cacheDir, `${fileName}.zip`);
-  await downloadFile(fileUrl, zipPath);
-
-  // Extract the archive
-  switch (Deno.build.os) {
-    case "windows":
-      {
-        for await (
-          const entry of (await Deno.open(zipPath))
-            .readable
-            .pipeThrough(new UntarStream())
-        ) {
-          const path = normalize(entry.path);
-          await Deno.mkdir(dirname(path), { recursive: true });
-          await entry.readable?.pipeTo((await Deno.create(path)).writable);
+    }
+    default: // Linux, FreeBSD, etc.
+      baseCacheDir = Deno.env.get("XDG_CACHE_HOME");
+      if (!baseCacheDir) {
+        const home = Deno.env.get("HOME");
+        if (home) {
+          baseCacheDir = join(home, ".cache");
         }
       }
       break;
-    default:
-      {
-        const zipBlob = await Deno.readFile(zipPath).then((data) =>
-          new Blob([data])
+  }
+
+  if (!baseCacheDir) {
+    // Fallback to a temporary directory if no standard cache is found
+    console.warn(
+      "Could not determine standard cache directory. Using Deno temporary directory.",
+    );
+    // Note: Deno's temp dir might be cleaned up unexpectedly.
+    // Consider creating a '.deno_webui_cache' in the user's home as a better fallback.
+    baseCacheDir = await Deno.makeTempDir({ prefix: "deno_webui_cache_" });
+    // Or: const home = Deno.env.get("HOME"); baseCacheDir = home ? join(home, '.deno_webui_cache') : await Deno.makeTempDir(...);
+  }
+
+  const webuiCacheDir = join(baseCacheDir, "deno_webui_libs");
+
+  // Ensure the directory exists
+  await Deno.mkdir(webuiCacheDir, { recursive: true });
+
+  return webuiCacheDir;
+}
+
+// --- Download and Extraction Logic ---
+
+/**
+ * Downloads and extracts the required WebUI library to the cache directory.
+ * @param {string} targetLibPath - The final path where the library should exist in the cache.
+ * @param {string} osName - OS identifier (e.g., "windows", "macos", "linux").
+ * @param {string} compilerName - Compiler identifier (e.g., "msvc", "clang", "gcc").
+ * @param {string} archName - Architecture identifier (e.g., "x64", "arm64").
+ * @param {string} libFileNameInZip - The full path of the library *inside* the zip archive.
+ * @returns {Promise<void>}
+ * @throws {Error} If download or extraction fails.
+ */
+async function downloadAndExtractLibrary(
+  targetLibPath: string,
+  osName: string,
+  compilerName: string,
+  archName: string,
+  libFileNameInZip: string,
+): Promise<void> {
+  const cacheDir = dirname(targetLibPath); // Get the parent cache directory
+
+  // Determine download URL
+  const baseUrl = useNightly
+    ? `https://github.com/webui-dev/webui/releases/download/nightly/`
+    : `https://github.com/webui-dev/webui/releases/download/${WebUICoreVersion}/`; // Use defined version if not nightly
+
+  const zipFileName = `webui-${osName}-${compilerName}-${archName}.zip`;
+  const zipUrl = `${baseUrl}${zipFileName}`;
+  const tempZipPath = join(cacheDir, `${zipFileName}.download`); // Temporary download path
+
+  console.log(`Downloading WebUI library from ${zipUrl}...`);
+
+  try {
+    // Download the archive
+    const res = await fetch(zipUrl);
+    if (!res.ok) {
+      throw new Error(
+        `Failed to download ${zipUrl}: ${res.status} ${res.statusText}`,
+      );
+    }
+    const zipData = await res.arrayBuffer();
+    await Deno.writeFile(tempZipPath, new Uint8Array(zipData));
+    console.log(`Downloaded to ${tempZipPath}`);
+
+    // Extract the specific library file
+    console.log(`Extracting ${libFileNameInZip} from ${tempZipPath}...`);
+    const zipBlob = new Blob([zipData]);
+    const zipReader = new ZipReader(new BlobReader(zipBlob));
+    const entries = await zipReader.getEntries();
+
+    let foundEntry = false;
+    for (const entry of entries) {
+      // Normalize zip entry filename (might contain different slashes)
+      const entryPath =  entry.filename.replace(/\\/g, "/");
+      const targetEntryPath = libFileNameInZip.replace(/\\/g, "/");
+
+      if (!entry.directory && entryPath === targetEntryPath) {
+        console.log(`Found entry: ${entry.filename}`);
+        const writer = new BlobWriter();
+        const data = await entry.getData!(writer);
+        await Deno.writeFile(
+          targetLibPath,
+          new Uint8Array(await data.arrayBuffer()),
         );
-        const zipReader = new ZipReader(new BlobReader(zipBlob));
-        const entries = await zipReader.getEntries();
-        for (const entry of entries) {
-          const filePath = `${cacheDir}/${entry.filename}`;
-          // Create directories if needed
-          if (entry.directory) {
-            await Deno.mkdir(filePath, { recursive: true });
-          } else {
-            // Make sure parent directory exists
-            const parentDir = dirname(filePath);
-            await Deno.mkdir(parentDir, { recursive: true });
-            // Extract file
-            const writer = new BlobWriter();
-            const data = await entry.getData!(writer);
-            await Deno.writeFile(
-              filePath,
-              new Uint8Array(await data.arrayBuffer()),
-            );
-          }
-        }
-        await zipReader.close();
+        foundEntry = true;
+        console.log(`Extracted library to ${targetLibPath}`);
+        break; // Found the file, no need to check others
       }
+    }
+    await zipReader.close();
+
+    if (!foundEntry) {
+      throw new Error(
+        `Library file "${libFileNameInZip}" not found inside downloaded archive ${zipFileName}`,
+      );
+    }
+  } catch (error) {
+    console.error("WebUI library download/extraction failed:", error);
+    // Clean up partial download if it exists
+    try {
+      await Deno.remove(targetLibPath).catch(() => {}); // Remove potentially incomplete extraction
+    } catch (e) {
+      if (!(e instanceof Deno.errors.NotFound)) {
+        console.error("Cleanup error:", e);
+      }
+    }
+    throw error; // Re-throw the error
+  } finally {
+    // Clean up the downloaded zip file regardless of success/failure
+    try {
+      await Deno.remove(tempZipPath);
+      console.log(`Removed temporary file ${tempZipPath}`);
+    } catch (e) {
+      if (!(e instanceof Deno.errors.NotFound)) {
+        console.error(`Failed to remove temporary zip file ${tempZipPath}:`, e);
+      }
+    }
+  }
+}
+
+/**
+ * Ensures the correct WebUI native library exists in the cache, downloading it if necessary.
+ * @param {string} baseLibName - The OS-specific library filename (e.g., "webui-2.dll").
+ * @returns {Promise<string>} The full path to the cached library file.
+ */
+export async function ensureWebUiLib(baseLibName: string): Promise<string> {
+  const cacheDir = await getCacheDir();
+  const targetLibPath = join(cacheDir, baseLibName);
+
+  // 1. Check if the library already exists in the cache
+  if (await exists(targetLibPath)) {
+    console.log(`Using cached WebUI library: ${targetLibPath}`);
+    return targetLibPath;
+  }
+
+  // 2. Determine download parameters if not cached
+  console.log(`WebUI library not found in cache. Attempting download...`);
+  let osName: string;
+  let compilerName: string;
+
+  const archMap: { [key: string]: string } = {
+    "x86_64": "x64",
+    "aarch64": "arm64",
+  };
+  const archName = archMap[Deno.build.arch];
+  if (!archName) {
+    throw new Error(
+      `Unsupported architecture: ${Deno.build.arch} for ${Deno.build.os}`,
+    );
+  }
+
+  switch (Deno.build.os) {
+    case "windows":
+      osName = "windows";
+      compilerName = "msvc";
+      break;
+    case "darwin":
+      osName = "macos";
+      compilerName = "clang";
+      break;
+    default: // Linux and others
+      osName = "linux";
+      compilerName = "gcc";
       break;
   }
 
-  // Copy library
-  await createDirectory(outputDir);
-  await copyFileOverwrite(
-    joinPath(cacheDir, fileName, libFile),
-    joinPath(outputDir, libFile),
+  const zipDirName = `webui-${osName}-${compilerName}-${archName}`;
+  const libFileNameInZip = `${zipDirName}/${baseLibName}`; // Path inside the zip
+
+  // 3. Download and extract
+  await downloadAndExtractLibrary(
+    targetLibPath,
+    osName,
+    compilerName,
+    archName,
+    libFileNameInZip,
   );
 
-  // Remove cache directory
-  await Deno.remove(cacheDir, { recursive: true });
+  // 4. Return the path
+  return targetLibPath;
 }
+
+// --- String Conversions (Keep as they are useful) ---
 
 /**
  * Convert a String to C-String.

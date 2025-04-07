@@ -1,11 +1,11 @@
 // Deno WebUI
 // FFI (Foreign Function Interface) for webui.ts
 
-import { libName } from "../deps.ts";
+import { libPath } from "../deps.ts";
 
 export function loadLib() {
   return Deno.dlopen(
-    libName,
+    libPath,
     {
       webui_wait: {
         // void webui_wait(void)
