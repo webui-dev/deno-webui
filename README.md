@@ -1,8 +1,9 @@
-## Fork 
+## Fork
 
 https://jsr.io/@sigmasd/webui-deno-fork
 
-Uptodate with commit https://github.com/webui-dev/deno-webui/commit/d349a44527d129772920f4c097baabf91438f635
+Uptodate with commit
+https://github.com/webui-dev/deno-webui/commit/d349a44527d129772920f4c097baabf91438f635
 
 <div align="center">
 
