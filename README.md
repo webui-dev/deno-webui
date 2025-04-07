@@ -44,7 +44,7 @@ is written in Deno using WebUI as the GUI library.
 ## Installation
 
 Specific version:
-`import { WebUI } from "https://deno.land/x/webui@2.5.3/mod.ts";`
+`import { WebUI } from "https://deno.land/x/webui@2.5.4/mod.ts";`
 
 Latest version: `import { WebUI } from "https://deno.land/x/webui/mod.ts";`
 
