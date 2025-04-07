@@ -113,7 +113,7 @@ async function downloadAndExtractLibrary(
     let foundEntry = false;
     for (const entry of entries) {
       // Normalize zip entry filename (might contain different slashes)
-      const entryPath =  entry.filename.replace(/\\/g, "/");
+      const entryPath = entry.filename.replace(/\\/g, "/");
       const targetEntryPath = libFileNameInZip.replace(/\\/g, "/");
 
       if (!entry.directory && entryPath === targetEntryPath) {
