@@ -75,14 +75,16 @@ myWindow.bind("exit", () => {
 // http://localhost:MY_PORT_NUMBER/webui.js
 myWindow.setPort(8081);
 
-// Show a new window and point to our custom web server
-// Assuming the custom web server is running on port
-// 8080...
+// Start our custom web server using Python script `python simple_web_server.py`.
+// Or using `file-server` module.
 new Deno.Command("deno", {
   args: ["-RNS", "jsr:@std/http/file-server", "-p", "8080"],
 }).spawn();
-
 await new Promise((r) => setTimeout(r, 500));
+
+// Show a new window and point to our custom web server
+// Assuming the custom web server is running on port
+// 8080...
 myWindow.show("http://localhost:8080/");
 
 // Wait until all windows get closed
