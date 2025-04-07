@@ -7,7 +7,7 @@ import { WebUI } from "../../mod.ts";
 // To import from online `https://deno.land` (Production)
 // import { WebUI } from "https://deno.land/x/webui@2.5.3/mod.ts";
 
-async function allEvents(e: WebUI.Event) {
+function allEvents(e: WebUI.Event) {
   /*
     e.window: WebUI;
     e.eventType: WebUI.EventType;
@@ -29,7 +29,7 @@ async function allEvents(e: WebUI.Event) {
       // Mouse click event
       console.log(`Mouse click.`);
       break;
-    case WebUI.EventType.Navigation:
+    case WebUI.EventType.Navigation: {
       // Window navigation event
       const url = e.arg.string(0);
       console.log(`Navigation to '${url}'`);
@@ -38,6 +38,7 @@ async function allEvents(e: WebUI.Event) {
       // We can then control the behaviour of links as needed.
       e.window.navigate(url);
       break;
+    }
     case WebUI.EventType.Callback:
       // Function call event
       console.log(`Function call.`);
@@ -45,7 +46,7 @@ async function allEvents(e: WebUI.Event) {
   }
 }
 
-async function myBackendFunc(e: WebUI.Event) {
+function myBackendFunc(e: WebUI.Event) {
   const a = e.arg.number(0); // First argument
   const b = e.arg.number(1); // Second argument
   const c = e.arg.number(2); // Third argument
@@ -77,6 +78,11 @@ myWindow.setPort(8081);
 // Show a new window and point to our custom web server
 // Assuming the custom web server is running on port
 // 8080...
+new Deno.Command("deno", {
+  args: ["-RNS", "jsr:@std/http/file-server", "-p", "8080"],
+}).spawn();
+
+await new Promise((r) => setTimeout(r, 500));
 myWindow.show("http://localhost:8080/");
 
 // Wait until all windows get closed

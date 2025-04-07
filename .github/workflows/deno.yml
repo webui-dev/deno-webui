@@ -1,0 +1,41 @@
+name: Deno
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.85.0 # Specify minimum Rust version that supports 2024 edition
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+
+      - name: Verify formatting
+        if: runner.os == 'Linux'
+        run: deno fmt --check
+
+      - name: Run linter
+        if: runner.os == 'Linux'
+        run: deno lint
+
+      - name: Run type checker
+        if: runner.os == 'Linux'
+        run: deno check .

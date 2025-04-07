@@ -1,102 +1,52 @@
 // Deno WebUI
-// Dependences needed by webui.ts
+// Resolves the path to the required native WebUI library,
+// ensuring it is downloaded to a central cache if needed.
 
-import { 
-  fileExists,
-  downloadCoreLibrary,
-  currentModulePath
-} from "./src/utils.ts";
+import { ensureWebUiLib } from "./src/utils.ts";
 
-// Determine the library name based
-// on the current operating system
-async function getLibName() {
-  let fileName = "";
-  let localFileName = "";
+// Determine the base library filename based
+// on the current operating system and architecture.
+function getBaseLibName(): string {
+  let baseName: string;
   switch (Deno.build.os) {
     case "windows":
-      switch (Deno.build.arch) {
-        case "x86_64":
-          fileName = "webui-windows-msvc-x64/webui-2.dll";
-          localFileName = "./webui-2.dll";
-          break;
-        // case "arm":
-        //   fileName = "webui-windows-msvc-arm/webui-2.dll";
-        //   localFileName = "./webui-2.dll";
-        //   break;
-        // case "arm64":
-        case "aarch64":
-          fileName = "webui-windows-msvc-arm64/webui-2.dll";
-          localFileName = "./webui-2.dll";
-          break;
-        default:
-          throw new Error(
-            `Unsupported architecture ${Deno.build.arch} for Windows`,
-          );
+      baseName = "webui-2.dll";
+      // Validate architecture for Windows
+      if (Deno.build.arch !== "x86_64" && Deno.build.arch !== "aarch64") {
+        throw new Error(
+          `Unsupported architecture ${Deno.build.arch} for Windows`,
+        );
       }
       break;
-    case "darwin":
-      switch (Deno.build.arch) {
-        case "x86_64":
-          fileName = "webui-macos-clang-x64/libwebui-2.dylib";
-          localFileName = "./libwebui-2.dylib";
-          break;
-        // case "arm":
-        //   fileName = "webui-macos-clang-arm/libwebui-2.dylib";
-        //   localFileName = "./libwebui-2.dylib";
-        //   break;
-        // case "arm64":
-        case "aarch64":
-          fileName = "webui-macos-clang-arm64/libwebui-2.dylib";
-          localFileName = "./libwebui-2.dylib";
-          break;
-        default:
-          throw new Error(
-            `Unsupported architecture ${Deno.build.arch} for macOS`,
-          );
+    case "darwin": // macOS
+      baseName = "libwebui-2.dylib";
+      // Validate architecture for macOS
+      if (Deno.build.arch !== "x86_64" && Deno.build.arch !== "aarch64") {
+        throw new Error(
+          `Unsupported architecture ${Deno.build.arch} for macOS`,
+        );
       }
       break;
-    default:
-      // Linux
-      // freebsd
-      // netbsd
-      // aix
-      // solaris
-      // illumos
-      switch (Deno.build.arch) {
-        case "x86_64":
-          fileName = "webui-linux-gcc-x64/libwebui-2.so";
-          localFileName = "./libwebui-2.so";
-          break;
-        // case "arm":
-        //   fileName = "webui-linux-gcc-arm/libwebui-2.so";
-        //   localFileName = "./libwebui-2.so";
-        //   break;
-        // case "arm64":
-        case "aarch64":
-          fileName = "webui-linux-gcc-arm64/libwebui-2.so";
-          localFileName = "./libwebui-2.so";
-          break;
-        default:
-          throw new Error(
-            `Unsupported architecture ${Deno.build.arch} for ${Deno.build.os}`,
-          );
+    default: // Linux and other Unix-like OSes
+      baseName = "libwebui-2.so";
+      // Validate architecture for Linux/others
+      if (Deno.build.arch !== "x86_64" && Deno.build.arch !== "aarch64") {
+        throw new Error(
+          `Unsupported architecture ${Deno.build.arch} for ${Deno.build.os}`,
+        );
       }
       break;
   }
-  // Check if local file exisit
-  const localExists = await fileExists(localFileName);
-  if (localExists)
-    return localFileName;
-  // Get the current module full path
-  const srcFullPath = currentModulePath;
-  const FullPath = srcFullPath + fileName;
-  // Check if WebUI library exist
-  const exists = await fileExists(FullPath);
-  if (!exists) {
-    // Download the WebUI library
-    await downloadCoreLibrary();
-  }
-  return FullPath;
+  return baseName;
 }
 
-export const libName = await getLibName();
+// Determine the required base filename
+const baseLibName = getBaseLibName();
+
+// Ensure the library exists in the cache (downloads if needed)
+// and export the resolved path.
+// This promise resolves to the final path of the library file.
+export const libPath = await ensureWebUiLib(baseLibName);
+
+// Optional: Export the base name too if needed elsewhere
+export { baseLibName };
