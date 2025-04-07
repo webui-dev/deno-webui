@@ -1,7 +1,6 @@
 // Deno WebUI
 // Utilities
-import { UntarStream } from "jsr:@std/tar@0.1.6/untar-stream";
-import { dirname, normalize } from "jsr:@std/path@1.0.8";
+import { dirname } from "jsr:@std/path@1.0.8/dirname";
 import { BlobReader, ZipReader, BlobWriter } from "jsr:@zip-js/zip-js@2.7.60";
 // The WebUI core version to download
 export const WebUICoreVersion = '2.5.0-beta.3';
