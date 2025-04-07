@@ -35,3 +35,7 @@ jobs:
       - name: Run linter
         if: runner.os == 'Linux'
         run: deno lint
+
+      - name: Run type checker
+        if: runner.os == 'Linux'
+        run: deno check .

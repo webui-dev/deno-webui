@@ -1,5 +1,5 @@
-import { WebUI } from "../mod.ts";
-import { loadLib } from "./lib.ts";
+import type { WebUI } from "../mod.ts";
+import type { loadLib } from "./lib.ts";
 
 export type Usize = number | bigint;
 
