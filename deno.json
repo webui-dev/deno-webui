@@ -1,5 +1,5 @@
 {
-  "name": "@sigmasd/webui-deno-fork",
-  "version": "1.0.1",
+  "name": "@webui/deno-webui",
+  "version": "2.5.4",
   "exports": "./mod.ts"
 }
