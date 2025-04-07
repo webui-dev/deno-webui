@@ -78,6 +78,11 @@ myWindow.setPort(8081);
 // Show a new window and point to our custom web server
 // Assuming the custom web server is running on port
 // 8080...
+new Deno.Command("deno", {
+  args: ["-RNS", "jsr:@std/http/file-server", "-p", "8080"],
+}).spawn();
+
+await new Promise((r) => setTimeout(r, 500));
 myWindow.show("http://localhost:8080/");
 
 // Wait until all windows get closed
