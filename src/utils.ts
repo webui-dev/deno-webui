@@ -140,42 +140,25 @@ export async function downloadCoreLibrary() {
   await downloadFile(fileUrl, zipPath);
 
   // Extract the archive
-  switch (Deno.build.os) {
-    case "windows": {
-      for await (
-        const entry of (await Deno.open(zipPath))
-          .readable
-          .pipeThrough(new UntarStream())
-      ) {
-        const path = normalize(entry.path);
-        await Deno.mkdir(dirname(path), { recursive: true });
-        await entry.readable?.pipeTo((await Deno.create(path)).writable);
-      }
+  const zipBlob = await Deno.readFile(zipPath).then(data => new Blob([data]));
+  const zipReader = new ZipReader(new BlobReader(zipBlob));
+  const entries = await zipReader.getEntries();
+  for (const entry of entries) {
+    const filePath = `${cacheDir}/${entry.filename}`;
+    // Create directories if needed
+    if (entry.directory) {
+      await Deno.mkdir(filePath, { recursive: true });
+    } else {
+      // Make sure parent directory exists
+      const parentDir = dirname(filePath)
+      await Deno.mkdir(parentDir, { recursive: true });
+      // Extract file
+      const writer = new BlobWriter();
+      const data = await entry.getData!(writer);
+      await Deno.writeFile(filePath, new Uint8Array(await data.arrayBuffer()));
     }
-      break;
-    default: {
-      const zipBlob = await Deno.readFile(zipPath).then(data => new Blob([data]));
-      const zipReader = new ZipReader(new BlobReader(zipBlob));
-      const entries = await zipReader.getEntries();
-      for (const entry of entries) {
-        const filePath = `${cacheDir}/${entry.filename}`;
-        // Create directories if needed
-        if (entry.directory) {
-          await Deno.mkdir(filePath, { recursive: true });
-        } else {
-          // Make sure parent directory exists
-          const parentDir = dirname(filePath)
-          await Deno.mkdir(parentDir, { recursive: true });
-          // Extract file
-          const writer = new BlobWriter();
-          const data = await entry.getData!(writer);
-          await Deno.writeFile(filePath, new Uint8Array(await data.arrayBuffer()));
-        }
-      }
-      await zipReader.close()
-    }
-      break;
   }
+  await zipReader.close()
 
   // Copy library
   await createDirectory(outputDir);
