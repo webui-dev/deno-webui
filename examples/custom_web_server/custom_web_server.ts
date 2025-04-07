@@ -2,10 +2,10 @@
 // deno run --allow-read --allow-write --allow-run --allow-net --allow-ffi custom_web_server.ts
 
 // To import from local (Debugging and Development)
-import { WebUI } from "../../mod.ts";
+// import { WebUI } from "../../mod.ts";
 
 // To import from online `https://deno.land` (Production)
-// import { WebUI } from "https://deno.land/x/webui@2.5.3/mod.ts";
+import { WebUI } from "https://deno.land/x/webui@2.5.3/mod.ts";
 
 function allEvents(e: WebUI.Event) {
   /*
