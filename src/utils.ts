@@ -2,9 +2,9 @@
 // Utilities
 import { UntarStream } from "jsr:@std/tar@0.1.6/untar-stream";
 import { dirname, normalize } from "jsr:@std/path@1.0.8";
-import { BlobReader, ZipReader, BlobWriter } from "jsr:@zip-js/zip-js@2.7.60";
+import { BlobReader, BlobWriter, ZipReader } from "jsr:@zip-js/zip-js@2.7.60";
 // The WebUI core version to download
-export const WebUICoreVersion = '2.5.0-beta.3';
+export const WebUICoreVersion = "2.5.0-beta.3";
 
 // Combine paths
 function joinPath(...segments: string[]): string {
@@ -27,7 +27,7 @@ async function downloadFile(url: string, dest: string) {
 
 // Create a directory
 async function createDirectory(dirPath: string): Promise<void> {
-  await Deno.mkdir(dirPath,{recursive:true})
+  await Deno.mkdir(dirPath, { recursive: true });
 }
 
 // Copy file and overwrite
@@ -46,18 +46,18 @@ async function copyFileOverwrite(srcPath: string, destPath: string) {
 export const currentModulePath = (() => {
   const __dirname = new URL(import.meta.url).pathname;
   let directory = String(__dirname);
-  const isWindows = (Deno.build.os === 'windows');
+  const isWindows = Deno.build.os === "windows";
   if (isWindows) {
-    if (directory.startsWith('/')) {
+    if (directory.startsWith("/")) {
       // Remove first '/'
       directory = directory.slice(1);
     }
     // Replace all forward slashes with
     // backslashes for Windows paths
-    directory = directory.replaceAll('/', '\\');
+    directory = directory.replaceAll("/", "\\");
   }
   // Get absolute path without the script name
-  const pathSeparator = isWindows ? '\\' : '/';
+  const pathSeparator = isWindows ? "\\" : "/";
   const lastIndex = directory.lastIndexOf(pathSeparator);
   directory = directory.substring(0, lastIndex + 1);
   // Check if empty
@@ -66,7 +66,8 @@ export const currentModulePath = (() => {
   }
   // Check if `X` module folder
   if (directory.startsWith("/x/")) {
-    return "." + pathSeparator + directory.slice(1).replace(/\//g, pathSeparator);
+    return "." + pathSeparator +
+      directory.slice(1).replace(/\//g, pathSeparator);
   }
   // Other paths
   return directory;
@@ -89,41 +90,42 @@ export async function fileExists(filePath: string) {
 export async function downloadCoreLibrary() {
   // Base URL
   // const baseUrl = `https://github.com/webui-dev/webui/releases/download/${WebUICoreVersion}/`;
-  const baseUrl = `https://github.com/webui-dev/webui/releases/download/nightly/`;
+  const baseUrl =
+    `https://github.com/webui-dev/webui/releases/download/nightly/`;
   // Detect OS
   let os, cc, ext, libFile;
   switch (Deno.build.os) {
-      case "darwin":
-          os = "macos";
-          cc = "clang";
-          ext = "dylib";
-          libFile = `libwebui-2.${ext}`;
-          break;
-      case "windows":
-          os = "windows";
-          cc = "msvc";
-          ext = "dll";
-          libFile = `webui-2.${ext}`;
-          break;
-      default:
-          os = "linux";
-          cc = "gcc";
-          ext = "so";
-          libFile = `libwebui-2.${ext}`;
-          break;
+    case "darwin":
+      os = "macos";
+      cc = "clang";
+      ext = "dylib";
+      libFile = `libwebui-2.${ext}`;
+      break;
+    case "windows":
+      os = "windows";
+      cc = "msvc";
+      ext = "dll";
+      libFile = `webui-2.${ext}`;
+      break;
+    default:
+      os = "linux";
+      cc = "gcc";
+      ext = "so";
+      libFile = `libwebui-2.${ext}`;
+      break;
   }
   // Detect Architecture
   const archMap = {
-      "x86": "x86",
-      "x86_64": "x64",
-      "arm": "arm",
-      "aarch64": "arm64",
-      "arm64": "arm64"
+    "x86": "x86",
+    "x86_64": "x64",
+    "arm": "arm",
+    "aarch64": "arm64",
+    "arm64": "arm64",
   };
   const arch = archMap[Deno.build.arch];
   if (!arch) {
-      console.error(`Error: Unsupported architecture '${Deno.build.arch}'`);
-      return;
+    console.error(`Error: Unsupported architecture '${Deno.build.arch}'`);
+    return;
   }
 
   // Construct file name and download URL
@@ -141,45 +143,55 @@ export async function downloadCoreLibrary() {
 
   // Extract the archive
   switch (Deno.build.os) {
-    case "windows": {
-      for await (
-        const entry of (await Deno.open(zipPath))
-          .readable
-          .pipeThrough(new UntarStream())
-      ) {
-        const path = normalize(entry.path);
-        await Deno.mkdir(dirname(path), { recursive: true });
-        await entry.readable?.pipeTo((await Deno.create(path)).writable);
-      }
-    }
-      break;
-    default: {
-      const zipBlob = await Deno.readFile(zipPath).then(data => new Blob([data]));
-      const zipReader = new ZipReader(new BlobReader(zipBlob));
-      const entries = await zipReader.getEntries();
-      for (const entry of entries) {
-        const filePath = `${cacheDir}/${entry.filename}`;
-        // Create directories if needed
-        if (entry.directory) {
-          await Deno.mkdir(filePath, { recursive: true });
-        } else {
-          // Make sure parent directory exists
-          const parentDir = dirname(filePath)
-          await Deno.mkdir(parentDir, { recursive: true });
-          // Extract file
-          const writer = new BlobWriter();
-          const data = await entry.getData!(writer);
-          await Deno.writeFile(filePath, new Uint8Array(await data.arrayBuffer()));
+    case "windows":
+      {
+        for await (
+          const entry of (await Deno.open(zipPath))
+            .readable
+            .pipeThrough(new UntarStream())
+        ) {
+          const path = normalize(entry.path);
+          await Deno.mkdir(dirname(path), { recursive: true });
+          await entry.readable?.pipeTo((await Deno.create(path)).writable);
         }
       }
-      await zipReader.close()
-    }
+      break;
+    default:
+      {
+        const zipBlob = await Deno.readFile(zipPath).then((data) =>
+          new Blob([data])
+        );
+        const zipReader = new ZipReader(new BlobReader(zipBlob));
+        const entries = await zipReader.getEntries();
+        for (const entry of entries) {
+          const filePath = `${cacheDir}/${entry.filename}`;
+          // Create directories if needed
+          if (entry.directory) {
+            await Deno.mkdir(filePath, { recursive: true });
+          } else {
+            // Make sure parent directory exists
+            const parentDir = dirname(filePath);
+            await Deno.mkdir(parentDir, { recursive: true });
+            // Extract file
+            const writer = new BlobWriter();
+            const data = await entry.getData!(writer);
+            await Deno.writeFile(
+              filePath,
+              new Uint8Array(await data.arrayBuffer()),
+            );
+          }
+        }
+        await zipReader.close();
+      }
       break;
   }
 
   // Copy library
   await createDirectory(outputDir);
-  await copyFileOverwrite(joinPath(cacheDir, fileName, libFile), joinPath(outputDir, libFile));
+  await copyFileOverwrite(
+    joinPath(cacheDir, fileName, libFile),
+    joinPath(outputDir, libFile),
+  );
 
   // Remove cache directory
   await Deno.remove(cacheDir, { recursive: true });

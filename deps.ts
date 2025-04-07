@@ -1,10 +1,10 @@
 // Deno WebUI
 // Dependences needed by webui.ts
 
-import { 
-  fileExists,
+import {
+  currentModulePath,
   downloadCoreLibrary,
-  currentModulePath
+  fileExists,
 } from "./src/utils.ts";
 
 // Determine the library name based
@@ -85,8 +85,9 @@ async function getLibName() {
   }
   // Check if local file exisit
   const localExists = await fileExists(localFileName);
-  if (localExists)
+  if (localExists) {
     return localFileName;
+  }
   // Get the current module full path
   const srcFullPath = currentModulePath;
   const FullPath = srcFullPath + fileName;

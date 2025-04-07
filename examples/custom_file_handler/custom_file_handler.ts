@@ -8,7 +8,10 @@
 import { WebUI } from "https://deno.land/x/webui@2.5.3/mod.ts";
 
 // Return HTTP header + file raw binary content
-const getFile = async (contentType: string, filename: string): Promise<Uint8Array> => {
+const getFile = async (
+  contentType: string,
+  filename: string,
+): Promise<Uint8Array> => {
   const content = await Deno.readFile(filename);
   const header = `HTTP/1.1 200 OK\r\nContent-Type: ${contentType}\r\n\r\n`;
   const headerBytes = new TextEncoder().encode(header);
@@ -22,23 +25,23 @@ const getFile = async (contentType: string, filename: string): Promise<Uint8Arra
 async function myFileHandler(myUrl: URL) {
   console.log(`File: ${myUrl.pathname}`);
   // Index example
-  if (myUrl.pathname === '/index.html' || myUrl.pathname === '/') {
-    return await getFile('text/html', 'index.html');
+  if (myUrl.pathname === "/index.html" || myUrl.pathname === "/") {
+    return await getFile("text/html", "index.html");
   }
   // Custom text string example
-  if (myUrl.pathname === '/test') {
+  if (myUrl.pathname === "/test") {
     return "HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nHello";
   }
   // File examples
-  if (myUrl.pathname === '/assets/test_app.js') {
-    return await getFile('application/javascript', 'assets/test_app.js');
+  if (myUrl.pathname === "/assets/test_app.js") {
+    return await getFile("application/javascript", "assets/test_app.js");
   }
-  if (myUrl.pathname === '/assets/webui.jpeg') {
-    return await getFile('image/jpeg', 'assets/webui.jpeg');
+  if (myUrl.pathname === "/assets/webui.jpeg") {
+    return await getFile("image/jpeg", "assets/webui.jpeg");
   }
   // Error 404 example
   return "HTTP/1.1 404 Not Found";
-};
+}
 
 // Create new window
 const myWindow = new WebUI();
@@ -54,7 +57,7 @@ myWindow.bind("exit", () => {
 myWindow.setFileHandler(myFileHandler);
 
 // Show the window
-await myWindow.show('index.html');
+await myWindow.show("index.html");
 
 // Wait until all windows get closed
 await WebUI.wait();

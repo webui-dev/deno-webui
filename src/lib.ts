@@ -1,9 +1,7 @@
 // Deno WebUI
 // FFI (Foreign Function Interface) for webui.ts
 
-import {
-  libName,
-} from "../deps.ts";
+import { libName } from "../deps.ts";
 
 export function loadLib() {
   return Deno.dlopen(
@@ -106,14 +104,14 @@ export function loadLib() {
         result: "void",
       },
       webui_set_root_folder: {
-          // bool webui_set_root_folder(size_t window, const char* path)
-          parameters: ["usize", "buffer"],
-          result: "bool",
+        // bool webui_set_root_folder(size_t window, const char* path)
+        parameters: ["usize", "buffer"],
+        result: "bool",
       },
       webui_set_tls_certificate: {
-          // bool webui_set_tls_certificate(const char* certificate_pem, const char* private_key_pem)
-          parameters: ["buffer", "buffer"],
-          result: "bool",
+        // bool webui_set_tls_certificate(const char* certificate_pem, const char* private_key_pem)
+        parameters: ["buffer", "buffer"],
+        result: "bool",
       },
       webui_set_kiosk: {
         // void webui_set_kiosk(size_t window, bool status)

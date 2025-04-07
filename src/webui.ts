@@ -65,8 +65,8 @@ export class WebUI {
    */
   setRootFolder(rootFolder: string) {
     const status = this.#lib.symbols.webui_set_root_folder(
-        BigInt(this.#window),
-        toCString(rootFolder),
+      BigInt(this.#window),
+      toCString(rootFolder),
     );
     if (!status) {
       throw new WebUIError(`unable to set root folder`);
@@ -319,10 +319,10 @@ export class WebUI {
 
   /**
    * Bind a callback function to a an HTML element
-   * 
+   *
    * @param {string} id - DOM element id. Blank string bind to all DOM elements.
    * @param callback - The callback function.
-   * 
+   *
    * @example
    * ```ts
    * const myWindow = new WebUI();
@@ -367,35 +367,49 @@ export class WebUI {
       ) => {
         // Create elements
         const win = param_window;
-        const event_type = typeof param_event_type === 'bigint'
+        const event_type = typeof param_event_type === "bigint"
           ? Number(param_event_type)
           : Math.trunc(param_event_type);
         const element = param_element !== null
           ? new Deno.UnsafePointerView(param_element).getCString()
           : "";
-        const event_number = typeof param_event_number === 'bigint'
+        const event_number = typeof param_event_number === "bigint"
           ? Number(param_event_number)
           : Math.trunc(param_event_number);
-        const _bind_id = typeof param_bind_id === 'bigint'
+        const _bind_id = typeof param_bind_id === "bigint"
           ? Number(param_bind_id)
           : Math.trunc(param_bind_id);
 
         // Set get argument methods
         const args = {
           number: (index: number): number => {
-            return Number(this.#lib.symbols.webui_interface_get_int_at(BigInt(win), BigInt(event_number), BigInt(index)))
+            return Number(
+              this.#lib.symbols.webui_interface_get_int_at(
+                BigInt(win),
+                BigInt(event_number),
+                BigInt(index),
+              ),
+            );
           },
           string: (index: number): string => {
             return (
               new Deno.UnsafePointerView(
-                (this.#lib.symbols.webui_interface_get_string_at(BigInt(win), BigInt(event_number), BigInt(index)) as Deno.PointerObject<unknown>)
+                this.#lib.symbols.webui_interface_get_string_at(
+                  BigInt(win),
+                  BigInt(event_number),
+                  BigInt(index),
+                ) as Deno.PointerObject<unknown>,
               ).getCString()
-            ) as string
+            ) as string;
           },
           boolean: (index: number): boolean => {
-            return this.#lib.symbols.webui_interface_get_bool_at(BigInt(win), BigInt(event_number), BigInt(index)) as boolean
-          }
-        }
+            return this.#lib.symbols.webui_interface_get_bool_at(
+              BigInt(win),
+              BigInt(event_number),
+              BigInt(index),
+            ) as boolean;
+          },
+        };
 
         // Create struct
         const e: WebUIEvent = {
@@ -403,11 +417,11 @@ export class WebUI {
           eventType: event_type,
           eventNumber: event_number,
           element: element,
-          arg: args
+          arg: args,
         };
 
         // Call the user callback
-        const result: string = (await callback(e) as string) ?? '';
+        const result: string = (await callback(e) as string) ?? "";
 
         // Send back the response
         this.#lib.symbols.webui_interface_set_response(
@@ -427,12 +441,12 @@ export class WebUI {
 
   /**
    * Sets a custom files handler to respond to HTTP requests.
-   * 
-   * @param handler - Callback that takes an URL, and return a full HTTP header 
+   *
+   * @param handler - Callback that takes an URL, and return a full HTTP header
    * + body. (`string` or `Uint8Array`).
    *
    * @example
-   * 
+   *
    * async function myFileHandler(myUrl: URL) {
    *  if (myUrl.pathname === '/test') {
    *   return "HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nHello";
@@ -442,7 +456,6 @@ export class WebUI {
    * myWindow.setFileHandler(myFileHandler);
    */
   setFileHandler(callback: (url: URL) => Promise<string | Uint8Array>) {
-
     // C: .show_wait_connection = false; // 0
     // Disable `.show()` auto waiting for window connection,
     // otherwise `.setFileHandler()` will be blocked.
@@ -470,24 +483,26 @@ export class WebUI {
         _param_length: Deno.PointerValue,
       ) => {
         // Get URL as string
-        const url_str :string = param_url !== null ? 
-          new Deno.UnsafePointerView(param_url).getCString()
+        const url_str: string = param_url !== null
+          ? new Deno.UnsafePointerView(param_url).getCString()
           : "";
 
         // Create URL Obj
-        const url_obj :URL = new URL(url_str, "http://localhost");
+        const url_obj: URL = new URL(url_str, "http://localhost");
 
         // Call the user callback
-        const user_response: string|Uint8Array = await callback(url_obj);
+        const user_response: string | Uint8Array = await callback(url_obj);
 
-        // We can pass a local buffer to WebUI like this: 
-        // `return Deno.UnsafePointer.of(user_response);` However, 
-        // this may create a memory leak because WebUI cannot free 
-        // it, or cause memory corruption as Deno may free the buffer 
-        // before WebUI uses it. Therefore, the solution is to create 
-        // a safe WebUI buffer through WebUI API. This WebUI buffer will 
+        // We can pass a local buffer to WebUI like this:
+        // `return Deno.UnsafePointer.of(user_response);` However,
+        // this may create a memory leak because WebUI cannot free
+        // it, or cause memory corruption as Deno may free the buffer
+        // before WebUI uses it. Therefore, the solution is to create
+        // a safe WebUI buffer through WebUI API. This WebUI buffer will
         // be automatically freed by WebUI later.
-        const webui_buffer :Deno.PointerValue = _lib.symbols.webui_malloc(BigInt(user_response.length));
+        const webui_buffer: Deno.PointerValue = _lib.symbols.webui_malloc(
+          BigInt(user_response.length),
+        );
         if (!webui_buffer) {
           throw new Error("Failed to allocate memory for WebUI buffer");
         }
@@ -496,11 +511,21 @@ export class WebUI {
         if (typeof user_response === "string") {
           // copy `user_response` to `webui_buffer` as String data
           const cString = toCString(user_response);
-          const webui_buffer_ref = new Uint8Array(Deno.UnsafePointerView.getArrayBuffer(webui_buffer, cString.byteLength));
+          const webui_buffer_ref = new Uint8Array(
+            Deno.UnsafePointerView.getArrayBuffer(
+              webui_buffer,
+              cString.byteLength,
+            ),
+          );
           webui_buffer_ref.set(new Uint8Array(cString));
         } else {
           // copy `user_response` to `webui_buffer` as Uint8Array data
-          const webui_buffer_ref = new Uint8Array(Deno.UnsafePointerView.getArrayBuffer(webui_buffer, user_response.byteLength));
+          const webui_buffer_ref = new Uint8Array(
+            Deno.UnsafePointerView.getArrayBuffer(
+              webui_buffer,
+              user_response.byteLength,
+            ),
+          );
           webui_buffer_ref.set(user_response);
         }
 
@@ -518,7 +543,7 @@ export class WebUI {
       callbackResource.pointer,
     );
   }
-  
+
   /**
    * Sets the profile name and path for the current window.
    * @param name - Profile name.
@@ -539,7 +564,7 @@ export class WebUI {
 
   /**
    * Set the kiosk mode of a WebUI window.
-   * 
+   *
    * @param status - True to enable kiosk mode, false to disable.
    * @example
    * ```ts
@@ -560,27 +585,36 @@ export class WebUI {
 
   /**
    * Set the default embedded HTML favicon.
-   * 
+   *
    * @param icon - The icon as string: `<svg>...</svg>`
    * @param iconType - The icon type: `image/svg+xml`
    */
   setIcon(icon: string, iconType: string): void {
-    this.#lib.symbols.webui_set_icon(BigInt(this.#window), toCString(icon), toCString(iconType));
+    this.#lib.symbols.webui_set_icon(
+      BigInt(this.#window),
+      toCString(icon),
+      toCString(iconType),
+    );
   }
 
   /**
    * Safely send raw data to the UI.
-   * 
+   *
    * @param functionName - The name of the function to send data to.
    * @param raw - The raw data to send.
    */
   sendRaw(functionName: string, raw: Uint8Array): void {
-    this.#lib.symbols.webui_send_raw(BigInt(this.#window), toCString(functionName), raw, BigInt(raw.length));
+    this.#lib.symbols.webui_send_raw(
+      BigInt(this.#window),
+      toCString(functionName),
+      raw,
+      BigInt(raw.length),
+    );
   }
 
   /**
    * Set a window in hidden mode. Should be called before `.show()`.
-   * 
+   *
    * @param status - True to hide, false to show.
    */
   setHide(status: boolean): void {
@@ -589,7 +623,7 @@ export class WebUI {
 
   /**
    * Set the window size.
-   * 
+   *
    * @param width - The width of the window.
    * @param height - The height of the window.
    */
@@ -599,7 +633,7 @@ export class WebUI {
 
   /**
    * Set the window position.
-   * 
+   *
    * @param x - The x-coordinate of the window.
    * @param y - The y-coordinate of the window.
    */
@@ -609,20 +643,22 @@ export class WebUI {
 
   /**
    * Get the full current URL.
-   * 
+   *
    * @return - The current URL.
    */
   getUrl(): string {
     return (
       new Deno.UnsafePointerView(
-        (this.#lib.symbols.webui_get_url(BigInt(this.#window)) as Deno.PointerObject<unknown>)
+        this.#lib.symbols.webui_get_url(
+          BigInt(this.#window),
+        ) as Deno.PointerObject<unknown>,
       ).getCString()
-    ) as string
+    ) as string;
   }
 
   /**
    * Allow the window address to be accessible from a public network.
-   * 
+   *
    * @param status - True to allow public access, false to restrict.
    */
   setPublic(status: boolean): void {
@@ -631,7 +667,7 @@ export class WebUI {
 
   /**
    * Navigate to a specific URL.
-   * 
+   *
    * @param {string} url - The URL to navigate to.
    * @example
    * ```ts
@@ -652,7 +688,7 @@ export class WebUI {
   /**
    * Get the ID of the parent process (The web browser may re-create
    * another new process).
-   * 
+   *
    * @return - The parent process ID.
    */
   getParentProcessId(): bigint {
@@ -661,18 +697,20 @@ export class WebUI {
 
   /**
    * Get the ID of the last child process.
-   * 
+   *
    * @return - The last child process ID.
    */
   getChildProcessId(): number {
-    return Number(this.#lib.symbols.webui_get_child_process_id(BigInt(this.#window)));
+    return Number(
+      this.#lib.symbols.webui_get_child_process_id(BigInt(this.#window)),
+    );
   }
 
   /**
    * Set a custom web-server network port to be used by WebUI.
    * This can be useful to determine the HTTP link of `webui.js` in case
    * you are trying to use WebUI with an external web-server like NGNIX
-   * 
+   *
    * @param port - The port number.
    * @return - True if the port is set successfully.
    */
@@ -682,7 +720,7 @@ export class WebUI {
 
   /**
    * Chose between Deno and Nodejs as runtime for .js and .ts files.
-   * 
+   *
    * @param runtime - The runtime value.
    */
   setRuntime(runtime: number): void {
@@ -690,9 +728,9 @@ export class WebUI {
   }
 
   /**
-   * Get the recommended web browser ID to use. If you are already using one, 
+   * Get the recommended web browser ID to use. If you are already using one,
    * this function will return the same ID.
-   * 
+   *
    * @return Returns a web browser ID.
    * @example
    * ```ts
@@ -700,12 +738,14 @@ export class WebUI {
    * ```
    */
   getBestBrowser(): number {
-    return Number(this.#lib.symbols.webui_get_best_browser(BigInt(this.#window)));
+    return Number(
+      this.#lib.symbols.webui_get_best_browser(BigInt(this.#window)),
+    );
   }
 
   /**
    * Start only the web server and return the URL. No window will be shown.
-   * 
+   *
    * @param {string} content - The HTML, Or a local file
    * @return Returns the url of this window server.
    * @example
@@ -715,16 +755,16 @@ export class WebUI {
    */
   startServer(content: string): string {
     const url = this.#lib.symbols.webui_start_server(
-          BigInt(this.#window),
-          toCString(content),
-      )
-    return  Deno.UnsafePointerView.getCString(url!);
+      BigInt(this.#window),
+      toCString(content),
+    );
+    return Deno.UnsafePointerView.getCString(url!);
   }
 
   /**
    * Show a WebView window using embedded HTML, or a file. If the window is already
    * open, it will be refreshed. Note: Win32 need `WebView2Loader.dll`.
-   * 
+   *
    * @param {string} content - The HTML, URL, Or a local file
    * @return Returns True if showing the WebView window is successful.
    * @example
@@ -743,7 +783,7 @@ export class WebUI {
 
   /**
    * Add a user-defined web browser's CLI parameters.
-   * 
+   *
    * @param {string} params - Command line parameters
    * @example
    * ```ts
@@ -758,9 +798,9 @@ export class WebUI {
   }
 
   /**
-   * Set the window with high-contrast support. Useful when you want to 
+   * Set the window with high-contrast support. Useful when you want to
    * build a better high-contrast theme with CSS.
-   * 
+   *
    * @param {boolean} status - True or False
    * @example
    * ```ts
@@ -773,7 +813,7 @@ export class WebUI {
 
   /**
    * Set the window minimum size.
-   * 
+   *
    * @param {number} width - The window width
    * @param {number} height - The window height
    * @example
@@ -782,12 +822,16 @@ export class WebUI {
    * ```
    */
   setMinimumSize(width: number, height: number): void {
-    this.#lib.symbols.webui_set_minimum_size(BigInt(this.#window), width, height);
+    this.#lib.symbols.webui_set_minimum_size(
+      BigInt(this.#window),
+      width,
+      height,
+    );
   }
 
   /**
    * Set the web browser proxy server to use. Need to be called before `show()`.
-   * 
+   *
    * @param {string} proxyServer - The web browser proxy server
    * @example
    * ```ts
@@ -805,7 +849,7 @@ export class WebUI {
 
   /**
    * Get OS high contrast preference.
-   * 
+   *
    * @return Returns True if OS is using high contrast theme
    * @example
    * ```ts
@@ -819,7 +863,7 @@ export class WebUI {
 
   /**
    * Check if a web browser is installed.
-   * 
+   *
    * @param {WebUI.Browser} browser - The browser to check
    * @return Returns True if the specified browser is available
    * @example
@@ -835,7 +879,7 @@ export class WebUI {
   /**
    * Set the web-server root folder path for all windows. Should be used
    * before `show()`.
-   * 
+   *
    * @param {string} path - The local folder full path
    * @return Returns True if the path is valid
    * @example
@@ -850,7 +894,7 @@ export class WebUI {
 
   /**
    * Open an URL in the native default web browser.
-   * 
+   *
    * @param {string} url - The URL to open
    * @example
    * ```ts
@@ -864,7 +908,7 @@ export class WebUI {
 
   /**
    * Get an available usable free network port.
-   * 
+   *
    * @return Returns a free port
    * @example
    * ```ts
@@ -878,7 +922,7 @@ export class WebUI {
 
   /**
    * Automatically refresh the window UI when any file in the root folder gets changed.
-   * 
+   *
    * @param {boolean} status - True to enable monitoring, false to disable
    * @example
    * ```ts
@@ -896,7 +940,7 @@ export class WebUI {
    * Initialize WebUI library if it's not already initialized.
    */
   private static init() {
-    if (typeof _lib === 'undefined') {
+    if (typeof _lib === "undefined") {
       _lib = loadLib();
       // C: .asynchronous_response = true; // 5
       // Enable async calls, this is needed for `.bind()`
@@ -951,8 +995,8 @@ export class WebUI {
   static setTLSCertificate(certificatePem: string, privateKeyPem: string) {
     WebUI.init();
     const status = _lib.symbols.webui_set_tls_certificate(
-        toCString(certificatePem),
-        toCString(privateKeyPem),
+      toCString(certificatePem),
+      toCString(privateKeyPem),
     );
     if (!status) {
       throw new WebUIError(`unable to set certificate`);
@@ -961,14 +1005,14 @@ export class WebUI {
 
   /**
    * Waits until all opened windows are closed for preventing exiting the main thread.
-   * 
+   *
    * @exemple
    * ```ts
    * const myWindow = new WebUI()
    * myWindow.show(`<html><script src="webui.js">/script> Your Page... </html>`)
-   * 
+   *
    * await WebUI.wait() // Async wait until all windows are closed
-   * 
+   *
    * // You can show windows again, or call WebUI.clean()
    * ```
    */
@@ -989,7 +1033,7 @@ export class WebUI {
 
   /**
    * Allow multiple clients to connect to the same window.
-   * 
+   *
    * @param allow - True or False.
    */
   static setMultiClient(allow: boolean): void {
@@ -1007,7 +1051,7 @@ export class WebUI {
 
   /**
    * Base64 encoding. Use this to safely send text based data to the UI.
-   * 
+   *
    * @param str - The string to encode.
    * @return - The encoded string.
    */
@@ -1015,14 +1059,16 @@ export class WebUI {
     WebUI.init();
     return (
       new Deno.UnsafePointerView(
-        (_lib.symbols.webui_encode(toCString(str)) as Deno.PointerObject<unknown>)
+        _lib.symbols.webui_encode(toCString(str)) as Deno.PointerObject<
+          unknown
+        >,
       ).getCString()
-    ) as string
+    ) as string;
   }
 
   /**
    * Base64 decoding. Use this to safely decode received Base64 text from the UI.
-   * 
+   *
    * @param str - The string to decode.
    * @return - The decoded string.
    */
@@ -1030,14 +1076,16 @@ export class WebUI {
     WebUI.init();
     return (
       new Deno.UnsafePointerView(
-        (_lib.symbols.webui_decode(toCString(str)) as Deno.PointerObject<unknown>)
+        _lib.symbols.webui_decode(toCString(str)) as Deno.PointerObject<
+          unknown
+        >,
       ).getCString()
-    ) as string
+    ) as string;
   }
 
   /**
    * Safely allocate memory using the WebUI memory management system.
-   * 
+   *
    * @param size - The size of the memory block to allocate.
    * @return - A pointer to the allocated memory block.
    */
@@ -1048,7 +1096,7 @@ export class WebUI {
 
   /**
    * Safely free a memory block allocated by WebUI.
-   * 
+   *
    * @param ptr - The pointer to the memory block.
    */
   static free(ptr: Deno.PointerValue): void {
@@ -1058,7 +1106,7 @@ export class WebUI {
 
   /**
    * Set the maximum time in seconds to wait for the browser to start.
-   * 
+   *
    * @param second - The timeout duration in seconds.
    */
   static setTimeout(second: number): void {
@@ -1096,7 +1144,7 @@ export namespace WebUI {
     Epic, // 10. The Epic Browser
     Yandex, // 11. The Yandex Browser
     ChromiumBased, // 12. Any Chromium based browser
-  };
+  }
   export enum EventType {
     Disconnected = 0, // 0. Window disconnection event
     Connected, // 1. Window connection event

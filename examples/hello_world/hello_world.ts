@@ -77,8 +77,7 @@ async function checkResult(e: WebUI.Event) {
   const res = e.arg.number(2); // Third argument
   if ((a + b) == res) {
     return `Correct: ${a} + ${b} = ${res}`;
-  }
-  else {
+  } else {
     return `Incorrect: ${a} + ${b} != ${res}`;
   }
 }
