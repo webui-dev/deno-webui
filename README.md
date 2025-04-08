@@ -65,7 +65,7 @@ import { WebUI } from "https://deno.land/x/webui/mod.ts";
 import { WebUI } from "jsr:@webui/deno-webui";
 
 const myWindow = new WebUI();
-myWindow.show('<html><script src="webui.js"></script> Hello World! </html>');
+await myWindow.show('<html><script src="webui.js"></script> Hello World! </html>');
 await WebUI.wait();
 ```
 

@@ -88,7 +88,7 @@ export class WebUI {
    * const myWindow = new WebUI()
    *
    * // Show the current time
-   * myWindow.show(`<html><script src="webui.js">/script> <p>It is ${new Date().toLocaleTimeString()}</p> </html>`)
+   * await myWindow.show(`<html><script src="webui.js">/script> <p>It is ${new Date().toLocaleTimeString()}</p> </html>`)
    *
    * // Show a local file
    * await myWindow.show('list.txt')
@@ -133,7 +133,7 @@ export class WebUI {
    * const myWindow = new WebUI()
    *
    * // Show the current time
-   * myWindow.showBrowser(`<html><script src="webui.js">/script> Hi, This is Chrome! </html>`, WebUI.Browser.Chrome)
+   * await myWindow.showBrowser(`<html><script src="webui.js">/script> Hi, This is Chrome! </html>`, WebUI.Browser.Chrome)
    *
    * // Show a local file
    * await myWindow.showBrowser('list.txt', Webui.Browser.Chrome)
@@ -331,7 +331,7 @@ export class WebUI {
    * @example
    * ```ts
    * const myWindow = new WebUI();
-   * myWindow.show(
+   * await myWindow.show(
    *  `<html>
    *    <script src="webui.js"></script>
    *    <button id="myBtn">Foo</button>
@@ -774,9 +774,9 @@ export class WebUI {
    * @return Returns True if showing the WebView window is successful.
    * @example
    * ```ts
-   * myWindow.showWebView("<html>...</html>");
+   * await myWindow.showWebView("<html>...</html>");
    * // or
-   * myWindow.showWebView("index.html");
+   * await myWindow.showWebView("index.html");
    * ```
    */
   showWebView(content: string): boolean {
@@ -1014,7 +1014,7 @@ export class WebUI {
    * @exemple
    * ```ts
    * const myWindow = new WebUI()
-   * myWindow.show(`<html><script src="webui.js">/script> Your Page... </html>`)
+   * await myWindow.show(`<html><script src="webui.js">/script> Your Page... </html>`)
    *
    * await WebUI.wait() // Async wait until all windows are closed
    *

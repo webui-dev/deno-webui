@@ -85,7 +85,7 @@ await new Promise((r) => setTimeout(r, 500));
 // Show a new window and point to our custom web server
 // Assuming the custom web server is running on port
 // 8080...
-myWindow.show("http://localhost:8080/");
+await myWindow.show("http://localhost:8080/");
 
 // Wait until all windows get closed
 await WebUI.wait();
