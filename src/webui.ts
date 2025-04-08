@@ -98,7 +98,7 @@ export class WebUI {
    * ```
    */
   async show(content: string) {
-    const status = this.#lib.symbols.webui_show(
+    const status = await this.#lib.symbols.webui_show(
       BigInt(this.#window),
       toCString(content),
     );
