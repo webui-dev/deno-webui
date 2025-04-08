@@ -5,7 +5,7 @@
 // import { WebUI } from "../../mod.ts";
 
 // To import from online package registry (Production)
-import { WebUI } from "jsr:@webui/deno-webui@2.5.6"; // import {WebUI} from "https://deno.land/x/webui@2.5.6/mod.ts";
+import { WebUI } from "jsr:@webui/deno-webui@2.5.7"; // import {WebUI} from "https://deno.land/x/webui@2.5.7/mod.ts";
 
 function allEvents(e: WebUI.Event) {
   /*
