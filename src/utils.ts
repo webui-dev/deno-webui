@@ -103,7 +103,7 @@ async function downloadAndExtractLibrary(
   // Temporary download path inside the version-specific cache dir
   const tempZipPath = join(versionCacheDir, `${zipFileName}.download`);
 
-  console.log(`Downloading WebUI library (${version}) from ${zipUrl}...`);
+  // console.log(`Downloading WebUI library (${version}) from ${zipUrl}...`);
 
   try {
     // Ensure the target version directory exists before downloading
@@ -118,10 +118,10 @@ async function downloadAndExtractLibrary(
     }
     const zipData = await res.arrayBuffer();
     await Deno.writeFile(tempZipPath, new Uint8Array(zipData));
-    console.log(`Downloaded to ${tempZipPath}`);
+    // console.log(`Downloaded to ${tempZipPath}`);
 
     // Extract the specific library file
-    console.log(`Extracting ${libFileNameInZip} from ${tempZipPath}...`);
+    // console.log(`Extracting ${libFileNameInZip} from ${tempZipPath}...`);
     const zipBlob = new Blob([zipData]);
     const zipReader = new ZipReader(new BlobReader(zipBlob));
     const entries = await zipReader.getEntries();
@@ -133,7 +133,7 @@ async function downloadAndExtractLibrary(
       const targetEntryPath = libFileNameInZip.replace(/\\/g, "/");
 
       if (!entry.directory && entryPath === targetEntryPath) {
-        console.log(`Found entry: ${entry.filename}`);
+        // console.log(`Found entry: ${entry.filename}`);
         const writer = new BlobWriter();
         const data = await entry.getData!(writer);
         await Deno.writeFile(
@@ -141,7 +141,7 @@ async function downloadAndExtractLibrary(
           new Uint8Array(await data.arrayBuffer()),
         );
         foundEntry = true;
-        console.log(`Extracted library to ${targetLibPath}`);
+        // console.log(`Extracted library to ${targetLibPath}`);
         break; // Found the file, no need to check others
       }
     }
@@ -167,7 +167,7 @@ async function downloadAndExtractLibrary(
     // Clean up the downloaded zip file regardless of success/failure
     try {
       await Deno.remove(tempZipPath);
-      console.log(`Removed temporary file ${tempZipPath}`);
+      // console.log(`Removed temporary file ${tempZipPath}`);
     } catch (e) {
       if (!(e instanceof Deno.errors.NotFound)) {
         console.error(`Failed to remove temporary zip file ${tempZipPath}:`, e);
@@ -201,16 +201,16 @@ export async function ensureWebUiLib(baseLibName: string): Promise<string> {
 
   // 6. Check if the library already exists in the cache
   if (await exists(targetLibPath)) {
-    console.log(
-      `Using cached WebUI library (${versionDirName}): ${targetLibPath}`,
-    );
+    // console.log(
+    //   `Using cached WebUI library (${versionDirName}): ${targetLibPath}`,
+    // );
     return targetLibPath;
   }
 
   // 7. Determine download parameters if not cached
-  console.log(
-    `WebUI library (${versionDirName}) not found in cache. Attempting download...`,
-  );
+  // console.log(
+  //   `WebUI library (${versionDirName}) not found in cache. Attempting download...`,
+  // );
   let osName: string;
   let compilerName: string;
 
