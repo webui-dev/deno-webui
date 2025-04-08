@@ -77,7 +77,7 @@ myWindow.setPort(8081);
 
 // Start our custom web server using Python script `python simple_web_server.py`.
 // Or using `file-server` module.
-new Deno.Command("deno", {
+const webServer = new Deno.Command("deno", {
   args: ["-RNS", "jsr:@std/http/file-server", "-p", "8080"],
 }).spawn();
 await new Promise((r) => setTimeout(r, 500));
@@ -89,5 +89,9 @@ myWindow.show("http://localhost:8080/");
 
 // Wait until all windows get closed
 await WebUI.wait();
+
+// Stop the web server
+webServer.kill("SIGTERM");
+await webServer.status;
 
 console.log("Thank you.");
