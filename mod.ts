@@ -27,3 +27,4 @@
  * @license MIT
  */
 export { WebUI } from "./src/webui.ts";
+export type { BindCallback, Datatypes, WebUIEvent } from "./src/types.ts";

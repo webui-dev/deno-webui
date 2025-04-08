@@ -36,6 +36,10 @@ jobs:
         if: runner.os == 'Linux'
         run: deno lint
 
+      - name: Run doc linter
+        if: runner.os == 'Linux'
+        run: deno doc --lint mod.ts
+
       - name: Run type checker
         if: runner.os == 'Linux'
         run: deno check .
