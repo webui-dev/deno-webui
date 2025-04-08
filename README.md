@@ -46,7 +46,7 @@ is written in Deno using WebUI as the GUI library.
 Specific version:
 
 ```js
-import { WebUI } from "@webui/deno-webui@2.5.4";
+import { WebUI } from "jsr:@webui/deno-webui@2.5.4";
 // Or
 import { WebUI } from "https://deno.land/x/webui@2.5.4/mod.ts";
 ```
