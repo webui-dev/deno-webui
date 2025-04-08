@@ -1,5 +1,5 @@
 // To run this script:
-// deno run --allow-read --allow-write --allow-run --allow-net --allow-ffi hello_world.ts
+// deno run --allow-read --allow-write --allow-run --allow-net --allow-env --allow-ffi hello_world.ts
 
 // To import from local (Debugging and Development)
 // import { WebUI } from "../../mod.ts";
