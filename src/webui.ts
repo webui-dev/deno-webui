@@ -146,7 +146,7 @@ export class WebUI {
     content: string,
     browser: WebUI.Browser,
   ) {
-    const status = this.#lib.symbols.webui_show_browser(
+    const status = await this.#lib.symbols.webui_show_browser(
       BigInt(this.#window),
       toCString(content),
       BigInt(browser),

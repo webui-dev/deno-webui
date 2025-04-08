@@ -25,6 +25,7 @@ const symbols = {
     // bool webui_show_browser(size_t window, const char* content, size_t browser)
     parameters: ["usize", "buffer", "usize"],
     result: "bool",
+    nonblocking: true,
   },
   webui_interface_bind: {
     // size_t webui_interface_bind(size_t window, const char* element, void (*func)(size_t, size_t, char*, size_t, size_t));
