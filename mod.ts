@@ -19,7 +19,7 @@
  * import { WebUI } from "jsr:@webui/deno-webui@2.5.6";
  *
  * const myWindow = new WebUI();
- * myWindow.show("<html><script src=\"webui.js\"></script> Hello World! </html>");
+ * await myWindow.show("<html><script src=\"webui.js\"></script> Hello World! </html>");
  * await WebUI.wait();
  * ```
  *

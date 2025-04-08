@@ -19,6 +19,7 @@ const symbols = {
     // bool webui_show(size_t window, const char* content)
     parameters: ["usize", "buffer"],
     result: "bool",
+    nonblocking: true,
   },
   webui_show_browser: {
     // bool webui_show_browser(size_t window, const char* content, size_t browser)
