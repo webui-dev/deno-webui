@@ -24,6 +24,11 @@ const windows: Map<Usize, WebUI> = new Map();
 // Global lib entry
 let _lib: WebUILib;
 
+/**
+ * Represents a WebUI window instance. Allows interaction with a web browser
+ * window, including displaying HTML content, executing JavaScript, and binding
+ * backend functions to UI elements.
+ */
 export class WebUI {
   #window: Usize = 0;
   #lib: WebUILib;
@@ -1122,14 +1127,27 @@ export class WebUI {
     _lib.symbols.webui_clean();
   }
 
+  /**
+   * Get the WebUI library version.
+   * @returns The version string (e.g., "2.5.5").
+   */
   static get version(): string {
     return "2.5.5";
   }
 }
 
+/**
+ * WebUI class containing related types and enums.
+ */
 // deno-lint-ignore no-namespace
 export namespace WebUI {
+  /**
+   * Type alias for WebUI event objects.
+   */
   export type Event = WebUIEvent;
+  /**
+   * Enum representing the supported web browsers.
+   */
   export enum Browser {
     NoBrowser = 0, // 0. No web browser
     AnyBrowser, // 1. Default recommended web browser
@@ -1145,6 +1163,9 @@ export namespace WebUI {
     Yandex, // 11. The Yandex Browser
     ChromiumBased, // 12. Any Chromium based browser
   }
+  /**
+   * Enum representing the types of events WebUI can handle.
+   */
   export enum EventType {
     Disconnected = 0, // 0. Window disconnection event
     Connected, // 1. Window connection event
