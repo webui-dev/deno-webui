@@ -2,7 +2,7 @@
 // Resolves the path to the required native WebUI library,
 // ensuring it is downloaded to a central cache if needed.
 
-import { ensureWebUiLib, useNightly } from "./src/utils.ts";
+import { ensureWebUiLib } from "./src/utils.ts";
 
 // Determine the base library filename based
 // on the current operating system and architecture.
