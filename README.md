@@ -70,7 +70,7 @@ await WebUI.wait();
 ```
 
 ```sh
-deno run --allow-read --allow-write --allow-run --allow-net --allow-env --allow-ffi minimal.ts
+deno run --allow-read --allow-write --allow-net --allow-env --allow-ffi minimal.ts
 ```
 
 [More examples](https://github.com/webui-dev/deno-webui/tree/main/examples)
