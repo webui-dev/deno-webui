@@ -4,8 +4,8 @@
 // To import from local (Debugging and Development)
 // import { WebUI } from "../../mod.ts";
 
-// To import from online `https://deno.land` (Production)
-import { WebUI } from "https://deno.land/x/webui@2.5.4/mod.ts";
+// To import from online package registry (Production)
+import { WebUI } from "@webui/deno-webui@2.5.4"; // import {WebUI} from "https://deno.land/x/webui@2.5.4/mod.ts";
 
 // Return HTTP header + file raw binary content
 const getFile = async (

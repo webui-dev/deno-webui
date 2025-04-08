@@ -44,15 +44,25 @@ is written in Deno using WebUI as the GUI library.
 ## Installation
 
 Specific version:
-`import { WebUI } from "https://deno.land/x/webui@2.5.4/mod.ts";`
 
-Latest version: `import { WebUI } from "https://deno.land/x/webui/mod.ts";`
+```js
+import { WebUI } from "@webui/deno-webui@2.5.4";
+// Or
+import { WebUI } from "https://deno.land/x/webui@2.5.4/mod.ts";
+```
+
+Latest version:
+
+```js
+import { WebUI } from "jsr:@webui/deno-webui";
+// Or
+import { WebUI } from "https://deno.land/x/webui/mod.ts";
+```
 
 ## Minimal Example
 
 ```js
-import { WebUI } from "https://deno.land/x/webui@2.5.4/mod.ts";
-// Or import { WebUI } from "jsr:@webui/deno-webui";
+import { WebUI } from "jsr:@webui/deno-webui";
 
 const myWindow = new WebUI();
 myWindow.show('<html><script src="webui.js"></script> Hello World! </html>');
