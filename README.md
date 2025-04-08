@@ -2,7 +2,7 @@
 
 ![Logo](https://raw.githubusercontent.com/webui-dev/webui-logo/main/webui_deno.png)
 
-# Deno-WebUI v2.5.3 (Beta)
+# Deno-WebUI v2.5.4 (Beta)
 
 [last-commit]: https://img.shields.io/github/last-commit/webui-dev/webui?style=for-the-badge&logo=github&logoColor=C0CAF5&labelColor=414868
 [release-version]: https://img.shields.io/github/v/tag/webui-dev/webui?style=for-the-badge&logo=webtrees&logoColor=C0CAF5&labelColor=414868&color=7664C6
@@ -12,7 +12,9 @@
 [![][release-version]](https://github.com/webui-dev/deno-webui/releases/latest)
 [![][license]](https://github.com/webui-dev/deno-webui/blob/main/LICENSE)
 
-> Use any web browser or WebView as GUI, with your preferred language in the backend and modern web technologies in the frontend, all in a lightweight portable library.
+> Use any web browser or WebView as GUI, with your preferred language in the
+> backend and modern web technologies in the frontend, all in a lightweight
+> portable library.
 
 ![Screenshot](https://raw.githubusercontent.com/webui-dev/webui-logo/main/screenshot.png)
 
@@ -24,8 +26,8 @@
 
 ## Features
 
-- Portable (*Needs only a web browser or a WebView at runtime*)
-- Lightweight (*Few Kb library*) & Small memory footprint
+- Portable (_Needs only a web browser or a WebView at runtime_)
+- Lightweight (_Few Kb library_) & Small memory footprint
 - Fast binary communication protocol
 - Multi-platform & Multi-Browser
 - Using private profile for safety
@@ -33,21 +35,34 @@
 
 ## Screenshot
 
-This [hello world example](https://github.com/webui-dev/deno-webui/tree/main/examples/hello_world)
+This
+[hello world example](https://github.com/webui-dev/deno-webui/tree/main/examples/hello_world)
 is written in Deno using WebUI as the GUI library.
 
 ![ScreenShot](img/webui_deno_example.png)
 
 ## Installation
 
-Specific version: `import { WebUI } from "https://deno.land/x/webui@2.5.3/mod.ts";`
+Specific version:
 
-Latest version: `import { WebUI } from "https://deno.land/x/webui/mod.ts";`
+```js
+import { WebUI } from "@webui/deno-webui@2.5.4";
+// Or
+import { WebUI } from "https://deno.land/x/webui@2.5.4/mod.ts";
+```
+
+Latest version:
+
+```js
+import { WebUI } from "jsr:@webui/deno-webui";
+// Or
+import { WebUI } from "https://deno.land/x/webui/mod.ts";
+```
 
 ## Minimal Example
 
 ```js
-import { WebUI } from "https://deno.land/x/webui@2.5.3/mod.ts";
+import { WebUI } from "jsr:@webui/deno-webui";
 
 const myWindow = new WebUI();
 myWindow.show('<html><script src="webui.js"></script> Hello World! </html>');
@@ -132,35 +147,35 @@ browser**.
 
 ## Supported Languages
 
-| Language        | v2.4.0 API | v2.5.0 API | Link                                                    |
-| --------------- | --- | -------------- | ---------------------------------------------------------  |
-| Python          | ✔️ | _not complete_ | [Python-WebUI](https://github.com/webui-dev/python-webui)  |
-| Go              | ✔️ | _not complete_ | [Go-WebUI](https://github.com/webui-dev/go-webui)          |
-| Zig             | ✔️ |  _not complete_ | [Zig-WebUI](https://github.com/webui-dev/zig-webui)        |
-| Nim             | ✔️ |  _not complete_ | [Nim-WebUI](https://github.com/webui-dev/nim-webui)        |
-| V               | ✔️ |  _not complete_ | [V-WebUI](https://github.com/webui-dev/v-webui)            |
-| Rust            | _not complete_ |  _not complete_ | [Rust-WebUI](https://github.com/webui-dev/rust-webui)      |
-| TS / JS (Deno)  | ✔️ |  _not complete_ | [Deno-WebUI](https://github.com/webui-dev/deno-webui)      |
-| TS / JS (Bun)   | _not complete_ |  _not complete_ | [Bun-WebUI](https://github.com/webui-dev/bun-webui)        |
-| Swift           | _not complete_ |  _not complete_ | [Swift-WebUI](https://github.com/webui-dev/swift-webui)    |
-| Odin            | _not complete_ |  _not complete_ | [Odin-WebUI](https://github.com/webui-dev/odin-webui)      |
-| Pascal          | _not complete_ |  _not complete_ | [Pascal-WebUI](https://github.com/webui-dev/pascal-webui)  |
-| Purebasic       | _not complete_ |  _not complete_ | [Purebasic-WebUI](https://github.com/webui-dev/purebasic-webui)|
-| - |  |  |
-| Common Lisp     | _not complete_ |  _not complete_ | [cl-webui](https://github.com/garlic0x1/cl-webui)          |
-| Delphi          | _not complete_ |  _not complete_ | [WebUI4Delphi](https://github.com/salvadordf/WebUI4Delphi) |
-| C#              | _not complete_ |  _not complete_ | [WebUI4CSharp](https://github.com/salvadordf/WebUI4CSharp) |
-| WebUI.NET       | _not complete_ |  _not complete_ | [WebUI.NET](https://github.com/Juff-Ma/WebUI.NET)          |
-| QuickJS         | _not complete_ |  _not complete_ | [QuickUI](https://github.com/xland/QuickUI)                |
-| PHP             | _not complete_ |  _not complete_ | [PHPWebUiComposer](https://github.com/KingBes/php-webui-composer) |
+| Language       | v2.4.0 API     | v2.5.0 API     | Link                                                              |
+| -------------- | -------------- | -------------- | ----------------------------------------------------------------- |
+| Python         | ✔️             | _not complete_ | [Python-WebUI](https://github.com/webui-dev/python-webui)         |
+| Go             | ✔️             | _not complete_ | [Go-WebUI](https://github.com/webui-dev/go-webui)                 |
+| Zig            | ✔️             | _not complete_ | [Zig-WebUI](https://github.com/webui-dev/zig-webui)               |
+| Nim            | ✔️             | _not complete_ | [Nim-WebUI](https://github.com/webui-dev/nim-webui)               |
+| V              | ✔️             | _not complete_ | [V-WebUI](https://github.com/webui-dev/v-webui)                   |
+| Rust           | _not complete_ | _not complete_ | [Rust-WebUI](https://github.com/webui-dev/rust-webui)             |
+| TS / JS (Deno) | ✔️             | _not complete_ | [Deno-WebUI](https://github.com/webui-dev/deno-webui)             |
+| TS / JS (Bun)  | _not complete_ | _not complete_ | [Bun-WebUI](https://github.com/webui-dev/bun-webui)               |
+| Swift          | _not complete_ | _not complete_ | [Swift-WebUI](https://github.com/webui-dev/swift-webui)           |
+| Odin           | _not complete_ | _not complete_ | [Odin-WebUI](https://github.com/webui-dev/odin-webui)             |
+| Pascal         | _not complete_ | _not complete_ | [Pascal-WebUI](https://github.com/webui-dev/pascal-webui)         |
+| Purebasic      | _not complete_ | _not complete_ | [Purebasic-WebUI](https://github.com/webui-dev/purebasic-webui)   |
+| -              |                |                |                                                                   |
+| Common Lisp    | _not complete_ | _not complete_ | [cl-webui](https://github.com/garlic0x1/cl-webui)                 |
+| Delphi         | _not complete_ | _not complete_ | [WebUI4Delphi](https://github.com/salvadordf/WebUI4Delphi)        |
+| C#             | _not complete_ | _not complete_ | [WebUI4CSharp](https://github.com/salvadordf/WebUI4CSharp)        |
+| WebUI.NET      | _not complete_ | _not complete_ | [WebUI.NET](https://github.com/Juff-Ma/WebUI.NET)                 |
+| QuickJS        | _not complete_ | _not complete_ | [QuickUI](https://github.com/xland/QuickUI)                       |
+| PHP            | _not complete_ | _not complete_ | [PHPWebUiComposer](https://github.com/KingBes/php-webui-composer) |
 
 ## Supported WebView
 
-| WebView         | Status         |
-| --------------- | --------------- |
-| Windows WebView2 | ✔️ |
-| Linux GTK WebView   | ✔️ |
-| macOS WKWebView  | ✔️ |
+| WebView           | Status |
+| ----------------- | ------ |
+| Windows WebView2  | ✔️     |
+| Linux GTK WebView | ✔️     |
+| macOS WKWebView   | ✔️     |
 
 ### License
 

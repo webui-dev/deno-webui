@@ -2,12 +2,12 @@
 // deno run --allow-read --allow-write --allow-run --allow-net --allow-ffi custom_web_server.ts
 
 // To import from local (Debugging and Development)
-import { WebUI } from "../../mod.ts";
+// import { WebUI } from "../../mod.ts";
 
-// To import from online `https://deno.land` (Production)
-// import { WebUI } from "https://deno.land/x/webui@2.5.3/mod.ts";
+// To import from online package registry (Production)
+import { WebUI } from "@webui/deno-webui@2.5.4"; // import {WebUI} from "https://deno.land/x/webui@2.5.4/mod.ts";
 
-async function allEvents(e: WebUI.Event) {
+function allEvents(e: WebUI.Event) {
   /*
     e.window: WebUI;
     e.eventType: WebUI.EventType;
@@ -29,7 +29,7 @@ async function allEvents(e: WebUI.Event) {
       // Mouse click event
       console.log(`Mouse click.`);
       break;
-    case WebUI.EventType.Navigation:
+    case WebUI.EventType.Navigation: {
       // Window navigation event
       const url = e.arg.string(0);
       console.log(`Navigation to '${url}'`);
@@ -38,6 +38,7 @@ async function allEvents(e: WebUI.Event) {
       // We can then control the behaviour of links as needed.
       e.window.navigate(url);
       break;
+    }
     case WebUI.EventType.Callback:
       // Function call event
       console.log(`Function call.`);
@@ -45,7 +46,7 @@ async function allEvents(e: WebUI.Event) {
   }
 }
 
-async function myBackendFunc(e: WebUI.Event) {
+function myBackendFunc(e: WebUI.Event) {
   const a = e.arg.number(0); // First argument
   const b = e.arg.number(1); // Second argument
   const c = e.arg.number(2); // Third argument
@@ -73,6 +74,13 @@ myWindow.bind("exit", () => {
 // use. This means `webui.js` will be available at:
 // http://localhost:MY_PORT_NUMBER/webui.js
 myWindow.setPort(8081);
+
+// Start our custom web server using Python script `python simple_web_server.py`.
+// Or using `file-server` module.
+new Deno.Command("deno", {
+  args: ["-RNS", "jsr:@std/http/file-server", "-p", "8080"],
+}).spawn();
+await new Promise((r) => setTimeout(r, 500));
 
 // Show a new window and point to our custom web server
 // Assuming the custom web server is running on port
