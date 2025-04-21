@@ -112,7 +112,7 @@ myWindow.bind("exit", () => {
 });
 
 // Show the window
-await myWindow.show(myHtml); // Or await myWindow.show('./myFile.html');
+await myWindow.showBrowser(myHtml, WebUI.Browser.AnyBrowser); // Or await myWindow.show('./myFile.html');
 
 // Wait until all windows get closed
 await WebUI.wait();

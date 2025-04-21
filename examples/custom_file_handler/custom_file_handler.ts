@@ -57,7 +57,7 @@ myWindow.bind("exit", () => {
 myWindow.setFileHandler(myFileHandler);
 
 // Show the window
-await myWindow.show("index.html");
+await myWindow.showBrowser("index.html", WebUI.Browser.AnyBrowser);
 
 // Wait until all windows get closed
 await WebUI.wait();
