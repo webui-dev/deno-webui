@@ -1011,7 +1011,7 @@ export class WebUI {
   /**
    * Waits until all opened windows are closed for preventing exiting the main thread.
    *
-   * @exemple
+   * @example
    * ```ts
    * const myWindow = new WebUI()
    * await myWindow.show(`<html><script src="webui.js">/script> Your Page... </html>`)
@@ -1023,10 +1023,22 @@ export class WebUI {
    */
   static async wait() {
     WebUI.init();
+
+    // Run WebUI main loop and render the WebView UI
+    // _lib.symbols.webui_wait();
+
     // TODO:
-    // The `await _lib.symbols.webui_wait()` will block `callbackResource`
-    // so all events (clicks) will be executed when `webui_wait()` finish.
-    // as a work around, we are going to use `sleep()`.
+    // We should call `_lib.symbols.webui_wait()` to render the WebView UI,
+    // but this blocks the Deno main thread (`callbackResource`), which
+    // prevents all WebUI events (clicks, calls, etc.) from being executed.
+    //
+    // As a workaround, we will use `sleep()` periodically to check if the
+    // application is still running. However, this workaround means the
+    // WebView will not render — only the browser-based window will function.
+    //
+    // In the future, we should find a way to use `_lib.symbols.webui_wait()`
+    // to render the WebView UI without blocking WebUI events.
+
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
     while (1) {
       await sleep(100);
