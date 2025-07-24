@@ -19,12 +19,14 @@ const symbols = {
     // bool webui_show(size_t window, const char* content)
     parameters: ["usize", "buffer"],
     result: "bool",
+    // https://github.com/webui-dev/deno-webui/issues/91
     nonblocking: Deno.build.os !== "darwin",
   },
   webui_show_browser: {
     // bool webui_show_browser(size_t window, const char* content, size_t browser)
     parameters: ["usize", "buffer", "usize"],
     result: "bool",
+    // https://github.com/webui-dev/deno-webui/issues/91
     nonblocking: Deno.build.os !== "darwin",
   },
   webui_interface_bind: {
