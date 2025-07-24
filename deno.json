@@ -1,5 +1,5 @@
 {
   "name": "@webui/deno-webui",
-  "version": "2.5.8",
+  "version": "2.5.9",
   "exports": "./mod.ts"
 }
