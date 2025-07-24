@@ -96,6 +96,7 @@ export class WebUI {
    * // Await to ensure WebUI.script and WebUI.run can send datas to the client
    * console.assert(myWindow.isShown, true)
    * ```
+   * @note this function blocks on macos
    */
   async show(content: string) {
     const status = await this.#lib.symbols.webui_show(
@@ -141,6 +142,7 @@ export class WebUI {
    * // Await to ensure WebUI.script and WebUI.run can send datas to the client
    * console.assert(myWindow.isShown, true)
    * ```
+   * @note this function blocks on macos
    */
   async showBrowser(
     content: string,
