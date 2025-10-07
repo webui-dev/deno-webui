@@ -1,5 +1,10 @@
 {
   "name": "@webui/deno-webui",
   "version": "2.5.9",
-  "exports": "./mod.ts"
+  "exports": "./mod.ts",
+  "imports": {
+    "@std/fs": "jsr:@std/fs@^1.0.19",
+    "@std/path": "jsr:@std/path@^1.1.2",
+    "@zip-js/zip-js": "jsr:@zip-js/zip-js@^2.8.7"
+  }
 }

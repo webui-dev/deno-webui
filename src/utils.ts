@@ -1,8 +1,8 @@
 // Deno WebUI
 // Utilities
-import { dirname, join } from "jsr:@std/path@1.0.8";
-import { exists } from "jsr:@std/fs@0.229.3/exists";
-import { BlobReader, BlobWriter, ZipReader } from "jsr:@zip-js/zip-js@2.7.60";
+import { dirname, join } from "@std/path";
+import { exists } from "@std/fs";
+import { BlobReader, BlobWriter, ZipReader } from "@zip-js/zip-js";
 
 // The WebUI core version to download (Consider using this if not using nightly)
 export const WebUICoreVersion = "2.5.0-beta.3";
