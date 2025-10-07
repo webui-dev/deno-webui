@@ -5,7 +5,7 @@
 // import { WebUI } from "../../mod.ts";
 
 // To import from online package registry (Production)
-import { WebUI } from "jsr:@webui/deno-webui@2.5.9"; // import {WebUI} from "https://deno.land/x/webui@2.5.9/mod.ts";
+import { WebUI } from "@webui/deno-webui"; // import {WebUI} from "https://deno.land/x/webui@2.5.9/mod.ts";
 
 const myHtml = `<!DOCTYPE html>
 <html>

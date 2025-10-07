@@ -610,7 +610,7 @@ export class WebUI {
    * @param functionName - The name of the function to send data to.
    * @param raw - The raw data to send.
    */
-  sendRaw(functionName: string, raw: Uint8Array): void {
+  sendRaw(functionName: string, raw: Uint8Array<ArrayBuffer>): void {
     this.#lib.symbols.webui_send_raw(
       BigInt(this.#window),
       toCString(functionName),
