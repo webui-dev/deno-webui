@@ -16,7 +16,7 @@
  * ## Minimal Example
  *
  * ```ts
- * import { WebUI } from "jsr:@webui/deno-webui@2.5.10";
+ * import { WebUI } from "jsr:@webui/deno-webui@2.5.11";
  *
  * const myWindow = new WebUI();
  * await myWindow.show("<html><script src=\"webui.js\"></script> Hello World! </html>");
