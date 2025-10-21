@@ -1,6 +1,9 @@
 // To run this script:
 // deno run --allow-read --allow-write --allow-net --allow-env --allow-ffi --allow-run=deno custom_web_server.ts
 
+// To compile this script
+// deno compile --allow-all --no-terminal custom_web_server.ts
+
 // To import from local (Debugging and Development)
 // import { WebUI } from "../../mod.ts";
 
