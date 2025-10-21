@@ -15,6 +15,16 @@ const symbols = {
     parameters: [],
     result: "usize",
   },
+  webui_new_window_id: {
+    // size_t webui_new_window_id(size_t window_number)
+    parameters: ["usize"],
+    result: "usize",
+  },
+  webui_get_new_window_id: {
+    // size_t webui_get_new_window_id(void)
+    parameters: [],
+    result: "usize",
+  },
   webui_show: {
     // bool webui_show(size_t window, const char* content)
     parameters: ["usize", "buffer"],
@@ -64,8 +74,23 @@ const symbols = {
     parameters: ["usize"],
     result: "void",
   },
+  webui_minimize: {
+    // void webui_minimize(size_t window)
+    parameters: ["usize"],
+    result: "void",
+  },
+  webui_maximize: {
+    // void webui_maximize(size_t window)
+    parameters: ["usize"],
+    result: "void",
+  },
   webui_set_file_handler: {
     // void webui_set_file_handler(size_t window, const void* (*handler)(const char* filename, int* length))
+    parameters: ["usize", "function"],
+    result: "void",
+  },
+  webui_set_file_handler_window: {
+    // void webui_set_file_handler_window(size_t window, const void* (*handler)(size_t window, const char* filename, int* length))
     parameters: ["usize", "function"],
     result: "void",
   },
@@ -94,11 +119,16 @@ const symbols = {
     parameters: ["usize", "usize", "usize"],
     result: "bool",
   },
-  // webui_interface_get_size_at: {
-  //   // size_t webui_interface_get_size_at(size_t window, size_t event_number, size_t index)
-  //   parameters: ["usize", "usize", "usize"],
-  //   result: "usize",
-  // },
+  webui_interface_get_size_at: {
+    // size_t webui_interface_get_size_at(size_t window, size_t event_number, size_t index)
+    parameters: ["usize", "usize", "usize"],
+    result: "usize",
+  },
+  webui_interface_get_float_at: {
+    // double webui_interface_get_float_at(size_t window, size_t event_number, size_t index)
+    parameters: ["usize", "usize", "usize"],
+    result: "f64",
+  },
   webui_clean: {
     // void webui_clean()
     parameters: [],
@@ -108,6 +138,11 @@ const symbols = {
     // bool webui_set_root_folder(size_t window, const char* path)
     parameters: ["usize", "buffer"],
     result: "bool",
+  },
+  webui_set_browser_folder: {
+    // void webui_set_browser_folder(const char* path)
+    parameters: ["buffer"],
+    result: "void",
   },
   webui_set_tls_certificate: {
     // bool webui_set_tls_certificate(const char* certificate_pem, const char* private_key_pem)
@@ -174,6 +209,11 @@ const symbols = {
     parameters: ["usize", "u32", "u32"],
     result: "void",
   },
+  webui_set_center: {
+    // void webui_set_center(size_t window)
+    parameters: ["usize"],
+    result: "void",
+  },
   webui_get_url: {
     // const char* webui_get_url(size_t window)
     parameters: ["usize"],
@@ -209,6 +249,21 @@ const symbols = {
     parameters: ["usize"],
     result: "usize",
   },
+  webui_win32_get_hwnd: {
+    // void* webui_win32_get_hwnd(size_t window)
+    parameters: ["usize"],
+    result: "pointer",
+  },
+  webui_get_hwnd: {
+    // void* webui_get_hwnd(size_t window)
+    parameters: ["usize"],
+    result: "pointer",
+  },
+  webui_get_port: {
+    // size_t webui_get_port(size_t window)
+    parameters: ["usize"],
+    result: "usize",
+  },
   webui_set_port: {
     // bool webui_set_port(size_t window, size_t port)
     parameters: ["usize", "usize"],
@@ -227,6 +282,21 @@ const symbols = {
     //   multi_client: 3
     //   use_cookies: 4
     //   asynchronous_response: 5
+    parameters: ["usize", "bool"],
+    result: "void",
+  },
+  webui_set_event_blocking: {
+    // void webui_set_event_blocking(size_t window, bool status)
+    parameters: ["usize", "bool"],
+    result: "void",
+  },
+  webui_set_frameless: {
+    // void webui_set_frameless(size_t window, bool status)
+    parameters: ["usize", "bool"],
+    result: "void",
+  },
+  webui_set_transparent: {
+    // void webui_set_transparent(size_t window, bool status)
     parameters: ["usize", "bool"],
     result: "void",
   },
@@ -297,6 +367,11 @@ const symbols = {
     parameters: ["usize", "bool"],
     result: "void",
   },
+  webui_set_resizable: {
+    // void webui_set_resizable(size_t window, bool status)
+    parameters: ["usize", "bool"],
+    result: "void",
+  },
   webui_is_high_contrast: {
     // bool webui_is_high_contrast(void)
     parameters: [],
@@ -330,6 +405,41 @@ const symbols = {
   webui_get_free_port: {
     // size_t webui_get_free_port(void)
     parameters: [],
+    result: "usize",
+  },
+  webui_get_mime_type: {
+    // const char* webui_get_mime_type(const char* file)
+    parameters: ["buffer"],
+    result: "buffer",
+  },
+  webui_memcpy: {
+    // void webui_memcpy(void* dest, void* src, size_t count)
+    parameters: ["pointer", "pointer", "usize"],
+    result: "void",
+  },
+  webui_set_logger: {
+    // void webui_set_logger(void (*func)(size_t level, const char* log, void* user_data), void *user_data)
+    parameters: ["function", "pointer"],
+    result: "void",
+  },
+  webui_set_close_handler_wv: {
+    // void webui_set_close_handler_wv(size_t window, bool (*close_handler)(size_t window))
+    parameters: ["usize", "function"],
+    result: "void",
+  },
+  webui_get_last_error_number: {
+    // size_t webui_get_last_error_number()
+    parameters: [],
+    result: "usize",
+  },
+  webui_get_last_error_message: {
+    // const char* webui_get_last_error_message()
+    parameters: [],
+    result: "buffer",
+  },
+  webui_interface_get_window_id: {
+    // size_t webui_interface_get_window_id(size_t window)
+    parameters: ["usize"],
     result: "usize",
   },
 } as const;

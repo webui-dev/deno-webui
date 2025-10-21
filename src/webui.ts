@@ -211,6 +211,32 @@ export class WebUI {
   }
 
   /**
+   * Minimize a WebView window.
+   *
+   * @example
+   * ```ts
+   * const myWindow = new WebUI();
+   * myWindow.minimize();
+   * ```
+   */
+  minimize(): void {
+    this.#lib.symbols.webui_minimize(BigInt(this.#window));
+  }
+
+  /**
+   * Maximize a WebView window.
+   *
+   * @example
+   * ```ts
+   * const myWindow = new WebUI();
+   * myWindow.maximize();
+   * ```
+   */
+  maximize(): void {
+    this.#lib.symbols.webui_maximize(BigInt(this.#window));
+  }
+
+  /**
    * Execute a JavaScript string in the UI and returns a boolean indicating whether the
    * script execution was successful.
    * @param {string} script - js code to execute.
@@ -650,6 +676,21 @@ export class WebUI {
   }
 
   /**
+   * Centers the window on the screen. Works better with WebView.
+   * Call this function before `show()` for better results.
+   *
+   * @example
+   * ```ts
+   * const myWindow = new WebUI();
+   * myWindow.setCenter();
+   * await myWindow.show("<html>...</html>");
+   * ```
+   */
+  setCenter(): void {
+    this.#lib.symbols.webui_set_center(BigInt(this.#window));
+  }
+
+  /**
    * Get the full current URL.
    *
    * @return - The current URL.
@@ -712,6 +753,20 @@ export class WebUI {
     return Number(
       this.#lib.symbols.webui_get_child_process_id(BigInt(this.#window)),
     );
+  }
+
+  /**
+   * Get the network port of a running window.
+   * This can be useful to determine the HTTP link of `webui.js`
+   *
+   * @return Returns the network port of the window
+   * @example
+   * ```ts
+   * const port = myWindow.getPort();
+   * ```
+   */
+  getPort(): number {
+    return Number(this.#lib.symbols.webui_get_port(BigInt(this.#window)));
   }
 
   /**
@@ -820,6 +875,46 @@ export class WebUI {
   }
 
   /**
+   * Make a WebView window frameless.
+   *
+   * @param status - The frameless status `true` or `false`
+   * @example
+   * ```ts
+   * myWindow.setFrameless(true);
+   * ```
+   */
+  setFrameless(status: boolean): void {
+    this.#lib.symbols.webui_set_frameless(BigInt(this.#window), status);
+  }
+
+  /**
+   * Make a WebView window transparent.
+   *
+   * @param status - The transparency status `true` or `false`
+   * @example
+   * ```ts
+   * myWindow.setTransparent(true);
+   * ```
+   */
+  setTransparent(status: boolean): void {
+    this.#lib.symbols.webui_set_transparent(BigInt(this.#window), status);
+  }
+
+  /**
+   * Sets whether the window frame is resizable or fixed.
+   * Works only on WebView window.
+   *
+   * @param status - True or False
+   * @example
+   * ```ts
+   * myWindow.setResizable(true);
+   * ```
+   */
+  setResizable(status: boolean): void {
+    this.#lib.symbols.webui_set_resizable(BigInt(this.#window), status);
+  }
+
+  /**
    * Set the window minimum size.
    *
    * @param {number} width - The window width
@@ -898,6 +993,20 @@ export class WebUI {
   static setDefaultRootFolder(path: string): boolean {
     WebUI.init();
     return _lib.symbols.webui_set_default_root_folder(toCString(path));
+  }
+
+  /**
+   * Set custom browser folder path.
+   *
+   * @param {string} path - The browser folder path
+   * @example
+   * ```ts
+   * WebUI.setBrowserFolder("/home/Foo/Bar/");
+   * ```
+   */
+  static setBrowserFolder(path: string): void {
+    WebUI.init();
+    _lib.symbols.webui_set_browser_folder(toCString(path));
   }
 
   /**
