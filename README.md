@@ -47,16 +47,12 @@ Specific version:
 
 ```js
 import { WebUI } from "jsr:@webui/deno-webui@2.5.11";
-// Or
-import { WebUI } from "https://deno.land/x/webui@2.5.11/mod.ts";
 ```
 
 Latest version:
 
 ```js
 import { WebUI } from "jsr:@webui/deno-webui";
-// Or
-import { WebUI } from "https://deno.land/x/webui/mod.ts";
 ```
 
 ## Minimal Example
