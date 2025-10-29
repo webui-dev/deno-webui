@@ -1,5 +1,5 @@
 /*
-  WebUI Deno 2.5.11
+  WebUI Deno 2.5.12
   http://webui.me
   https://github.com/webui-dev/deno-webui
   Copyright (c) 2020-2025 Hassan Draga.
