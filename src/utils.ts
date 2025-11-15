@@ -64,10 +64,13 @@ async function getBaseWebUICacheDir(): Promise<string> {
 
 /**
  * Determines the specific version directory name based on configuration.
- * @returns {string} "nightly" or the specific WebUICoreVersion.
+ * @returns {Promise<string>} "nightly-$hashOfLastModifiedNightly" or the specific WebUICoreVersion.
  */
-function getVersionDirName(): string {
-  return useNightly ? "nightly" : WebUICoreVersion;
+async function getVersionDirName(): Promise<string> {
+  if (useNightly) {
+    return `nightly-${await getlLastModifedNightlyDateAsHash()}`;
+  }
+  return WebUICoreVersion;
 }
 
 // --- Download and Extraction Logic ---
@@ -93,8 +96,8 @@ async function downloadAndExtractLibrary(
   const versionCacheDir = dirname(targetLibPath);
 
   // Determine download URL
-  const version = getVersionDirName(); // Get "nightly" or the specific version string
-  const baseUrl = version === "nightly"
+  const version = await getVersionDirName(); // Get "nightly-$hashOfLastModifiedNightlyRelease" or the specific version string
+  const baseUrl = version.startsWith("nightly")
     ? `https://github.com/webui-dev/webui/releases/download/nightly/`
     : `https://github.com/webui-dev/webui/releases/download/${version}/`;
 
@@ -185,8 +188,8 @@ export async function ensureWebUiLib(baseLibName: string): Promise<string> {
   // 1. Get the base cache directory (e.g., ~/.cache/deno_webui)
   const baseWebUICacheDir = await getBaseWebUICacheDir();
 
-  // 2. Determine the version-specific subdirectory name ("nightly" or "2.5.0-beta.3")
-  const versionDirName = getVersionDirName();
+  // 2. Determine the version-specific subdirectory name ("nightly-$hashOfTheLastModifiedNighylyDate" or "2.5.0-beta.3")
+  const versionDirName = await getVersionDirName();
 
   // 3. Construct the path to the version-specific cache directory
   const versionCacheDir = join(baseWebUICacheDir, versionDirName);
@@ -278,3 +281,47 @@ export function fromCString(value: Uint8Array): string {
 }
 
 export class WebUIError extends Error {}
+
+async function getlLastModifedNightlyDateAsHash() {
+  // it doesn't matter that we're using a specific build, its just to determine last modificaiton date
+  const url =
+    "https://github.com/webui-dev/webui/releases/download/nightly/webui-linux-gcc-x64.zip";
+  try {
+    // Perform a HEAD request to get only the headers
+    const response = await fetch(url, {
+      method: "HEAD",
+    });
+
+    if (response.ok) {
+      const headers = response.headers;
+
+      const lastModified = headers.get("last-modified");
+
+      if (lastModified) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(lastModified);
+
+        // Calculate the SHA-256 hash
+        const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+
+        // Hash it
+        return Array.from(
+          new Uint8Array(hashBuffer),
+          (byte) => byte.toString(16).padStart(2, "0"),
+        )
+          .join("")
+          .slice(0, 8);
+      } else {
+        throw new Error(
+          "could not find last-modified header in nightly release",
+        );
+      }
+    } else {
+      throw new Error(
+        `Error fetching headers: ${response.status} ${response.statusText}`,
+      );
+    }
+  } catch (error) {
+    throw new Error("Network error: " + error);
+  }
+}
