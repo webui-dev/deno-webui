@@ -1,6 +1,6 @@
 {
   "name": "@webui/deno-webui",
-  "version": "2.5.12",
+  "version": "2.5.13",
   "exports": "./mod.ts",
   "imports": {
     "@std/fs": "jsr:@std/fs@^1.0.19",
