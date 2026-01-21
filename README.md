@@ -77,6 +77,15 @@ deno run --allow-read --allow-write --allow-net --allow-env --allow-ffi minimal.
 
 - [Online Documentation](https://webui.me/docs/2.5/#/)
 
+## Upstream Issue Summary (denoland/deno#31890)
+
+- Deno previously restricted TTY streams to file descriptors 0-2, which caused
+  Node compatibility crashes when packages created TTY streams on other fds.
+- The fix adds an op to open TTY resources from any valid terminal fd by safely
+  duplicating the descriptor and validating it is a TTY.
+- A JavaScript TTYStream wrapper now handles arbitrary fds, while ReadStream and
+  WriteStream keep the 0-2 fast paths for stdin/stdout/stderr.
+
 ## CppCon 2019 Presentation
 
 [Borislav Stanimirov](https://ibob.bg/) explained at
