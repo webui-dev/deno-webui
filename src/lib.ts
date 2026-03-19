@@ -442,6 +442,42 @@ const symbols = {
     parameters: ["usize"],
     result: "usize",
   },
+  webui_focus: {
+    // void webui_focus(size_t window)
+    parameters: ["usize"],
+    result: "void",
+  },
+  webui_wait_async: {
+    // bool webui_wait_async(void)
+    parameters: [],
+    result: "bool",
+    nonblocking: true,
+  },
+  webui_get_count: {
+    // size_t webui_get_count(webui_event_t* e)
+    parameters: ["pointer"],
+    result: "usize",
+  },
+  webui_return_int: {
+    // void webui_return_int(webui_event_t* e, long long int n)
+    parameters: ["pointer", "i64"],
+    result: "void",
+  },
+  webui_return_float: {
+    // void webui_return_float(webui_event_t* e, double f)
+    parameters: ["pointer", "f64"],
+    result: "void",
+  },
+  webui_return_string: {
+    // void webui_return_string(webui_event_t* e, const char* s)
+    parameters: ["pointer", "buffer"],
+    result: "void",
+  },
+  webui_return_bool: {
+    // void webui_return_bool(webui_event_t* e, bool b)
+    parameters: ["pointer", "bool"],
+    result: "void",
+  },
 } as const;
 
 export function loadLib(): Deno.DynamicLibrary<typeof symbols> {

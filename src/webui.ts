@@ -237,6 +237,19 @@ export class WebUI {
   }
 
   /**
+   * Bring the window to the front and focus it.
+   *
+   * @example
+   * ```ts
+   * const myWindow = new WebUI();
+   * myWindow.focus();
+   * ```
+   */
+  focus(): void {
+    this.#lib.symbols.webui_focus(BigInt(this.#window));
+  }
+
+  /**
    * Execute a JavaScript string in the UI and returns a boolean indicating whether the
    * script execution was successful.
    * @param {string} script - js code to execute.
@@ -782,11 +795,11 @@ export class WebUI {
   }
 
   /**
-   * Chose between Deno and Nodejs as runtime for .js and .ts files.
+   * Choose the JavaScript runtime for `.js` and `.ts` files.
    *
-   * @param runtime - The runtime value.
+   * @param runtime - The runtime to use (see `WebUI.Runtime`).
    */
-  setRuntime(runtime: number): void {
+  setRuntime(runtime: WebUI.Runtime): void {
     this.#lib.symbols.webui_set_runtime(BigInt(this.#window), BigInt(runtime));
   }
 
@@ -948,6 +961,68 @@ export class WebUI {
     );
   }
 
+  /**
+   * Control if UI events from this window are processed one at a time in a
+   * single blocking thread (`true`), or in a new non-blocking thread per
+   * event (`false`).
+   *
+   * @param status - `true` to block, `false` for non-blocking (default).
+   * @example
+   * ```ts
+   * myWindow.setEventBlocking(true);
+   * ```
+   */
+  setEventBlocking(status: boolean): void {
+    this.#lib.symbols.webui_set_event_blocking(BigInt(this.#window), status);
+  }
+
+  /**
+   * Set a callback to intercept the WebView window close event.
+   * Return `false` from the handler to prevent the window from closing.
+   *
+   * @param handler - Called with the `WebUI` instance being closed.
+   *   Return `true` to allow closing, `false` to prevent it.
+   * @example
+   * ```ts
+   * myWindow.setCloseHandlerWv((win) => {
+   *   console.log("close requested");
+   *   return false; // prevent close
+   * });
+   * ```
+   */
+  setCloseHandlerWv(handler: (window: WebUI) => boolean): void {
+    const callbackResource = new Deno.UnsafeCallback(
+      {
+        parameters: ["usize"],
+        result: "bool",
+      } as const,
+      (win: number | bigint) => {
+        const w = windows.get(typeof win === "bigint" ? win : BigInt(win));
+        if (w === undefined) return true;
+        return handler(w);
+      },
+    );
+    this.#lib.symbols.webui_set_close_handler_wv(
+      BigInt(this.#window),
+      callbackResource.pointer,
+    );
+  }
+
+  /**
+   * Get the unique window ID.
+   *
+   * @return The unique window ID as a number.
+   * @example
+   * ```ts
+   * const id = myWindow.getWindowId();
+   * ```
+   */
+  getWindowId(): number {
+    return Number(
+      this.#lib.symbols.webui_interface_get_window_id(BigInt(this.#window)),
+    );
+  }
+
   // Static methods
 
   /**
@@ -1049,6 +1124,24 @@ export class WebUI {
   static setFolderMonitor(status: boolean): void {
     WebUI.init();
     _lib.symbols.webui_set_config(BigInt(2), status);
+  }
+
+  /**
+   * Wait asynchronously until all opened windows get closed, yielding control
+   * back to the caller on each iteration. Useful for WebView mode where you
+   * need to run code on the main thread.
+   *
+   * @returns `true` if windows are still open, `false` when all are closed.
+   * @example
+   * ```ts
+   * while (await WebUI.waitAsync()) {
+   *   // main thread work here
+   * }
+   * ```
+   */
+  static async waitAsync(): Promise<boolean> {
+    WebUI.init();
+    return await _lib.symbols.webui_wait_async();
   }
 
   // --[ Static Methods ]------------------------
@@ -1286,6 +1379,7 @@ export namespace WebUI {
     Epic, // 10. The Epic Browser
     Yandex, // 11. The Yandex Browser
     ChromiumBased, // 12. Any Chromium based browser
+    Webview, // 13. WebView (non-web-browser)
   }
   /**
    * Enum representing the types of events WebUI can handle.
@@ -1296,5 +1390,14 @@ export namespace WebUI {
     MouseClick, // 2. Mouse click event
     Navigation, // 3. Window navigation event
     Callback, // 4. Function call event
+  }
+  /**
+   * Enum for the JavaScript runtime used to execute `.js` and `.ts` files.
+   */
+  export enum Runtime {
+    None = 0, // 0. No runtime
+    Deno, // 1. Deno
+    NodeJS, // 2. Node.js
+    Bun, // 3. Bun
   }
 }
