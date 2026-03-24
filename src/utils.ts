@@ -266,7 +266,7 @@ export async function ensureWebUiLib(baseLibName: string): Promise<string> {
  * @param {string} value
  * @returns a char[].
  */
-export function toCString(value: string): Uint8Array<ArrayBuffer> {
+export function toCString(value: string): Uint8Array {
   return new TextEncoder().encode(value + "\0");
 }
 
