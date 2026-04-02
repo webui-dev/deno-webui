@@ -451,7 +451,7 @@ const symbols = {
     // bool webui_wait_async(void)
     parameters: [],
     result: "bool",
-    nonblocking: true,
+    nonblocking: false,
   },
   webui_get_count: {
     // size_t webui_get_count(webui_event_t* e)
